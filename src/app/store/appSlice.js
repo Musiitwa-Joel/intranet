@@ -7,6 +7,7 @@ const initialState = {
   apps: [],
   taskBarApps: [],
   exists: false,
+  isLocked: false,
 };
 
 export const appsSlice = createSlice({
@@ -30,6 +31,9 @@ export const appsSlice = createSlice({
     },
     appExistsInTaskBar: (state, action) => {
       return { ...state, exists: action.payload };
+    },
+    setIsLocked: (state, action) => {
+      state.isLocked = action.payload;
     },
     admissionsTabChanged: (state, action) => {
       return {
@@ -78,9 +82,12 @@ export const {
   appExistsInTaskBar,
   admissionsTabChanged,
   saveStaffMembers,
+  setIsLocked,
 } = appsSlice.actions;
 
 export const appsVisible = ({ apps }) => apps;
+
+export const selectIsLocked = (state) => state.apps.isLocked;
 
 // export const selectUserShortcuts = ({ user }) => user.data.shortcuts;
 

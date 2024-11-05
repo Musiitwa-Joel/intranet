@@ -10,10 +10,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
 import FuseSvgIcon from "@fuse/core/FuseSvgIcon";
 import { selectUser, userLoggedOut } from "app/store/userSlice";
+import { addAppToTaskBar } from "app/store/appSlice";
+import { setToken } from "app/store/tokenSlice";
+import { useApolloClient } from "@apollo/client";
 
 function UserMenu(props) {
   const user = useSelector((state) => state.user.user);
-
+  const client = useApolloClient();
   const [userMenu, setUserMenu] = useState(null);
   const dispatch = useDispatch();
 
@@ -34,24 +37,24 @@ function UserMenu(props) {
       >
         <div className="hidden md:flex flex-col mx-4 items-end">
           <Typography component="span" className="font-semibold flex">
-            {user.biodata.title + " " + user.biodata.staff_name}
+            {user?.biodata?.title + " " + user?.biodata?.staff_name}
           </Typography>
           <Typography
             className="text-11 font-medium capitalize"
             color="text.secondary"
           >
-            {user.role.role_name}
+            {user?.role.role_name}
           </Typography>
         </div>
 
-        {user.biodata ? (
+        {user?.biodata ? (
           <Avatar
             className="md:mx-4"
             alt="user photo"
-            src={user.biodata.title}
+            src={user?.biodata.title}
           />
         ) : (
-          <Avatar className="md:mx-4">{user.biodata.title}</Avatar>
+          <Avatar className="md:mx-4">{user?.biodata.title}</Avatar>
         )}
       </Button>
 
@@ -71,7 +74,7 @@ function UserMenu(props) {
           paper: "py-8",
         }}
       >
-        {!user.biodata.role ? (
+        {!user?.biodata.role ? (
           <>
             {/* <MenuItem component={Link} to="/sign-in" role="button">
               <ListItemIcon className="min-w-40">
@@ -125,10 +128,14 @@ function UserMenu(props) {
             </MenuItem>
             <MenuItem
               component={NavLink}
-              to="/"
+              // to="/"
               onClick={() => {
                 // dispatch(userLoggedOut());
-                dispatch(updateApps([]));
+                // dispatch(updateApps([]));
+                dispatch(setToken(null)); // remove token
+                dispatch(addAppToTaskBar([])); // close all apps
+                dispatch(userLoggedOut()); // remove the user profile
+                client.resetStore(); // reset all queries
               }}
             >
               <ListItemIcon className="min-w-40">

@@ -1,36 +1,17 @@
 import { gql } from "@apollo/client";
 
 const LOGIN_USER = gql`
-  mutation ($email: String!, $pwd: String!) {
+  mutation Login($email: String!, $pwd: String!) {
     login(email: $email, pwd: $pwd) {
-      id
-      user_id
-      email
-      has_set_sec_qns
-      sys_gen_pwd
-      biodata {
-        id
-        staff_name
-        role
-        title
-        email
-      }
-      last_logged_in {
-        id
-        machine_ipaddress
-        logged_in
-      }
-      role {
-        id
-        role_name
-        permissions
-        _modules {
-          id
-          title
-          route
-          logo
-        }
-      }
+      token
+    }
+  }
+`;
+
+const UNLOCK_SESSION = gql`
+  mutation UnlockSession($pwd: String!) {
+    unlockSession(pwd: $pwd) {
+      token
     }
   }
 `;
@@ -150,4 +131,5 @@ export {
   ADMIT_PHD_STDS,
   SAVE_SEC_QNS,
   SAVE_ROLE_PERMISSIONS,
+  UNLOCK_SESSION,
 };

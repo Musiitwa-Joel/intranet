@@ -310,7 +310,9 @@ const BioData = () => {
         bordered
         items={items}
         labelStyle={{
-          //   backgroundColor: "red",
+          backgroundColor: "#e7edfe",
+          color: "#0832b7",
+          fontWeight: "bold",
           width: "20%",
         }}
         contentStyle={{

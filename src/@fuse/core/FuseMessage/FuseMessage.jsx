@@ -57,6 +57,7 @@ function FuseMessage() {
     <StyledSnackbar
       {...options}
       open={state}
+      autoHideDuration={5000}
       style={{
         zIndex: 999999,
       }}

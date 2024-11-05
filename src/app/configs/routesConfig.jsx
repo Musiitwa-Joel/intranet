@@ -18,6 +18,8 @@ import Elearning from "app/theme-layouts/layout3/modules/elearning/Elearning";
 import StudentInformationCenter from "app/theme-layouts/layout3/modules/student_info_center/StudentInformationCenter";
 import FeesMgt from "app/theme-layouts/layout3/modules/fees_mgt/FeesMgt";
 import Registration from "app/theme-layouts/layout3/modules/registration/Registration";
+import ProtectedRoute from "../auth/ProtectedRoute";
+import FullScreenUnlockSessionPage from "../main/unlock-session/FullScreenUnlockSessionPage";
 
 const routeConfigs = [ExampleConfig, SignOutConfig, SignInConfig, SignUpConfig];
 /**
@@ -29,9 +31,9 @@ const routes = [
     // settingsConfig.defaultAuth
   ),
   // {
-  //  path: '/',
-  //  element: <Navigate to="/example" />,
-  //  auth: settingsConfig.defaultAuth
+  //   path: "example",
+  //   element: <Navigate to="/example" />,
+  //   // auth: settingsConfig.defaultAuth,
   // },
   {
     path: "/",
@@ -42,51 +44,100 @@ const routes = [
     path: "loading",
     element: <FuseLoading />,
   },
-  {
-    path: "example",
-    element: <Example />,
-    // auth: settingsConfig.defaultAuth,
-  },
+  // {
+  //   path: "example",
+  //   element: (
+  //     <ProtectedRoute>
+  //       <Example />
+  //     </ProtectedRoute>
+  //   ),
+  //   // auth: settingsConfig.defaultAuth,
+  // },
   {
     path: "admissions",
-    element: <Admissions />,
+    element: (
+      <ProtectedRoute>
+        <Admissions />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "setup",
-    element: <Setup />,
+    element: (
+      <ProtectedRoute>
+        <Setup />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "programsencourses",
-    element: <ProgramsAndCourses />,
+    element: (
+      <ProtectedRoute>
+        <ProgramsAndCourses />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "student_assesment",
-    element: <EducationMonitoring />,
+    element: (
+      <ProtectedRoute>
+        <EducationMonitoring />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "photos_manager",
-    element: <PhotosManager />,
+    element: (
+      <ProtectedRoute>
+        <PhotosManager />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "student_information_center",
-    element: <StudentInformationCenter />,
+    element: (
+      <ProtectedRoute>
+        <StudentInformationCenter />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "registration",
-    element: <Registration />,
+    element: (
+      <ProtectedRoute>
+        <Registration />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "fees_management",
-    element: <FeesMgt />,
+    element: (
+      <ProtectedRoute>
+        <FeesMgt />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "elearning",
-    element: <Elearning />,
+    element: (
+      <ProtectedRoute>
+        <Elearning />
+      </ProtectedRoute>
+    ),
   },
 
   {
     path: "404",
     element: <Error404Page />,
+  },
+  {
+    path: "unlock_session",
+
+    element: (
+      <ProtectedRoute>
+        <FullScreenUnlockSessionPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "home",

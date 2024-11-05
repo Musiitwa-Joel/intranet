@@ -434,7 +434,9 @@ function Register() {
                           //   title="User Info"
                           bordered
                           labelStyle={{
-                            // backgroundColor: "red",
+                            backgroundColor: "#e7edfe",
+                            color: "#0832b7",
+                            fontWeight: "bold",
                             width: "45%",
                           }}
                           size="small"

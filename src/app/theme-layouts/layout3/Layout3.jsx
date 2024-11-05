@@ -4,7 +4,15 @@ import FuseMessage from "@fuse/core/FuseMessage";
 
 import FuseSuspense from "@fuse/core/FuseSuspense";
 import clsx from "clsx";
-import { memo, useContext, useState, useRef, useEffect, useMemo } from "react";
+import {
+  memo,
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, useRoutes } from "react-router-dom";
 import Backdrop from "@mui/material/Backdrop";
@@ -27,11 +35,14 @@ import {
   addAppToTaskBar,
   appExistsInTaskBar,
   filterApps,
+  selectIsLocked,
+  setIsLocked,
   updateActiveApp,
   updateApps,
   viewApps,
 } from "app/store/appSlice";
 import bgApps from "./assets/bg-apps3.png";
+import { selectToken } from "app/store/tokenSlice";
 
 const Root = styled("div")(({ theme, config }) => ({
   ...(config.mode === "boxed" && {
@@ -78,8 +89,22 @@ function SelectedComponent({ routes, activeApp }) {
   return selectedRoute?.element; // Return element using optional chaining
 }
 
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(null, args);
+    }, delay);
+  };
+};
+
 function Layout3(props) {
   const dispatch = useDispatch();
+  const token = useSelector(selectToken);
+  const isLocked = useSelector(selectIsLocked);
+  // const [isLocked, setIsLocked] = useState(false);
+  const [timeoutId, setTimeoutId] = useState(null);
   const config = useSelector(selectFuseCurrentLayoutConfig);
   const [selectedTabIndex, setTabIndex] = useState(0);
   const appContext = useContext(AppContext);
@@ -115,7 +140,7 @@ function Layout3(props) {
     let exists = checkAppExistence(taskBarApps, "route", app.route);
     dispatch(appExistsInTaskBar(exists));
 
-    console.log("exists", exists);
+    // console.log("exists", exists);
 
     if (exists) {
       dispatch(updateActiveApp(app));
@@ -166,8 +191,70 @@ function Layout3(props) {
 
   const { routes } = appContext;
 
+  let inactivityTimer;
+
+  // Reset the inactivity timer on any user activity
+  const resetTimer = () => {
+    if (isLocked) {
+      dispatch(setIsLocked(false));
+    }
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => {
+      dispatch(setIsLocked(true));
+      navigate("/unlock_session");
+    }, 300000); // 5 minutes
+  };
+
+  // Set up event listeners for activity
+  useEffect(() => {
+    if (!token || currentRoute.pathname == "/") return;
+    // Set up event listeners for user activity
+    window.addEventListener("mousemove", resetTimer);
+    window.addEventListener("keypress", resetTimer);
+    window.addEventListener("click", resetTimer);
+    window.addEventListener("scroll", resetTimer);
+
+    // Start the timer
+    resetTimer();
+
+    // Clean up event listeners on component unmount
+    return () => {
+      clearTimeout(inactivityTimer);
+      window.removeEventListener("mousemove", resetTimer);
+      window.removeEventListener("keypress", resetTimer);
+      window.removeEventListener("click", resetTimer);
+      window.removeEventListener("scroll", resetTimer);
+    };
+  }, []);
+
+  // useEffect(() => {
+
+  //   // List of events to track for user activity
+
+  //   const events = [
+  //     "mousemove",
+  //     "mousedown",
+  //     "keypress",
+  //     "scroll",
+  //     "touchstart",
+  //   ];
+
+  //   // Attach the reset timer to each event
+  //   events.forEach((event) => window.addEventListener(event, resetTimer));
+
+  //   // Start the timer initially
+  //   resetTimer();
+
+  //   // Cleanup function to remove event listeners and clear timeout on unmount
+  //   return () => {
+  //     events.forEach((event) => window.removeEventListener(event, resetTimer));
+  //     if (timeoutId) clearTimeout(timeoutId);
+  //   };
+  // }, [resetTimer, timeoutId, token]);
+
   return (
     <>
+      {/* {console.log("locked", isLocked)} */}
       <Root
         id="fuse-layout"
         className="w-full flex"
@@ -348,11 +435,15 @@ function Layout3(props) {
               {props.children}
             </div>
 
-            {config.footer.display && currentRoute.pathname != "/" && (
-              <FooterLayout3
-                className={config.footer.style === "fixed" && "sticky bottom-0"}
-              />
-            )}
+            {config.footer.display &&
+              currentRoute.pathname !== "/" &&
+              currentRoute.pathname !== "/unlock_session" && (
+                <FooterLayout3
+                  className={
+                    config.footer.style === "fixed" ? "sticky bottom-0" : ""
+                  }
+                />
+              )}
           </main>
         </div>
 

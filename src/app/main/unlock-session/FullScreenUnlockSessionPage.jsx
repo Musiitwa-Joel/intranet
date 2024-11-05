@@ -10,34 +10,26 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
 import _ from "@lodash";
-import FuseSvgIcon from "@fuse/core/FuseSvgIcon";
 import AvatarGroup from "@mui/material/AvatarGroup";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
-import { useEffect, useState } from "react";
-import { Icon } from "@iconify/react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
-import { LOGIN_USER } from "app/theme-layouts/layout3/graphql/mutations";
+import { useMutation } from "@apollo/client";
+import { UNLOCK_SESSION } from "app/theme-layouts/layout3/graphql/mutations";
 import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
-import { userLogin } from "app/store/userSlice";
-import { updateApps } from "app/store/appSlice";
+import { selectUser, userLoggedOut } from "app/store/userSlice";
+import { addAppToTaskBar, updateApps } from "app/store/appSlice";
 import { setToken } from "app/store/tokenSlice";
-import UseJwtAuth from "src/app/auth/services/jwt/useJwtAuth";
-import config from "../../auth/services/jwt/jwtAuthConfig";
-import { GET_MY_PROFILE } from "app/theme-layouts/layout3/graphql/queries";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 
 /**
  * Form Validation Schema
  */
 const schema = yup.object().shape({
-  email: yup
-    .string()
-    .email("You must enter a valid email")
-    .required("You must enter a email"),
+  name: yup.string().required(),
   password: yup
     .string()
     .required("Please enter your password.")
@@ -45,38 +37,19 @@ const schema = yup.object().shape({
 });
 
 const defaultValues = {
-  email: "",
+  name: "Brian Hughes",
   password: "",
-  remember: true,
-};
-const facebookClick = (e) => {
-  e.preventDefault(); // Prevent the default behavior of the link
-  const facebookLink = "https://www.facebook.com/nkumbaUni";
-  window.open(facebookLink, "_blank");
-};
-const instagramClick = (e) => {
-  e.preventDefault(); // Prevent the default behavior of the link
-  const instagramLink = "https://www.instagram.com/nkumba_uni";
-  window.open(instagramLink, "_blank");
-};
-const twitterClick = (e) => {
-  e.preventDefault(); // Prevent the default behavior of the link
-  const twitterLink = "https://www.twitter.com/NkumbaUni";
-  window.open(twitterLink, "_blank");
 };
 
 function SignInPage() {
-  const { signIn } = UseJwtAuth();
-  const [loginUser, { data, loading, error }] = useMutation(LOGIN_USER, {
-    errorPolicy: "all",
-  });
+  const userObj = useSelector(selectUser);
 
-  const [
-    loadMyProfile,
-    { data: myProfileRes, error: myProfileErr, loading: myProfileLoading },
-  ] = useLazyQuery(GET_MY_PROFILE, {
-    fetchPolicy: "network-only",
-  });
+  const [unlockSession, { data, loading, error }] = useMutation(
+    UNLOCK_SESSION,
+    {
+      errorPolicy: "all",
+    }
+  );
 
   // const [error, setError] = useState(null)
   const dispatch = useDispatch();
@@ -90,55 +63,32 @@ function SignInPage() {
   const { isValid, dirtyFields, errors } = formState;
 
   useEffect(() => {
-    if (myProfileErr) {
-      dispatch(
-        showMessage({
-          message: myProfileErr.message,
-          variant: "error",
-        })
-      );
-    }
-  }, [myProfileErr]);
+    setValue(
+      "name",
+      `${userObj.user?.biodata?.title} ${userObj.user?.biodata?.staff_name}`
+    );
+  }, [userObj]);
 
-  async function onSubmit({ email, password }) {
-    const res = await loginUser({
+  async function onSubmit(values) {
+    // console.log("the values", values);
+    const res = await unlockSession({
       variables: {
-        email: email,
-        pwd: password,
+        pwd: values.password,
       },
     });
 
-    dispatch(setToken(res.data?.login?.token));
+    // console.log("unlock response", res.data?.unlockSession);
 
-    if (res.data?.login) {
-      //make another query for the user profile
-      const res2 = await loadMyProfile();
-
-      // console.log("myProfile", res2.data);
-
-      dispatch(userLogin(res2.data.my_profile));
-
-      dispatch(updateApps(res2.data.my_profile.role._modules));
+    if (res.data?.unlockSession) {
       navigate("/example");
+      dispatch(setToken(res.data?.unlockSession?.token));
+      dispatch(
+        showMessage({
+          message: "Your Session has been restored successfully",
+          variant: "success",
+        })
+      );
     }
-
-    // if (data) {
-    //   // console.log("data", data);
-    //   if (data.login.sys_gen_pwd === 1) {
-    //     navigate("/change-pwd");
-    //   } else if (data.login.has_set_sec_qns === 0) {
-    //     // hasnot yet set security qns
-    //     navigate("/security_qns");
-    //   } else {
-    //     navigate("/example");
-    //     // console.log("the role", data.login.role._modules);
-    //     dispatch(updateApps(data.login.role._modules));
-    //   }
-    //   // console.log("loggged in", data.login);
-    //   dispatch(userLogin(data.login));
-    // }
-
-    // navigate("/change-pwd");
   }
 
   return (
@@ -151,15 +101,13 @@ function SignInPage() {
             alt="logo"
           />
 
-          <Typography className="mt-32 text-4xl font-extrabold tracking-tight leading-tight">
-            Sign in
+          <Typography className="mt-32 text-4xl font-extrabold leading-tight tracking-tight">
+            Unlock your session
           </Typography>
-          {/* <div className="flex items-baseline mt-2 font-medium">
-            <Typography>Don't have an account?</Typography>
-            <Link className="ml-4" to="/reset">
-              Sign up
-            </Link>
-          </div> */}
+          <Typography className="font-medium">
+            Your session is locked due to inactivity. Please enter the password
+            to continue working.
+          </Typography>
 
           <form
             name="loginForm"
@@ -179,20 +127,20 @@ function SignInPage() {
               </Alert>
             ) : null}
             <Controller
-              name="email"
+              name="name"
               control={control}
               render={({ field }) => (
                 <TextField
                   {...field}
                   className="mb-24"
-                  label="Email"
-                  type="email"
-                  error={!!errors.email}
-                  autoComplete="off"
-                  // helperText={errors?.email?.message}
+                  label="Full name"
+                  autoFocus
+                  type="name"
+                  error={!!errors.name}
+                  helperText={errors?.name?.message}
                   variant="outlined"
-                  required
                   fullWidth
+                  disabled
                 />
               )}
             />
@@ -216,25 +164,6 @@ function SignInPage() {
               )}
             />
 
-            <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between">
-              <Controller
-                name="remember"
-                control={control}
-                render={({ field }) => (
-                  <FormControl>
-                    <FormControlLabel
-                      label="Remember me"
-                      control={<Checkbox size="small" {...field} />}
-                    />
-                  </FormControl>
-                )}
-              />
-
-              <Link className="text-md font-medium" to="/forgot-password">
-                Forgot password?
-              </Link>
-            </div>
-
             <Button
               variant="contained"
               color="secondary"
@@ -244,7 +173,7 @@ function SignInPage() {
               type="submit"
               size="large"
             >
-              {loading || myProfileLoading ? (
+              {loading ? (
                 <CircularProgress
                   variant="indeterminate"
                   disableShrink
@@ -256,50 +185,27 @@ function SignInPage() {
                   thickness={6}
                 />
               ) : (
-                "Sign in"
+                "Unlock Your Session"
               )}
             </Button>
 
-            <div className="flex items-center mt-32">
-              <div className="flex-auto mt-px border-t" />
-              <Typography className="mx-8" color="text.secondary">
-                Follow Us On
-              </Typography>
-              <div className="flex-auto mt-px border-t" />
-            </div>
-
-            <div className="flex items-center mt-32 space-x-16">
-              <Button
-                variant="outlined"
-                className="flex-auto"
-                onClick={facebookClick}
+            <Typography
+              className="mt-32 text-lg font-large"
+              color="text.secondary"
+            >
+              <span>I'm not</span>{" "}
+              <Link
+                className="ml-4"
+                to="/"
+                onClick={() => {
+                  dispatch(setToken(null)); // remove token
+                  dispatch(addAppToTaskBar([])); // close all apps
+                  dispatch(userLoggedOut()); // remove the user profile
+                }}
               >
-                <FuseSvgIcon size={20} color="action">
-                  feather:facebook
-                </FuseSvgIcon>
-              </Button>
-              <Button
-                variant="outlined"
-                className="flex-auto"
-                onClick={twitterClick}
-              >
-                <Icon
-                  color="action"
-                  icon="pajamas:twitter"
-                  width="20"
-                  height="20"
-                />
-              </Button>
-              <Button
-                variant="outlined"
-                className="flex-auto"
-                onClick={instagramClick}
-              >
-                <FuseSvgIcon size={20} color="action">
-                  feather:instagram
-                </FuseSvgIcon>
-              </Button>
-            </div>
+                {`${userObj.user?.biodata?.title} ${userObj.user?.biodata?.staff_name}`}
+              </Link>
+            </Typography>
           </form>
         </div>
       </Paper>

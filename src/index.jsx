@@ -5,9 +5,21 @@ import "./styles/app-components.css";
 import "./styles/app-utilities.css";
 import { createRoot } from "react-dom/client";
 import App from "./app/App";
-import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  ApolloLink,
+} from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
+import { onError } from "@apollo/client/link/error";
 import createUploadLink from "apollo-upload-client/createUploadLink.mjs";
+import { useEffect } from "react";
+import store from "app/store/store";
+import { setToken } from "app/store/tokenSlice";
+import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
+import { addAppToTaskBar } from "app/store/appSlice";
+import { userLoggedOut } from "app/store/userSlice";
 // import * as serviceWorker from './serviceWorker';
 // import reportWebVitals from './reportWebVitals';
 /**
@@ -21,20 +33,48 @@ const uploadLink = createUploadLink({
 
 // Create a middleware to dynamically set headers
 const authLink = setContext((operation, { headers }) => {
-  // console.log("operation name", operation);
+  const token = store.getState().token.token;
   return {
     headers: {
       ...headers,
       // "content-type": "application/json",
       "x-apollo-operation-name": operation.operationName || "Unknown", // Using full operation object
       "apollo-require-preflight": "true",
+      Authorization: token ? `Bearer ${token}` : "",
     },
   };
 });
 
+// Error link to handle token expiration or invalid token errors
+const errorLink = onError(({ graphQLErrors }) => {
+  if (graphQLErrors) {
+    graphQLErrors.forEach(({ message, extensions }) => {
+      console.log("message", message);
+      console.log("extensions", extensions);
+      if (
+        extensions?.code === "UNAUTHENTICATED" ||
+        extensions?.code === "UNAUTHORIZED"
+      ) {
+        // Clear the token in your Redux store
+        store.dispatch(setToken(null)); // Dispatch an action to clear the token
+        store.dispatch(addAppToTaskBar([])); // close all apps
+        store.dispatch(userLoggedOut()); // remove the user profile
+
+        store.dispatch(
+          showMessage({
+            message: "Your Session has expired",
+            variant: "error",
+          })
+        );
+      }
+    });
+  }
+});
+
 // Combine links
 const client = new ApolloClient({
-  link: authLink.concat(uploadLink), // Chain the middleware with the upload link
+  // link: authLink.concat(uploadLink), // Chain the middleware with the upload link
+  link: ApolloLink.from([errorLink, authLink, uploadLink]),
   cache: new InMemoryCache(),
 });
 const container = document.getElementById("root");

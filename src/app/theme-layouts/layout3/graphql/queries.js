@@ -287,6 +287,41 @@ const GET_ROLES = gql`
   }
 `;
 
+const GET_MY_PROFILE = gql`
+  query my_profile {
+    my_profile {
+      id
+      user_id
+      email
+      has_set_sec_qns
+      sys_gen_pwd
+      biodata {
+        id
+        staff_name
+        role
+        title
+        email
+      }
+      last_logged_in {
+        id
+        machine_ipaddress
+        logged_in
+      }
+      role {
+        id
+        role_name
+        permissions
+        _modules {
+          id
+          title
+          route
+          logo
+        }
+      }
+    }
+  }
+`;
+
 export {
   GET_APPLICANT_REQS,
   GET_PROGRAM_CHOICES,
@@ -297,4 +332,5 @@ export {
   GET_QUESTIONS,
   GET_MODULES,
   GET_ROLES,
+  GET_MY_PROFILE,
 };
