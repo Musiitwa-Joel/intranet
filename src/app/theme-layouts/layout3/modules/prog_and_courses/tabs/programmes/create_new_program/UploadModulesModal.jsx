@@ -250,7 +250,7 @@ const initialRequirementState = {
   levels: [],
 };
 
-function UploadProgrammesModal() {
+function UploadModulesModal() {
   // const { uploadProgrammesModalOpen } = useSelector(
   //   (state) => state.progAndCourses
   // );
@@ -1346,4 +1346,4 @@ function UploadProgrammesModal() {
   );
 }
 
-export default UploadProgrammesModal;
+export default UploadModulesModal;

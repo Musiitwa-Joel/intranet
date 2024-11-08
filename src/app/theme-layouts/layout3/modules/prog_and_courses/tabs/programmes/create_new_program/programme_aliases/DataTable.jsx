@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import clsx from "clsx";
@@ -16,16 +16,21 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import { Delete, Edit, Refresh, Save } from "@mui/icons-material";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
-import Paper from "@mui/material/Paper";
-import Checkbox from "@mui/material/Checkbox";
-import { useMutation, useQuery } from "@apollo/client";
+import { Modal } from "antd";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 // import { GET_COLLEGES } from "../../gql/queries";
 import { useDispatch, useSelector } from "react-redux";
 // import { updateCollege, updateColleges } from "../../store/collegeSlice";
 import { NetworkStatus } from "@apollo/client";
 import { LOAD_COURSE_ALIASES } from "../../../../gql/queries";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
-import { selectSelectedCourseVersion } from "../../../../store/progAndCoursesSlice";
+import {
+  selectCreateNewCourse,
+  selectSelectedCourseVersion,
+  setSelectedAlias,
+} from "../../../../store/progAndCoursesSlice";
+import { DELETE_COURSE_ALIAS } from "../../../../gql/mutations";
+const { confirm } = Modal;
 
 const rows = [
   {
@@ -167,12 +172,57 @@ function DataTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [dense, setDense] = React.useState(false);
   const selectedCourseVersion = useSelector(selectSelectedCourseVersion);
+  const createNewCourse = useSelector(selectCreateNewCourse);
   const dispatch = useDispatch();
-  const { error, loading, data } = useQuery(LOAD_COURSE_ALIASES, {
-    variables: {
-      courseId: selectedCourseVersion?.course.id,
-    },
+  const [aliases, setAliases] = useState([]);
+  const [loadCourseAliases, { error, loading, data }] =
+    useLazyQuery(LOAD_COURSE_ALIASES);
+
+  const _loadCourseAliases = async (courseVersion) => {
+    const res = await loadCourseAliases({
+      variables: {
+        courseId: courseVersion?.course.id,
+      },
+    });
+
+    setAliases(res.data.course_aliases);
+  };
+
+  useEffect(() => {
+    if (selectedCourseVersion && !createNewCourse) {
+      _loadCourseAliases(selectedCourseVersion);
+    } else {
+      setAliases([]);
+    }
+  }, [selectedCourseVersion]);
+
+  const [
+    deleteCourseAlias,
+    { error: deleteErr, loading: deletingAlias, data: aliasRes },
+  ] = useMutation(DELETE_COURSE_ALIAS, {
+    refetchQueries: ["loadCourseAliases"],
   });
+
+  const showConfirm = (selected) => {
+    confirm({
+      title: `${selected.alias_code}`,
+      // icon: <ExclamationCircleFilled />,
+      content: "Do you want to delete this alias?",
+      onOk() {
+        // console.log("OK");
+        deleteCourseAlias({
+          variables: {
+            aliasId: selected.id,
+          },
+        });
+      },
+      // onCancel() {
+      //   console.log("Cancel");
+      // },
+      zIndex: 1000000,
+      okText: "Yes",
+    });
+  };
 
   useEffect(() => {
     if (error) {
@@ -183,7 +233,16 @@ function DataTable() {
         })
       );
     }
-  }, [error]);
+
+    if (deleteErr) {
+      dispatch(
+        showMessage({
+          message: deleteErr.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [error, deleteErr]);
   // const { error, loading, data, refetch, networkStatus } = useQuery(
   //   GET_COLLEGES,
   //   {
@@ -195,15 +254,15 @@ function DataTable() {
   //   (state) => state.progAndCoursesApp.collegeSlice
   // );
 
-  console.log("response", data);
+  // console.log("response", data);
 
   const visibleRows = React.useMemo(
     () =>
-      stableSort(
-        data ? data.course_aliases : [],
-        getComparator(order, orderBy)
-      ).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [order, orderBy, page, rowsPerPage, data]
+      stableSort(aliases, getComparator(order, orderBy)).slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+      ),
+    [order, orderBy, page, rowsPerPage, aliases]
   );
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
@@ -254,7 +313,7 @@ function DataTable() {
                   left: 0,
                   zIndex: (theme) => theme.zIndex.drawer + 1,
                 }}
-                open={loading}
+                open={loading || deletingAlias}
                 // onClick={handleClose}
               >
                 <CircularProgress color="inherit" />
@@ -353,8 +412,9 @@ function DataTable() {
                       >
                         <Edit
                           onClick={() => {
-                            console.log("Edit....", row);
+                            // console.log("Edit....", row);
                             // dispatch(updateCollege(row));
+                            dispatch(setSelectedAlias(row));
                           }}
                           style={{
                             color: "blue",
@@ -364,10 +424,7 @@ function DataTable() {
                         />
 
                         <Delete
-                          onClick={() => {
-                            console.log("delete....", row);
-                            // dispatch(updateCollege(row));
-                          }}
+                          onClick={() => showConfirm(row)}
                           style={{
                             color: "red",
                             fontSize: 18,

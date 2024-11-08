@@ -9,16 +9,16 @@ import Draggable from "react-draggable";
 import Card from "@mui/material/Card";
 import clsx from "clsx";
 import { useDispatch, useSelector } from "react-redux";
-import { updateCreateModuleModalOpen } from "../../store/progAndCoursesSlice";
+import {
+  selectAllCourses,
+  selectCreateModuleModalOpen,
+  selectSelectedCourseVersion,
+  updateCreateModuleModalOpen,
+} from "../../store/progAndCoursesSlice";
 import {
   Button,
-  Cascader,
-  DatePicker,
   Form,
   Input,
-  InputNumber,
-  Radio,
-  Switch,
   Col,
   Row,
   Space,
@@ -78,8 +78,11 @@ const formItemLayout = {
 };
 
 function CreateModuleForm() {
-  const { createModuleModalOpen, selectedCourseVersion, allCourses } =
-    useSelector((state) => state.progAndCourses);
+  // const { createModuleModalOpen, selectedCourseVersion, allCourses } =
+  //   useSelector((state) => state.progAndCourses);
+  const createModuleModalOpen = useSelector(selectCreateModuleModalOpen);
+  const selectedCourseVersion = useSelector(selectSelectedCourseVersion);
+  const allCourses = useSelector(selectAllCourses);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [gradingSystems, setGradingSystems] = useState([]);
   const userObj = useSelector(selectUser);
@@ -125,7 +128,7 @@ function CreateModuleForm() {
   }
 
   const onFinish = async (values) => {
-    console.log("Success:", values);
+    // console.log("Success:", values);
     const payload = {
       courseUnit: {
         course_id: values.course_title,
@@ -194,7 +197,7 @@ function CreateModuleForm() {
         course_version: selectedCourseVersion.id,
       });
     }
-  }, [form, selectedCourseVersion]);
+  }, [selectedCourseVersion, createModuleModalOpen]);
 
   // console.log("the courses", selectedCourse.course_duration);
 
@@ -231,6 +234,7 @@ function CreateModuleForm() {
         aria-labelledby="draggable-dialog-title"
         style={{
           top: -150,
+          zIndex: 100000,
         }}
       >
         <Card
@@ -290,7 +294,7 @@ function CreateModuleForm() {
           >
             <Form
               form={form}
-              name="basic"
+              name="moduleForm"
               // labelCol={{
               //   span: 8,
               // }}

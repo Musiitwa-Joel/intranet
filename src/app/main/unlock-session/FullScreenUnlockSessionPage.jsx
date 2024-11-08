@@ -21,7 +21,11 @@ import { UNLOCK_SESSION } from "app/theme-layouts/layout3/graphql/mutations";
 import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUser, userLoggedOut } from "app/store/userSlice";
-import { addAppToTaskBar, updateApps } from "app/store/appSlice";
+import {
+  addAppToTaskBar,
+  selectActiveApp,
+  updateApps,
+} from "app/store/appSlice";
 import { setToken } from "app/store/tokenSlice";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 
@@ -43,7 +47,7 @@ const defaultValues = {
 
 function SignInPage() {
   const userObj = useSelector(selectUser);
-
+  const activeApp = useSelector(selectActiveApp);
   const [unlockSession, { data, loading, error }] = useMutation(
     UNLOCK_SESSION,
     {
@@ -52,6 +56,7 @@ function SignInPage() {
   );
 
   // const [error, setError] = useState(null)
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { control, formState, handleSubmit, setError, setValue } = useForm({
@@ -80,8 +85,9 @@ function SignInPage() {
     // console.log("unlock response", res.data?.unlockSession);
 
     if (res.data?.unlockSession) {
-      navigate("/example");
+      console.log("Active app", activeApp);
       dispatch(setToken(res.data?.unlockSession?.token));
+      navigate(`/${activeApp ? activeApp.route : "example"}`);
       dispatch(
         showMessage({
           message: "Your Session has been restored successfully",

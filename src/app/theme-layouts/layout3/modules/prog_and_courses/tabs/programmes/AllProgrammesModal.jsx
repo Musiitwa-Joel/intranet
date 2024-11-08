@@ -22,6 +22,8 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import { TableVirtuoso } from "react-virtuoso";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  selectAllCourses,
+  selectDownloadProgrammesModalOpen,
   updateAllCourses,
   updateDownloadProgrammesModalOpen,
 } from "../../store/progAndCoursesSlice";
@@ -121,9 +123,13 @@ const TableComponents = {
 };
 
 function AllProgrammesModal() {
-  const { downloadProgrammesModalOpen, allCourses } = useSelector(
-    (state) => state.progAndCourses
+  // const { downloadProgrammesModalOpen, allCourses } = useSelector(
+  //   (state) => state.progAndCourses
+  // );
+  const downloadProgrammesModalOpen = useSelector(
+    selectDownloadProgrammesModalOpen
   );
+  const allCourses = useSelector(selectAllCourses);
   const dispatch = useDispatch();
 
   const getRowHeight = (index) => 48;

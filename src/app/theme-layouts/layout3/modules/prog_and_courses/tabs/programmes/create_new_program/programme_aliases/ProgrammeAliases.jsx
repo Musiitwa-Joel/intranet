@@ -9,7 +9,7 @@ function ProgrammeAliases() {
       style={{
         flex: 1,
         // backgroundColor: "red",
-        height: "calc(100vh - 200px)",
+        height: "calc(100vh - 125px)",
       }}
     >
       <PanelGroup direction="horizontal">
@@ -18,7 +18,7 @@ function ProgrammeAliases() {
         </Panel>
         <PanelResizeHandle
           style={{
-            width: 2,
+            width: 1.5,
             backgroundColor: "lightgray",
             opacity: 0.6,
           }}

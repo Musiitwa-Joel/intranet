@@ -56,6 +56,9 @@ const initialState = {
   createNewCourse: false,
   courseVersionDetails: null,
   loadingCourseVersionDetails: false,
+  selectedAlias: null,
+  searchValue: "",
+  uploadModulesModalOpen: false,
 };
 
 const progAndCoursesSlice = createSlice({
@@ -121,7 +124,7 @@ const progAndCoursesSlice = createSlice({
       state.loadingCourseUnits = action.payload;
     },
     setFilteredProgrammes: (state, action) => {
-      state.loadingCourseUnits = action.payload;
+      state.filteredProgrammes = action.payload;
     },
     setGroupedData: (state, action) => {
       state.groupedData = action.payload;
@@ -135,10 +138,22 @@ const progAndCoursesSlice = createSlice({
     setCourseVersionDetails: (state, action) => {
       state.courseVersionDetails = action.payload;
     },
+    setSelectedAlias: (state, action) => {
+      state.selectedAlias = action.payload;
+    },
+    setSearchValue: (state, action) => {
+      state.searchValue = action.payload;
+    },
+    setUploadModulesModalOpen: (state, action) => {
+      state.uploadModulesModalOpen = action.payload;
+    },
     resetProgAndCoursesSlice: (state, action) => initialState,
   },
 
   selectors: {
+    selectAllProgrammes: (state) => state.allProgrammes,
+    selectExpandedItems: (state) => state.expandedItems,
+    selectReloadCourses: (state) => state.reloadCourses,
     selectGroupedData: (state) => state.groupedData,
     selectDefaultExpandedModuleRowKeys: (state) =>
       state.defaultExpandedModuleRowKeys,
@@ -146,6 +161,21 @@ const progAndCoursesSlice = createSlice({
     selectCreateNewCourse: (state) => state.createNewCourse,
     selectCourseVersionDetails: (state) => state.courseVersionDetails,
     selectProgrammeFormDetails: (state) => state.programmeFormDetails,
+    selectSelectedAlias: (state) => state.selectedAlias,
+    selectSelectedItem: (state) => state.selectedItem,
+    selectCreateModuleModalOpen: (state) => state.createModuleModalOpen,
+    selectAllCourses: (state) => state.allCourses,
+    selectAddVersionModalOpen: (state) => state.addVersionModalOpen,
+    selectCourseVersionToEdit: (state) => state.courseVersionToEdit,
+    selectDownloadProgrammesModalOpen: (state) =>
+      state.downloadProgrammesModalOpen,
+    selectUploadProgrammesModalOpen: (state) => state.uploadProgrammesModalOpen,
+    selectCreateProgrammeModalOpen: (state) => state.createProgrammeModalOpen,
+    selectCourseUnits: (state) => state.courseUnits,
+    selectLoadingCourseUnits: (state) => state.loadingCourseUnits,
+    selectFilteredProgrammes: (state) => state.filteredProgrammes,
+    selectSearchValue: (state) => state.searchValue,
+    selectUploadModulesModalOpen: (state) => state.uploadModulesModalOpen,
   },
 });
 
@@ -180,6 +210,10 @@ export const {
   setDefaultExpandedModuleRowKeys,
   setCreateNewCourse,
   setCourseVersionDetails,
+  setProgramAliases,
+  setSelectedAlias,
+  setSearchValue,
+  setUploadModulesModalOpen,
 } = progAndCoursesSlice.actions;
 
 export const {
@@ -189,6 +223,24 @@ export const {
   selectCreateNewCourse,
   selectCourseVersionDetails,
   selectProgrammeFormDetails,
+  selectProgramAliases,
+  selectSelectedAlias,
+  selectSelectedItem,
+  selectCreateModuleModalOpen,
+  selectAllCourses,
+  selectAddVersionModalOpen,
+  selectCourseVersionToEdit,
+  selectDownloadProgrammesModalOpen,
+  selectUploadProgrammesModalOpen,
+  selectCreateProgrammeModalOpen,
+  selectAllProgrammes,
+  selectExpandedItems,
+  selectReloadCourses,
+  selectCourseUnits,
+  selectLoadingCourseUnits,
+  selectFilteredProgrammes,
+  selectSearchValue,
+  selectUploadModulesModalOpen,
 } = injectedSlice.selectors;
 
 // export const selectUserShortcuts = ({ user }) => user.data.shortcuts;

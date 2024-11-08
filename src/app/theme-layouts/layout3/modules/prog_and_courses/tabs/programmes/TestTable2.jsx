@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Badge, ConfigProvider, Dropdown, Space, Table } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  selectCourseUnits,
   selectDefaultExpandedModuleRowKeys,
   selectGroupedData,
+  selectLoadingCourseUnits,
   setDefaultExpandedModuleRowKeys,
   setGroupedData,
 } from "../../store/progAndCoursesSlice";
@@ -28,38 +30,14 @@ const TestTable2 = ({ panelWidth }) => {
     selectDefaultExpandedModuleRowKeys
   );
 
-  const { courseUnits, loadingCourseUnits } = useSelector(
-    (state) => state.progAndCourses
-  );
+  // const { courseUnits, loadingCourseUnits } = useSelector(
+  //   (state) => state.progAndCourses
+  // );
+  const courseUnits = useSelector(selectCourseUnits);
+  const loadingCourseUnits = useSelector(selectLoadingCourseUnits);
   const dispatch = useDispatch();
 
   const groupedData = useSelector(selectGroupedData);
-
-  // console.log("course units", courseUnits);
-
-  // const groupedData = useMemo(() => {
-  //   const grouped = {};
-
-  //   courseUnits.forEach((course) => {
-  //     const yearSemKey = `${course.course_unit_year}-${course.course_unit_sem}`;
-
-  //     if (!grouped[yearSemKey]) {
-  //       grouped[yearSemKey] = {
-  //         course_unit_year: course.course_unit_year,
-  //         course_unit_sem: course.course_unit_sem,
-  //         courses: [],
-  //       };
-  //     }
-
-  //     grouped[yearSemKey].courses.push(course);
-  //   });
-
-  //   return Object.values(grouped); // Convert the object into an array for easier table usage
-  // }, [courseUnits]);
-
-  // const defaultExpandedRowKeys = groupedData.map(
-  //   (group) => `${group.course_unit_year}-${group.course_unit_sem}`
-  // );
 
   useEffect(() => {
     const grouped = {};

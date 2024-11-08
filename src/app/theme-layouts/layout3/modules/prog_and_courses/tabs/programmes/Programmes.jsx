@@ -18,9 +18,11 @@ import AllProgrammesModal from "./AllProgrammesModal";
 import { useDispatch, useSelector } from "react-redux";
 import {
   resetProgrammeFormDetails,
+  selectSelectedItem,
   setCourseVersionToEdit,
   setCreateNewCourse,
   setReloadCourses,
+  setSelectedCourseVersion,
   updateAddVersionModalOpen,
   updatecreateProgrammeModalOpen,
   updateDownloadProgrammesModalOpen,
@@ -35,7 +37,7 @@ function Programmes() {
   const [rightContentWidth, setRightContentWidth] = useState(60);
   const dispatch = useDispatch();
 
-  const { selectedItem } = useSelector((state) => state.progAndCourses);
+  const selectedItem = useSelector(selectSelectedItem);
 
   const handleCreateNewCourse = () => {
     dispatch(setCreateNewCourse(true));
@@ -95,85 +97,67 @@ function Programmes() {
       >
         <div>
           <Space wrap>
-            <Tooltip title="Create New Course">
-              <Button
-                size="small"
-                icon={<Add />}
-                onClick={handleCreateNewCourse}
-              >
-                Create New Course
-              </Button>
-            </Tooltip>
+            <Button size="small" icon={<Add />} onClick={handleCreateNewCourse}>
+              Create New Course
+            </Button>
 
-            <Tooltip title="Create Course Version">
-              <Button
-                size="small"
-                icon={<Add />}
-                disabled={!selectedItem || selectedItem.typename != "Course"}
-                onClick={handleCreateCourseVersion}
-              >
-                Create Course Version
-              </Button>
-            </Tooltip>
+            <Button
+              size="small"
+              icon={<Add />}
+              disabled={!selectedItem || selectedItem.typename != "Course"}
+              onClick={handleCreateCourseVersion}
+            >
+              Create Course Version
+            </Button>
 
-            <Tooltip title="Edit Course Version">
-              <Button
-                disabled={
-                  !selectedItem || selectedItem.typename != "CourseVersion"
-                }
-                onClick={handleEditVersion}
-                size="small"
-                icon={<Edit />}
-              >
-                Edit Version
-              </Button>
-            </Tooltip>
+            <Button
+              disabled={
+                !selectedItem || selectedItem.typename != "CourseVersion"
+              }
+              onClick={handleEditVersion}
+              size="small"
+              icon={<Edit />}
+            >
+              Edit Version
+            </Button>
 
-            <Tooltip title="Upload Courses">
-              <Button
-                size="small"
-                icon={<Upload />}
-                onClick={handleCoursesUpload}
-              >
-                Upload Courses
-              </Button>
-            </Tooltip>
+            <Button
+              size="small"
+              icon={<Upload />}
+              onClick={handleCoursesUpload}
+            >
+              Upload Courses
+            </Button>
 
-            <Tooltip title="Download Courses">
-              <Button
-                size="small"
-                icon={<Download />}
-                onClick={handleCoursesDownload}
-              >
-                Download Courses
-              </Button>
-            </Tooltip>
+            <Button
+              size="small"
+              icon={<Download />}
+              onClick={handleCoursesDownload}
+            >
+              Download Courses
+            </Button>
 
-            <Tooltip title="Copy Version">
-              <Button disabled size="small" icon={<CopyAll />}>
-                Copy Version
-              </Button>
-            </Tooltip>
+            <Button disabled size="small" icon={<CopyAll />}>
+              Copy Version
+            </Button>
 
-            <Tooltip title="Reload Courses">
-              <Button
-                onClick={handleReload}
-                size="small"
-                icon={
-                  <Refresh
-                  // onClick={async () => {
-                  //   await refetch();
-                  //   console.log("refetch...");
-                  //   // if (networkStatus === NetworkStatus.refetch) {
-                  //   //   console.log("Refetching...");
-                  //   // }
-                  // }}
-                  />
-                }
-              >
-                Reload Courses
-              </Button>
-            </Tooltip>
+            <Button
+              onClick={handleReload}
+              size="small"
+              icon={
+                <Refresh
+                // onClick={async () => {
+                //   await refetch();
+                //   console.log("refetch...");
+                //   // if (networkStatus === NetworkStatus.refetch) {
+                //   //   console.log("Refetching...");
+                //   // }
+                // }}
+                />
+              }
+            >
+              Reload Courses
+            </Button>
 
             <Button
               // onClick={handleReload}

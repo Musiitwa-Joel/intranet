@@ -1,4 +1,5 @@
 import React, {
+  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -17,11 +18,19 @@ import { NetworkStatus, useLazyQuery, useQuery } from "@apollo/client";
 import "../myStyles.css";
 import extractIds from "../../../utilities/extractIDs";
 import {
+  selectAddVersionModalOpen,
+  selectAllProgrammes,
+  selectExpandedItems,
+  selectFilteredProgrammes,
+  selectReloadCourses,
+  selectSearchValue,
   setCourseUnits,
   setCourseVersionDetails,
   setCourseVersionToEdit,
+  setFilteredProgrammes,
   setLoadingCourseUnits,
   setReloadCourses,
+  setSearchValue,
   setSelectedCourseVersion,
   setSelectedItem,
   updateAllProgrammes,
@@ -29,41 +38,6 @@ import {
 } from "../../../store/progAndCoursesSlice";
 const { DirectoryTree } = Tree;
 const { Search } = Input;
-
-const defaultData = [
-  {
-    title: "parent 0",
-    key: "0-0",
-    children: [
-      {
-        title: "leaf 0-0",
-        key: "0-0-0",
-        isLeaf: true,
-      },
-      {
-        title: "leaf 0-1",
-        key: "0-0-1",
-        isLeaf: true,
-      },
-    ],
-  },
-  {
-    title: "parent 1",
-    key: "0-1",
-    children: [
-      {
-        title: "leaf 1-0",
-        key: "0-1-0",
-        isLeaf: true,
-      },
-      {
-        title: "leaf 1-1",
-        key: "0-1-1",
-        isLeaf: true,
-      },
-    ],
-  },
-];
 
 const containsSearchTerm = (str, searchTerm) =>
   str.toLowerCase().includes(searchTerm.toLowerCase());
@@ -215,16 +189,21 @@ const filterTreeData = (treeData, searchValue, bottomMostLevel) => {
 
   return filterNodes(treeData, 1); // Starting level can be set here
 };
-const AllCourses = ({ panelWidth }) => {
+const AllCourses = memo(({ panelWidth }) => {
   const [dynamicHeight, setDynamicHeight] = useState(window.innerHeight - 215);
-  const [expandedKeys, setExpandedKeys] = useState([]);
-  const [searchValue, setSearchValue] = useState("");
-  const [autoExpandParent, setAutoExpandParent] = useState(false);
+  // const [searchValue, setSearchValue] = useState("");
+  const searchValue = useSelector(selectSearchValue);
   const dispatch = useDispatch();
-  const [transformedData, setTransformedData] = useState([]);
-  const { allProgrammes, expandedItems, reloadCourses, addVersionModalOpen } =
-    useSelector((state) => state.progAndCourses);
-  const [filteredProgrammes, setFilteredProgrammes] = useState(allProgrammes);
+
+  // const { allProgrammes, expandedItems, reloadCourses, addVersionModalOpen } =
+  //   useSelector((state) => state.progAndCourses);
+
+  const allProgrammes = useSelector(selectAllProgrammes);
+  const expandedItems = useSelector(selectExpandedItems);
+  const reloadCourses = useSelector(selectReloadCourses);
+  const addVersionModalOpen = useSelector(selectAddVersionModalOpen);
+  // const [filteredProgrammes, setFilteredProgrammes] = useState(allProgrammes);
+  const filteredProgrammes = useSelector(selectFilteredProgrammes);
   const hasExpandedItemsDispatched = useRef(false);
   const [
     getCourseUnits,
@@ -326,13 +305,12 @@ const AllCourses = ({ panelWidth }) => {
   }, [reloadCourses]);
 
   useEffect(() => {
-    if (data) {
+    if (data && filteredProgrammes.length == 0) {
       dispatch(updateAllProgrammes(data.schools));
+      dispatch(setFilteredProgrammes(data.schools));
       const searchResult = searchHierarchy(data.schools, searchValue);
 
-      // Instead of updating the original data, update filtered data
-      // dispatch(updateFilteredProgrammes(searchResult));
-      setFilteredProgrammes(searchResult);
+      dispatch(setFilteredProgrammes(searchResult));
       // dispatch(updateExpandedItems(extractIds(data.schools)));
 
       // Dispatch updateExpandedItems only once
@@ -341,7 +319,7 @@ const AllCourses = ({ panelWidth }) => {
         hasExpandedItemsDispatched.current = true; // Set to true after dispatch
       }
     }
-  }, [data, dispatch]);
+  }, [data]);
 
   // console.log("all programs", allProgrammes);
 
@@ -357,7 +335,7 @@ const AllCourses = ({ panelWidth }) => {
 
   const onSelect = async (keys, info) => {
     // console.log("Trigger Select", keys, info);
-    console.log("selected ", info.selectedNodes[0]);
+    // console.log("selected ", info.selectedNodes[0]);
     dispatch(setSelectedItem(info.selectedNodes[0]));
 
     if (info.selectedNodes[0].typename == "CourseVersion") {
@@ -402,14 +380,16 @@ const AllCourses = ({ panelWidth }) => {
 
   const onSearchChange = (e) => {
     const value = e.target.value;
-    setSearchValue(value);
+    // setSearchValue(value);
+    dispatch(setSearchValue(value));
 
     // Perform the search on the original allProgrammes data
     const searchResult = searchHierarchy(allProgrammes, value);
 
     // Instead of updating the original data, update filtered data
     // dispatch(updateFilteredProgrammes(searchResult));
-    setFilteredProgrammes(searchResult);
+    // setFilteredProgrammes(searchResult);
+    dispatch(setFilteredProgrammes(searchResult));
     // console.log("result", searchResult);
   };
 
@@ -423,8 +403,9 @@ const AllCourses = ({ panelWidth }) => {
   // }, [searchValue, memoizedTreeData]);
 
   const onExpand = (newExpandedKeys) => {
-    setExpandedKeys(newExpandedKeys);
-    setAutoExpandParent(false);
+    // console.log("expansions", newExpandedKeys);
+    // setExpandedKeys(newExpandedKeys);
+    // setAutoExpandParent(false);
     dispatch(updateExpandedItems(newExpandedKeys));
   };
 
@@ -452,6 +433,7 @@ const AllCourses = ({ panelWidth }) => {
           style={{ marginBottom: 8 }}
           placeholder="Search"
           onChange={onSearchChange}
+          value={searchValue}
         />
         <div>
           <ConfigProvider
@@ -473,7 +455,8 @@ const AllCourses = ({ panelWidth }) => {
               onExpand={onExpand}
               expandedKeys={expandedItems}
               // treeData={memoizedTreeData ? memoizedTreeData : []}
-              autoExpandParent={autoExpandParent}
+              autoExpandParent={false}
+              // defaultExpandedKeys={expandedItems}
               treeData={memoizedTreeData}
               showIcon={true}
               icon={(item) =>
@@ -492,5 +475,5 @@ const AllCourses = ({ panelWidth }) => {
       </Spin>
     </div>
   );
-};
+});
 export default AllCourses;

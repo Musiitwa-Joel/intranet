@@ -88,6 +88,7 @@ export const {
 export const appsVisible = ({ apps }) => apps;
 
 export const selectIsLocked = (state) => state.apps.isLocked;
+export const selectActiveApp = (state) => state.apps.activeApp;
 
 // export const selectUserShortcuts = ({ user }) => user.data.shortcuts;
 

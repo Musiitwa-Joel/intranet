@@ -1,3 +1,4 @@
+import { memo, lazy } from "react";
 import FuseUtils from "@fuse/utils";
 import FuseLoading from "@fuse/core/FuseLoading";
 import { Navigate } from "react-router-dom";
@@ -20,6 +21,15 @@ import FeesMgt from "app/theme-layouts/layout3/modules/fees_mgt/FeesMgt";
 import Registration from "app/theme-layouts/layout3/modules/registration/Registration";
 import ProtectedRoute from "../auth/ProtectedRoute";
 import FullScreenUnlockSessionPage from "../main/unlock-session/FullScreenUnlockSessionPage";
+
+// const ProgramsAndCourses = lazy(
+//   () =>
+//     import(
+//       "app/theme-layouts/layout3/modules/prog_and_courses/ProgramsAndCourses"
+//     )
+// );
+
+// const MemoizedProgramsAndCourses = memo(ProgramsAndCourses);
 
 const routeConfigs = [ExampleConfig, SignOutConfig, SignInConfig, SignUpConfig];
 /**

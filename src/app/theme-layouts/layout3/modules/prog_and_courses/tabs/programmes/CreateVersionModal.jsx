@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Modal } from "antd";
+import { Form, Input, Modal } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { updateAddVersionModalOpen } from "../../store/progAndCoursesSlice";
+import {
+  selectAddVersionModalOpen,
+  selectCourseVersionToEdit,
+  selectSelectedItem,
+  updateAddVersionModalOpen,
+} from "../../store/progAndCoursesSlice";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import { useMutation } from "@apollo/client";
 import { SAVE_COURSE_VERSION } from "../../gql/mutations";
@@ -12,8 +17,12 @@ const onFinishFailed = (errorInfo) => {
 
 const CreateVersionModal = () => {
   const dispatch = useDispatch();
-  const { addVersionModalOpen, selectedItem, courseVersionToEdit } =
-    useSelector((state) => state.progAndCourses);
+  // const { addVersionModalOpen, selectedItem, courseVersionToEdit } =
+  //   useSelector((state) => state.progAndCourses);
+
+  const addVersionModalOpen = useSelector(selectAddVersionModalOpen);
+  const selectedItem = useSelector(selectSelectedItem);
+  const courseVersionToEdit = useSelector(selectCourseVersionToEdit);
   const user = useSelector((state) => state.user.user);
   const [form] = Form.useForm(); // Create form instance
 

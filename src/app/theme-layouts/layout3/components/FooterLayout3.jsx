@@ -12,7 +12,6 @@ import IconButton from "@mui/material/IconButton";
 import AppsIcon from "@mui/icons-material/Apps";
 import CloseIcon from "@mui/icons-material/Close";
 import Tooltip from "@mui/material/Tooltip";
-
 import { Button } from "@mui/material";
 import {
   addAppToTaskBar,
@@ -22,7 +21,7 @@ import {
   viewApps,
 } from "app/store/appSlice";
 import TaskBarButton from "./TaskBarButton";
-import { useNavigate } from "react-router-dom";
+import { Router, Routes, useNavigate } from "react-router-dom";
 // import { resetModuleState } from "app/store/admissionsSlice";
 // import { resetProgAndCoursesSlice } from "src/app/main/apps/file-manager/store/progAndCoursesSlice";
 // import { resetCollegeSlice } from "src/app/main/apps/file-manager/store/collegeSlice";
@@ -96,19 +95,40 @@ function FooterLayout3(props) {
     dispatch(viewApps(!appsVisible));
   };
 
+  // const handleAppClicked = (app) => {
+  //   // console.log("app", app);
+  //   dispatch(viewApps(false));
+
+  //   let exists = checkAppExistence(taskBarApps, "route", app.route);
+  //   dispatch(appExistsInTaskBar(exists));
+  //   if (app.title == "home" && activeApp.id != app.id) {
+  //     navigate("/example");
+  //     dispatch(updateActiveApp({ id: 0, title: "Home" }));
+  //   } else if (activeApp.id == app.id) {
+  //     dispatch(updateActiveApp(app));
+  //   } else {
+  //     dispatch(updateActiveApp(app));
+  //     navigate(`/${app.route}`);
+  //   }
+  // };
+
   const handleAppClicked = (app) => {
     dispatch(viewApps(false));
 
-    let exists = checkAppExistence(taskBarApps, "route", app.route);
+    const exists = checkAppExistence(taskBarApps, "route", app.route);
     dispatch(appExistsInTaskBar(exists));
-    if (app.title == "home" && activeApp.id != app.id) {
+
+    const isHomeApp = app.title === "home";
+    const isDifferentApp = activeApp.id !== app.id;
+
+    if (isHomeApp && isDifferentApp) {
       navigate("/example");
       dispatch(updateActiveApp({ id: 0, title: "Home" }));
-    } else if (activeApp.id == app.id) {
-      dispatch(updateActiveApp(app));
     } else {
       dispatch(updateActiveApp(app));
-      navigate(`/${app.route}`);
+      if (isDifferentApp) {
+        navigate(`/${app.route}`);
+      }
     }
   };
 
@@ -116,6 +136,11 @@ function FooterLayout3(props) {
     // Scroll to the end when the component mounts or updates
     scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
   }, [taskBarApps]);
+
+  const onTabChange = (key) => {
+    dispatch(appExistsInTaskBar(true));
+    navigate(key);
+  };
 
   return (
     <ThemeProvider theme={footerTheme}>

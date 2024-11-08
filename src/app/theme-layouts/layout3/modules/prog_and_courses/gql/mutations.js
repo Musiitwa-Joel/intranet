@@ -366,6 +366,15 @@ const SAVE_COURSE_ALIAS = gql`
   }
 `;
 
+const DELETE_COURSE_ALIAS = gql`
+  mutation deleteCourseAlias($aliasId: ID!) {
+    deleteCourseAlias(alias_id: $aliasId) {
+      success
+      message
+    }
+  }
+`;
+
 export {
   SAVE_COLLEGE,
   SAVE_SCHOOL,
@@ -381,4 +390,5 @@ export {
   GENERATE_MODULE_CODE,
   SAVE_COURSE_UNIT,
   SAVE_COURSE_ALIAS,
+  DELETE_COURSE_ALIAS,
 };

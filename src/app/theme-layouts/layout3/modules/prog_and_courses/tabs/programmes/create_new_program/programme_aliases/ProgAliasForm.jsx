@@ -20,7 +20,11 @@ import { Alert, Autocomplete, Snackbar } from "@mui/material";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import { SAVE_COURSE_ALIAS } from "../../../../gql/mutations";
 import { selectUser } from "app/store/userSlice";
-import { selectSelectedCourseVersion } from "../../../../store/progAndCoursesSlice";
+import {
+  selectSelectedAlias,
+  selectSelectedCourseVersion,
+  setSelectedAlias,
+} from "../../../../store/progAndCoursesSlice";
 // import { updateCollege, updateColleges } from "../../store/collegeSlice";
 
 let REQUIREMENTS = gql`
@@ -78,6 +82,9 @@ function ProgAliasForm() {
   const [reqs, setReqs] = useState(_reqs);
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState("");
+  const selectedAlias = useSelector(selectSelectedAlias);
+
+  // console.log("selected alias", selectedAlias);
 
   useEffect(() => {
     if (error) {
@@ -100,6 +107,18 @@ function ProgAliasForm() {
   }, [error, saveErr]);
 
   useEffect(() => {
+    if (selectedAlias) {
+      setValue("alias_code", selectedAlias.alias_code);
+      setValue("campus", selectedAlias.campus_id);
+      setValue("study_time", selectedAlias.study_time_id);
+    } else {
+      setValue("alias_code", "");
+      setValue("campus", "");
+      setValue("study_time", "");
+    }
+  }, [selectedAlias]);
+
+  useEffect(() => {
     if (data) {
       // console.log("response", data);
       setReqs(data);
@@ -116,7 +135,7 @@ function ProgAliasForm() {
         alias_code: values.alias_code,
         campus_id: values.campus,
         course_id: selectedCourseVersion.course.id,
-        id: null,
+        id: selectedAlias ? selectedAlias.id : null,
         study_time_id: values.study_time,
       },
     };
@@ -387,6 +406,20 @@ function ProgAliasForm() {
                   justifyContent: "flex-end",
                 }}
               >
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    dispatch(setSelectedAlias(null));
+                  }}
+                  disabled={!selectedAlias}
+                  style={{
+                    padding: 0,
+                    marginRight: 10,
+                  }}
+                >
+                  Clear
+                </Button>
                 <Button
                   variant="contained"
                   color="primary"

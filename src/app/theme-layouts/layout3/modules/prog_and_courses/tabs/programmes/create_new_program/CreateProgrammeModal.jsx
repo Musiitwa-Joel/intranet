@@ -8,21 +8,26 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import CloseIcon from "@mui/icons-material/Close";
 import Slide from "@mui/material/Slide";
-import Tabs from "@mui/material/Tabs";
+// import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import { useDispatch, useSelector } from "react-redux";
+import { ConfigProvider, Tabs } from "antd";
+import "./courseStyles.css";
 
 import CreateNewProgrammeForm from "./CreateNewProgrammeForm";
 import ProgrammeAliases from "./programme_aliases/ProgrammeAliases";
 import {
   selectCreateNewCourse,
+  selectCreateProgrammeModalOpen,
   selectProgrammeFormDetails,
   selectSelectedCourseVersion,
   updatecreateProgrammeModalOpen,
 } from "../../../store/progAndCoursesSlice";
-import ModulesDataTable from "./ModulesDataTable";
+// import ModulesDataTable from "./ModulesDataTable";
 import ProgrammeDescription from "./ProgrammeDescription";
+import TestTable2 from "../TestTable2";
+import CourseUnits from "./CourseUnits";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -72,10 +77,10 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 export default function CreateProgrammeModal() {
-  const { createProgrammeModalOpen } = useSelector(
-    (state) => state.progAndCourses
-  );
-
+  // const { createProgrammeModalOpen } = useSelector(
+  //   (state) => state.progAndCourses
+  // );
+  const createProgrammeModalOpen = useSelector(selectCreateProgrammeModalOpen);
   const selectedCourseVersion = useSelector(selectSelectedCourseVersion);
   const createNew = useSelector(selectCreateNewCourse);
   const programFormDetails = useSelector(selectProgrammeFormDetails);
@@ -121,36 +126,105 @@ export default function CreateProgrammeModal() {
           </Button> */}
         </Toolbar>
       </AppBar>
-      <Box sx={{ width: "100%" }}>
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            aria-label="basic tabs example"
-          >
-            <Tab label="Program Details" {...a11yProps(0)} />
-            <Tab
-              label="Program Aliases"
-              disabled={!programFormDetails?.id}
-              {...a11yProps(1)}
-            />
-            <Tab label="Program Description" disabled {...a11yProps(2)} />
-            <Tab label="Course units/Modules" disabled {...a11yProps(3)} />
-          </Tabs>
-        </Box>
-        <CustomTabPanel value={value} index={0}>
-          <CreateNewProgrammeForm />
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          <ProgrammeAliases />
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={2}>
-          <ProgrammeDescription />
-        </CustomTabPanel>
-        <CustomTabPanelNoPadding value={value} index={3}>
-          <ModulesDataTable />
-        </CustomTabPanelNoPadding>
-      </Box>
+
+      <ConfigProvider
+        theme={{
+          token: {
+            colorBorder: "lightgray",
+          },
+          components: {
+            Tabs: {
+              cardBg: "#f0f0f0",
+              cardGutter: 5,
+              cardPadding: 30,
+              // // itemActiveColor: "black",
+              itemColor: "#000",
+              itemSelectedColor: "dodgerblue",
+              fontSize: 20,
+              fontWeight: "bold",
+
+              // itemHoverColor: "#fff",
+            },
+          },
+        }}
+      >
+        <Tabs
+          defaultActiveKey="1"
+          tabPosition="left"
+          tabBarStyle={{
+            // backgroundColor: "#384c6e",
+            paddingTop: 10,
+            paddingLeft: 5,
+          }}
+          centered
+          type="card"
+          style={{
+            height: "100%",
+          }}
+          items={[
+            {
+              label: `Course Details`,
+              key: "course_details",
+              // disabled: i === 28,
+              children: (
+                <div
+                  style={{
+                    marginTop: 15,
+                    marginRight: 20,
+                  }}
+                >
+                  <CreateNewProgrammeForm />
+                </div>
+              ),
+            },
+            {
+              label: `Course Aliases`,
+              key: "course_aliases",
+              // disabled: i === 28,
+              children: (
+                <div
+                  style={{
+                    marginTop: 10,
+                    marginRight: 20,
+                  }}
+                >
+                  <ProgrammeAliases />
+                </div>
+              ),
+            },
+            {
+              label: `Course Description`,
+              key: "course_desc",
+              // disabled: i === 28,
+              children: (
+                <div
+                  style={{
+                    marginTop: 10,
+                    marginRight: 20,
+                  }}
+                >
+                  <ProgrammeDescription />
+                </div>
+              ),
+            },
+            {
+              label: `Course Units`,
+              key: "course_units",
+              // disabled: i === 28,
+              children: (
+                <div
+                  style={{
+                    marginTop: 10,
+                    marginRight: 20,
+                  }}
+                >
+                  <CourseUnits />
+                </div>
+              ),
+            },
+          ]}
+        />
+      </ConfigProvider>
     </Dialog>
   );
 }

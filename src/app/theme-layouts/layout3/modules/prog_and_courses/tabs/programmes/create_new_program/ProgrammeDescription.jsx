@@ -1,28 +1,39 @@
-import React from "react";
-import MUIRichTextEditor from "mui-rte";
+import { useRef, useState } from "react";
 import { Box } from "@mui/system";
-import { lighten, darken, alpha } from "@mui/material/styles";
+import { lighten } from "@mui/material/styles";
 import { Button } from "@mui/material";
+import { Input } from "antd";
+const { TextArea } = Input;
 
 function ProgrammeDescription() {
+  const editorRef = useRef();
+
+  const [editorContent, setEditorContent] = useState(null);
+
+  const handleSave = () => {};
+
   return (
     <div>
-      <Box
-        className="p-16 w-full rounded-16 mb-24 border"
+      <div
+        className="p-0 w-full rounded-16 mb-24 "
         sx={{
-          backgroundColor: (theme) =>
-            theme.palette.mode === "light"
-              ? lighten(theme.palette.background.default, 0.5)
-              : lighten(theme.palette.background.default, 0.02),
           height: "calc(100vh - 250px)",
 
           overflow: "auto",
         }}
       >
-        <MUIRichTextEditor label="Type Something here..." />
-      </Box>
+        <TextArea
+          rows={10}
+          style={{
+            backgroundColor: "#fafafa",
+          }}
+          // onChange={}
+          placeholder="Program Description"
+          maxLength={15}
+        />
+      </div>
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button variant="contained" color="primary">
+        <Button variant="contained" color="primary" onClick={handleSave}>
           Save
         </Button>
       </div>
