@@ -30,6 +30,8 @@ import {
 } from "../../store/progAndCoursesSlice";
 import CreateVersionModal from "./CreateVersionModal";
 import CreateModuleForm from "./CreateModuleForm";
+import UploadModulesModal from "./create_new_program/UploadModulesModal";
+import CourseUnitDetails from "./create_new_program/CourseUnitDetails";
 // import TestTable from "./TestTable";
 
 function Programmes() {
@@ -210,6 +212,8 @@ function Programmes() {
       <AllProgrammesModal />
       <CreateVersionModal />
       <CreateModuleForm />
+      <UploadModulesModal />
+      <CourseUnitDetails />
     </div>
   );
 }

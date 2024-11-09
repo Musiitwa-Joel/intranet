@@ -12,7 +12,10 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectAllCourses,
   selectCreateModuleModalOpen,
+  selectEditModule,
+  selectModuleEdited,
   selectSelectedCourseVersion,
+  selectSelectedUnit,
   updateCreateModuleModalOpen,
 } from "../../store/progAndCoursesSlice";
 import {
@@ -82,7 +85,10 @@ function CreateModuleForm() {
   //   useSelector((state) => state.progAndCourses);
   const createModuleModalOpen = useSelector(selectCreateModuleModalOpen);
   const selectedCourseVersion = useSelector(selectSelectedCourseVersion);
+  const editModule = useSelector(selectEditModule);
   const allCourses = useSelector(selectAllCourses);
+  const selectedUnit = useSelector(selectSelectedUnit);
+  const moduleEdited = useSelector(selectModuleEdited);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [gradingSystems, setGradingSystems] = useState([]);
   const userObj = useSelector(selectUser);
@@ -144,6 +150,8 @@ function CreateModuleForm() {
       },
       savedBy: userObj.user.user_id,
     };
+
+    // console.log("payload", payload);
 
     const res = await saveCourseUnit({
       variables: payload,
@@ -269,7 +277,9 @@ function CreateModuleForm() {
                 color: "white",
               }}
             >
-              Create New Module/Course Unit
+              {editModule
+                ? `(${selectedUnit?.selectedRow.course_unit_code}) ${selectedUnit?.selectedRow.course_unit_title}`
+                : "Create New Module/Course Unit"}
             </Typography>
 
             <Tooltip title="Close">
@@ -295,17 +305,6 @@ function CreateModuleForm() {
             <Form
               form={form}
               name="moduleForm"
-              // labelCol={{
-              //   span: 8,
-              // }}
-              // wrapperCol={{
-              //   span: 16,
-              // }}
-              style={
-                {
-                  // maxWidth: 600,
-                }
-              }
               initialValues={{
                 remember: true,
               }}

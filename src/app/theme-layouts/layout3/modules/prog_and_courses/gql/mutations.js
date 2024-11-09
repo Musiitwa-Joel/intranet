@@ -375,6 +375,24 @@ const DELETE_COURSE_ALIAS = gql`
   }
 `;
 
+const UPLOAD_COURSE_UNITS = gql`
+  mutation uploadCourseUnits($courseUnits: [CourseUnitUploadInput]!) {
+    uploadCourseUnits(course_units: $courseUnits) {
+      message
+      success
+    }
+  }
+`;
+
+const DELETE_COURSE_UNIT = gql`
+  mutation deleteCourseUnit($unitId: String!) {
+    deleteCourseUnit(unit_id: $unitId) {
+      message
+      success
+    }
+  }
+`;
+
 export {
   SAVE_COLLEGE,
   SAVE_SCHOOL,
@@ -391,4 +409,6 @@ export {
   SAVE_COURSE_UNIT,
   SAVE_COURSE_ALIAS,
   DELETE_COURSE_ALIAS,
+  UPLOAD_COURSE_UNITS,
+  DELETE_COURSE_UNIT,
 };

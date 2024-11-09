@@ -166,6 +166,17 @@ const GET_COURSE_UNITS = gql`
       course_unit_year
       course_unit_sem
       course_unit_level
+      grading_id
+      added_on
+      last_modified_on
+      added_user {
+        title
+        staff_name
+      }
+      last_modified_user {
+        title
+        staff_name
+      }
     }
   }
 `;

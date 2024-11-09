@@ -4,10 +4,15 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectCourseUnits,
   selectDefaultExpandedModuleRowKeys,
+  selectFilteredCourseUnits,
   selectGroupedData,
   selectLoadingCourseUnits,
+  selectModuleSearchValue,
+  selectSelectedUnit,
   setDefaultExpandedModuleRowKeys,
+  setFilteredCourseUnits,
   setGroupedData,
+  setSelectedUnit,
 } from "../../store/progAndCoursesSlice";
 
 const getParentKey = (key, tree) => {
@@ -25,24 +30,44 @@ const getParentKey = (key, tree) => {
   return parentKey;
 };
 
-const TestTable2 = ({ panelWidth }) => {
+const TestTable2 = ({ panelWidth, deletingUnit }) => {
   const defaultExpandedRowKeys = useSelector(
     selectDefaultExpandedModuleRowKeys
   );
-
-  // const { courseUnits, loadingCourseUnits } = useSelector(
-  //   (state) => state.progAndCourses
-  // );
   const courseUnits = useSelector(selectCourseUnits);
+  const filteredCourseUnits = useSelector(selectFilteredCourseUnits);
+  const moduleSearchValue = useSelector(selectModuleSearchValue);
   const loadingCourseUnits = useSelector(selectLoadingCourseUnits);
+  const selectedUnit = useSelector(selectSelectedUnit);
   const dispatch = useDispatch();
+
+  // console.log("=moduleSearchValue", moduleSearchValue);
 
   const groupedData = useSelector(selectGroupedData);
 
   useEffect(() => {
+    // First, dispatch the full list of course units
+
+    dispatch(setFilteredCourseUnits(courseUnits));
+    let newArr = courseUnits;
+
+    if (moduleSearchValue) {
+      // Filter the course units based on the search value
+      newArr = courseUnits.filter(
+        (cu) =>
+          cu.course_unit_title
+            .toLowerCase()
+            .includes(moduleSearchValue.toLowerCase()) // Use strict equality
+      );
+
+      // Dispatch the filtered course units
+      dispatch(setFilteredCourseUnits(newArr));
+    }
+
     const grouped = {};
 
-    courseUnits.forEach((course) => {
+    // Use newArr instead of filteredCourseUnits
+    newArr.forEach((course) => {
       const yearSemKey = `${course.course_unit_year}-${course.course_unit_sem}`;
 
       if (!grouped[yearSemKey]) {
@@ -67,7 +92,7 @@ const TestTable2 = ({ panelWidth }) => {
       return a.course_unit_year - b.course_unit_year; // Compare by year
     });
 
-    // setGroupedData(data);
+    // Dispatch the grouped data
     dispatch(setGroupedData(data));
 
     // Set default expanded row keys based on the available data
@@ -75,50 +100,19 @@ const TestTable2 = ({ panelWidth }) => {
       (group) => `${group.course_unit_year}-${group.course_unit_sem}`
     );
     dispatch(setDefaultExpandedModuleRowKeys(expandedKeys));
-  }, [courseUnits]);
+  }, [courseUnits, moduleSearchValue, dispatch]);
+
+  const onRowSelect = (selectedKeys, selectedRows, rowKey) => {
+    dispatch(
+      setSelectedUnit({
+        rowKey,
+        selectedKey: selectedKeys[0],
+        selectedRow: selectedRows[0],
+      })
+    );
+  };
 
   // console.log("defaultExpandedRowKeys", defaultExpandedRowKeys);
-
-  // const columns = [
-  //   {
-  //     title: "Course Code",
-  //     dataIndex: "course_code",
-  //     width: 120,
-  //     ellipsis: true,
-  //     key: "date",
-  //   },
-  //   {
-  //     title: "Course Title",
-  //     dataIndex: "course_title",
-  //     width: 300,
-  //     ellipsis: true,
-  //     key: "ct",
-  //   },
-  //   {
-  //     title: "Credit Units",
-  //     key: "cu",
-  //     dataIndex: "credit_units",
-  //     width: 80,
-  //   },
-  //   {
-  //     title: "Study Yr",
-  //     dataIndex: "study_yr",
-  //     key: "upgradeNum",
-  //     width: 70,
-  //   },
-  //   {
-  //     title: "Sem",
-  //     dataIndex: "sem",
-  //     key: "sem",
-  //     width: 50,
-  //   },
-  //   {
-  //     title: "Level",
-  //     dataIndex: "level",
-  //     key: "level",
-  //     width: 100,
-  //   },
-  // ];
 
   const innerColumns = [
     {
@@ -136,7 +130,7 @@ const TestTable2 = ({ panelWidth }) => {
       ellipsis: true,
     },
     {
-      title: "Credit Units",
+      title: "Credit unit",
       dataIndex: "credit_units",
       key: "credit_units",
       width: 80,
@@ -179,7 +173,17 @@ const TestTable2 = ({ panelWidth }) => {
         columns={innerColumns} // Use the same columns as outer table
         dataSource={record.courses}
         pagination={false}
+        rowKey="id"
         // loading={loadingCourseUnits}
+        rowSelection={{
+          type: "radio",
+          selectedRowKeys:
+            selectedUnit?.rowKey === record.key
+              ? [selectedUnit?.selectedKey]
+              : [], // Select row only if it's part of the current table
+          onChange: (selectedKeys, selectedRows) =>
+            onRowSelect(selectedKeys, selectedRows, record.key), // Handle row selection
+        }}
         bordered
         style={{
           minWidth: panelWidth * 16.25,
@@ -242,7 +246,7 @@ const TestTable2 = ({ panelWidth }) => {
         bordered
         pagination={false}
         showHeader={false}
-        loading={loadingCourseUnits}
+        loading={loadingCourseUnits || deletingUnit}
         size="small"
         expandable={{
           expandedRowRender, // Inner table will appear when expanded

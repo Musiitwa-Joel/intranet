@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Typography from "@mui/material/Typography";
-import PropTypes from "prop-types";
 import { Box } from "@mui/system";
 import { lighten, darken, alpha } from "@mui/material/styles";
 import Grid from "@mui/material/Unstable_Grid2";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import Dialog from "@mui/material/Dialog";
 import Tooltip from "@mui/material/Tooltip";
 import Close from "@mui/icons-material/Close";
@@ -18,19 +16,12 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import Toolbar from "@mui/material/Toolbar";
-import Checkbox from "@mui/material/Checkbox";
 import { TableVirtuoso } from "react-virtuoso";
 import { Button } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectUploadProgrammesModalOpen,
-  updateUploadProgrammesModalOpen,
-} from "../../store/progAndCoursesSlice";
-import "./programs.css";
+// import "../programs.css";
 import { styled } from "@mui/material/styles";
 import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
 import MuiAccordion from "@mui/material/Accordion";
@@ -45,7 +36,11 @@ import CircularProgress, {
 import Backdrop from "@mui/material/Backdrop";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
-import { UPLOAD_COURSES } from "../../gql/mutations";
+import {
+  selectUploadModulesModalOpen,
+  setUploadModulesModalOpen,
+} from "../../../store/progAndCoursesSlice";
+import { UPLOAD_COURSE_UNITS } from "../../../gql/mutations";
 
 const duration_measures = [
   {
@@ -60,17 +55,9 @@ const duration_measures = [
 
 const GET_UPLOAD_REQUIREMENTS = gql`
   query getProgUploadRequirements {
-    departments {
-      dpt_code
-      dpt_title
-    }
     grading {
       grading_title
       description
-    }
-    levels {
-      level_code
-      level_title
     }
   }
 `;
@@ -123,45 +110,52 @@ function PaperComponent(props) {
 const columns = [
   { id: "#", label: "#", minWidth: 10 },
   {
-    id: "prog_version",
+    id: "module_code",
     numeric: false,
     disablePadding: false,
-    label: "Program version",
+    label: "Module Code",
   },
-  { id: "code", label: "Program code ", minWidth: 10 },
+  { id: "module_title", label: "Module Title", minWidth: 10 },
   {
-    id: "title",
+    id: "course_code",
     numeric: false,
     // disablePadding: true,
-    label: "Programme title",
+    label: "Course Code",
   },
 
   {
-    id: "dpt_code",
+    id: "course_version",
     numeric: false,
     disablePadding: false,
-    label: "Department Code",
+    label: "Course Version",
     minWidth: 20,
   },
   {
-    id: "duration",
+    id: "credit_units",
     numeric: false,
     disablePadding: false,
-    label: "duration",
+    label: "Credit Units",
     minWidth: 10,
   },
   {
-    id: "duration_meaasure",
+    id: "module_year",
     numeric: false,
     disablePadding: false,
-    label: "duration measure",
+    label: "Module Year",
     minWidth: 10,
   },
   {
-    id: "level",
+    id: "module_sem",
     numeric: false,
     disablePadding: false,
-    label: "level",
+    label: "Module Sem",
+    minWidth: 10,
+  },
+  {
+    id: "module_level",
+    numeric: false,
+    disablePadding: false,
+    label: "Module Level",
     minWidth: 10,
   },
   {
@@ -170,32 +164,20 @@ const columns = [
     disablePadding: false,
     label: "Grading",
   },
-  {
-    id: "is_short_course",
-    numeric: false,
-    disablePadding: false,
-    label: "is short course",
-    minWidth: 10,
-  },
 ];
 
 const rows = [];
 
-const list = [
-  { name: "Brian Vaughn", description: "Software engineer" },
-  // And so on...
-];
-
 const expectedFields = {
-  prog_code: "",
-  prog_title: "",
-  prog_version: "",
-  department_code: "",
-  duration: 3,
-  duration_measure: "",
-  level: "",
+  module_code: "",
+  module_title: "",
+  course_code: "",
+  course_version: "",
+  credit_units: 0,
+  module_level: "",
   grading_id: "",
-  is_short_course: "",
+  module_year: "",
+  module_sem: "",
 };
 
 const filterFields = (obj, fields) => {
@@ -251,35 +233,20 @@ const initialRequirementState = {
 };
 
 function UploadModulesModal() {
-  // const { uploadProgrammesModalOpen } = useSelector(
-  //   (state) => state.progAndCourses
-  // );
-  const uploadProgrammesModalOpen = useSelector(
-    selectUploadProgrammesModalOpen
-  );
-  const user = useSelector((state) => state.user.user);
+  const uploadModulesModalOpen = useSelector(selectUploadModulesModalOpen);
   const dispatch = useDispatch();
-  const [expanded, setExpanded] = React.useState("panel1");
+  const [expanded, setExpanded] = React.useState("panel4");
   const handleChange = (panel) => (event, newExpanded) => {
     setExpanded(newExpanded ? panel : false);
   };
 
   const { error, loading, data } = useQuery(GET_UPLOAD_REQUIREMENTS);
   const [
-    uploadCourses,
-    { error: uploadError, loading: uploadingCourses, data: uploadResponse },
-  ] = useMutation(UPLOAD_COURSES, {
-    refetchQueries: ["getAllProgrammesCategorisedBySchools"],
+    uploadCourseUnits,
+    { error: uploadError, loading: uploadingCourseUnits, data: uploadResponse },
+  ] = useMutation(UPLOAD_COURSE_UNITS, {
+    refetchQueries: ["getCourseUnits"],
   });
-
-  if (error) {
-    dispatch(
-      showMessage({
-        message: "Error " + error.message,
-        variant: "error",
-      })
-    );
-  }
 
   const [fileName, setFileName] = useState("");
   const [file, setFile] = useState(null);
@@ -291,15 +258,6 @@ function UploadModulesModal() {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
   const [selected, setSelected] = React.useState([]);
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelected = rows.map((n) => n.id);
-      setSelected(newSelected);
-      return;
-    }
-    setSelected([]);
-  };
 
   useEffect(() => {
     if (data) {
@@ -314,23 +272,36 @@ function UploadModulesModal() {
     setOrderBy(property);
   };
 
-  if (uploadError) {
-    alert(uploadError.message);
-  }
+  useEffect(() => {
+    if (uploadError) {
+      dispatch(
+        showMessage({
+          message: uploadError.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [uploadError]);
 
   const handleUpload = async () => {
     console.log("extracted Data", extractedata);
-    const res = await uploadCourses({
+    const res = await uploadCourseUnits({
       variables: {
-        courses: extractedata,
-        uploadedBy: user.user_id,
+        courseUnits: extractedata,
       },
     });
 
-    console.log("response", res.data);
+    // console.log("response", res.data);
 
-    // if its successfull
+    // // if its successfull
     setExtractedData([]);
+
+    dispatch(
+      showMessage({
+        message: res.data.uploadCourseUnits.message,
+        variant: "success",
+      })
+    );
   };
 
   const handleFileChange = (event) => {
@@ -359,7 +330,7 @@ function UploadModulesModal() {
       const worksheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-      // console.log("json data", jsonData);
+      //   console.log("json data", jsonData);
       const filteredData = jsonData.map((item) =>
         filterFields(item, expectedFields)
       );
@@ -373,7 +344,7 @@ function UploadModulesModal() {
 
   const handleDownloadExcel = () => {
     window.location.href =
-      "http://localhost:2222/templates/upload-programs-template.xlsx";
+      "http://localhost:2222/templates/upload-modules-template.xlsx";
   };
 
   //   console.log("createModuleModalOpen", createModuleModalOpen);
@@ -390,10 +361,13 @@ function UploadModulesModal() {
     <div>
       <Dialog
         maxWidth="lg"
-        open={uploadProgrammesModalOpen}
+        open={uploadModulesModalOpen}
         // onClose={() => dispatch(updateCreateModuleModalOpen(false))}
         PaperComponent={PaperComponent}
         aria-labelledby="draggable-dialog-title"
+        style={{
+          zIndex: 100000,
+        }}
       >
         <Card
           className={clsx("", "shadow")}
@@ -427,7 +401,7 @@ function UploadModulesModal() {
                 color: "white",
               }}
             >
-              Upload Programmes
+              Upload Modules
             </Typography>
 
             <Tooltip title="Close">
@@ -439,8 +413,7 @@ function UploadModulesModal() {
                   //  marginRight: 10,
                 }}
                 onClick={() => {
-                  // dispatch(updateDepartment(defaultValues));
-                  dispatch(updateUploadProgrammesModalOpen(false));
+                  dispatch(setUploadModulesModalOpen(false));
                 }}
               />
             </Tooltip>
@@ -521,9 +494,9 @@ function UploadModulesModal() {
                     borderColor: "lightgray",
                     borderTopColor: "blue",
                     borderTopWidth: 1.5,
+                    overflowX: "hidden",
                   }}
                 >
-                  {/* <FuseScrollbars className={`custom-scroll-table-modal`}> */}
                   <Table
                     // sx={{ minWidth: 1000 }}
                     aria-labelledby="tableTitle"
@@ -543,13 +516,14 @@ function UploadModulesModal() {
                         left: 0,
                         zIndex: (theme) => theme.zIndex.drawer + 1,
                       }}
-                      open={uploadingCourses}
+                      //   open={uploadingCourses}
                       // onClick={handleClose}
                     >
                       <CircularProgress color="inherit" />
                     </Backdrop>
+                    {/* <FuseScrollbars className={`custom-scroll-table-modal`}> */}
                     <TableVirtuoso
-                      style={{ height: 365, width: 782 }}
+                      style={{ height: 365, width: 750 }}
                       data={extractedata}
                       // components={TableComponents}
                       fixedHeaderContent={() => (
@@ -626,7 +600,7 @@ function UploadModulesModal() {
                               textAlign: "left",
                             }}
                           >
-                            {row.prog_version}
+                            {row.module_code}
                           </TableCell>
                           <TableCell
                             component="th"
@@ -643,7 +617,7 @@ function UploadModulesModal() {
                               whiteSpace: "nowrap",
                             }}
                           >
-                            {row.prog_code}
+                            {row.module_title}
                           </TableCell>
                           <TableCell
                             component="th"
@@ -660,7 +634,7 @@ function UploadModulesModal() {
                               paddingRight: 10,
                             }}
                           >
-                            {row.prog_title}
+                            {row.course_code}
                           </TableCell>
 
                           <TableCell
@@ -672,7 +646,7 @@ function UploadModulesModal() {
                               textAlign: "left",
                             }}
                           >
-                            {row.department_code}
+                            {row.course_version}
                           </TableCell>
                           <TableCell
                             component="th"
@@ -685,7 +659,7 @@ function UploadModulesModal() {
                               textAlign: "left",
                             }}
                           >
-                            {row.duration}
+                            {row.credit_units}
                           </TableCell>
                           <TableCell
                             align="right"
@@ -696,7 +670,7 @@ function UploadModulesModal() {
                               textAlign: "left",
                             }}
                           >
-                            {row.duration_measure}
+                            {row.module_year}
                           </TableCell>
                           <TableCell
                             align="right"
@@ -707,7 +681,18 @@ function UploadModulesModal() {
                               textAlign: "left",
                             }}
                           >
-                            {row.level}
+                            {row.module_sem}
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            className="text-16"
+                            style={{
+                              border: "1px solid #ddd",
+                              // padding: "8px",
+                              textAlign: "left",
+                            }}
+                          >
+                            {row.module_level}
                           </TableCell>
                           <TableCell
                             align="right"
@@ -720,185 +705,11 @@ function UploadModulesModal() {
                           >
                             {row.grading_id}
                           </TableCell>
-                          <TableCell
-                            align="right"
-                            className="text-16"
-                            style={{
-                              border: "1px solid #ddd",
-                              // padding: "8px",
-                              textAlign: "left",
-                            }}
-                          >
-                            {`${row.is_short_course}`}
-                          </TableCell>
                         </>
                       )}
                     />
-                    {/* <EnhancedTableHead
-                        numSelected={selected.length}
-                        order={order}
-                        orderBy={orderBy}
-                        onSelectAllClick={handleSelectAllClick}
-                        onRequestSort={handleRequestSort}
-                        rowCount={rows.length}
-                      />
-                      <TableBody>
-                        <>
-                          {extractedata.map((row, index) => {
-                            // const isItemSelected = isSelected(row.id);
-                            const labelId = `enhanced-table-checkbox-${index}`;
-                            return (
-                              // Render child rows with your existing logic
-                              <TableRow
-                                hover
-                                onClick={(event) => {
-                                  // handleClick(event, row.id)
-                                }}
-                                role="checkbox"
-                                // aria-checked={isItemSelected}
-                                tabIndex={-1}
-                                key={row.code}
-                                // selected={isItemSelected}
-                                sx={{ cursor: "pointer" }}
-                              >
-                                <TableCell
-                                  component="th"
-                                  id={labelId}
-                                  scope="row"
-                                  padding="none"
-                                  className="text-16"
-                                  style={{
-                                    border: "1px solid #ddd",
-                                    // padding: "8px",
-                                    paddingLeft: 10,
-                                    paddingRight: 10,
-                                    textAlign: "left",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  {index + 1}
-                                </TableCell>
-                                <TableCell
-                                  align="right"
-                                  className="text-16"
-                                  style={{
-                                    border: "1px solid #ddd",
-                                    // padding: "8px",
-                                    textAlign: "left",
-                                  }}
-                                >
-                                  {row.prog_version}
-                                </TableCell>
-                                <TableCell
-                                  component="th"
-                                  id={labelId}
-                                  scope="row"
-                                  padding="none"
-                                  className="text-16"
-                                  style={{
-                                    border: "1px solid #ddd",
-                                    // padding: "8px",
-                                    paddingLeft: 10,
-                                    paddingRight: 10,
-                                    textAlign: "left",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  {row.prog_code}
-                                </TableCell>
-                                <TableCell
-                                  component="th"
-                                  id={labelId}
-                                  scope="row"
-                                  padding="none"
-                                  className="text-16"
-                                  style={{
-                                    border: "1px solid #ddd",
-                                    // padding: "8px",
-                                    paddingLeft: 10,
-                                    textAlign: "left",
-                                    whiteSpace: "nowrap",
-                                    paddingRight: 10,
-                                  }}
-                                >
-                                  {row.prog_title}
-                                </TableCell>
-
-                                <TableCell
-                                  align="right"
-                                  className="text-16"
-                                  style={{
-                                    border: "1px solid #ddd",
-                                    // padding: "8px",
-                                    textAlign: "left",
-                                  }}
-                                >
-                                  {row.department_code}
-                                </TableCell>
-                                <TableCell
-                                  component="th"
-                                  scope="row"
-                                  align="right"
-                                  className="text-16"
-                                  style={{
-                                    border: "1px solid #ddd",
-                                    // padding: "8px",
-                                    textAlign: "left",
-                                  }}
-                                >
-                                  {row.duration}
-                                </TableCell>
-                                <TableCell
-                                  align="right"
-                                  className="text-16"
-                                  style={{
-                                    border: "1px solid #ddd",
-                                    // padding: "8px",
-                                    textAlign: "left",
-                                  }}
-                                >
-                                  {row.duration_measure}
-                                </TableCell>
-                                <TableCell
-                                  align="right"
-                                  className="text-16"
-                                  style={{
-                                    border: "1px solid #ddd",
-                                    // padding: "8px",
-                                    textAlign: "left",
-                                  }}
-                                >
-                                  {row.level}
-                                </TableCell>
-                                <TableCell
-                                  align="right"
-                                  className="text-16"
-                                  style={{
-                                    border: "1px solid #ddd",
-                                    // padding: "8px",
-                                    textAlign: "left",
-                                  }}
-                                >
-                                  {row.grading_id}
-                                </TableCell>
-                                <TableCell
-                                  align="right"
-                                  className="text-16"
-                                  style={{
-                                    border: "1px solid #ddd",
-                                    // padding: "8px",
-                                    textAlign: "left",
-                                  }}
-                                >
-                                  {`${row.is_short_course}`}
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                        </>
-                      </TableBody> */}
+                    {/* </FuseScrollbars> */}
                   </Table>
-                  {/* </FuseScrollbars> */}
                 </TableContainer>
               </Grid>
               <Grid xs={4}>
@@ -925,182 +736,7 @@ function UploadModulesModal() {
                     excel files*
                   </span>
                 </div>
-                <Accordion
-                  expanded={expanded === "panel1"}
-                  onChange={handleChange("panel1")}
-                >
-                  <AccordionSummary
-                    aria-controls="panel1d-content"
-                    id="panel1d-header"
-                  >
-                    <Typography className="text-16 font-semibold ">
-                      DEPARTMENTS
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails
-                    style={{
-                      padding: 0,
-                    }}
-                  >
-                    <TableContainer>
-                      <FuseScrollbars
-                        className={`custom-scroll-height-accordation`}
-                      >
-                        <Table
-                          // sx={{ minWidth: 1000 }}
-                          aria-labelledby="tableTitle"
-                          size={"small"}
-                          stickyHeader
-                          style={{
-                            borderCollapse: "collapse",
-                            width: "100%",
-                          }}
-                          aria-label="sticky table"
-                        >
-                          <TableBody>
-                            <>
-                              {reqs.departments.map((row, index) => {
-                                // const isItemSelected = isSelected(row.id);
-                                const labelId = `enhanced-table-checkbox-${index}`;
-                                return (
-                                  // Render child rows with your existing logic
-                                  <TableRow
-                                    hover
-                                    onClick={(event) => {
-                                      // handleClick(event, row.id)
-                                    }}
-                                    role="checkbox"
-                                    // aria-checked={isItemSelected}
-                                    tabIndex={-1}
-                                    key={row.code}
-                                    // selected={isItemSelected}
-                                    sx={{ cursor: "pointer" }}
-                                  >
-                                    <TableCell
-                                      component="th"
-                                      id={labelId}
-                                      scope="row"
-                                      className="text-16 font-semibold"
-                                      padding="none"
-                                      style={{
-                                        border: "1px solid #ddd",
-                                        padding: "8px",
-                                        paddingLeft: 10,
-                                        paddingRight: 10,
-                                        textAlign: "left",
-                                        opacity: 0.7,
-                                        whiteSpace: "nowrap",
-                                      }}
-                                    >
-                                      {row.dpt_code}
-                                    </TableCell>
-                                    <TableCell
-                                      component="th"
-                                      className="text-16 font-semibold"
-                                      id={labelId}
-                                      scope="row"
-                                      padding="none"
-                                      style={{
-                                        border: "1px solid #ddd",
-                                        padding: "8px",
-                                        paddingLeft: 10,
-                                        opacity: 0.7,
-                                        textAlign: "left",
-                                        whiteSpace: "nowrap",
-                                        paddingRight: 10,
-                                      }}
-                                    >
-                                      {row.dpt_title}
-                                    </TableCell>
-                                  </TableRow>
-                                );
-                              })}
-                            </>
-                          </TableBody>
-                        </Table>
-                      </FuseScrollbars>
-                    </TableContainer>
-                  </AccordionDetails>
-                </Accordion>
-                <Accordion
-                  expanded={expanded === "panel2"}
-                  onChange={handleChange("panel2")}
-                >
-                  <AccordionSummary
-                    aria-controls="panel2d-content"
-                    id="panel2d-header"
-                  >
-                    <Typography className="text-16 font-semibold ">
-                      DURATION MEASURE
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails
-                    style={{
-                      padding: 0,
-                    }}
-                  >
-                    <TableContainer>
-                      <FuseScrollbars
-                        className={`custom-scroll-height-accordation`}
-                      >
-                        <Table
-                          // sx={{ minWidth: 1000 }}
-                          aria-labelledby="tableTitle"
-                          size={"small"}
-                          stickyHeader
-                          style={{
-                            borderCollapse: "collapse",
-                            width: "100%",
-                          }}
-                          aria-label="sticky table"
-                        >
-                          <TableBody>
-                            <>
-                              {duration_measures.map((row, index) => {
-                                // const isItemSelected = isSelected(row.id);
-                                const labelId = `enhanced-table-checkbox-${index}`;
-                                return (
-                                  // Render child rows with your existing logic
-                                  <TableRow
-                                    hover
-                                    onClick={(event) => {
-                                      // handleClick(event, row.id)
-                                    }}
-                                    role="checkbox"
-                                    // aria-checked={isItemSelected}
-                                    tabIndex={-1}
-                                    key={row.id}
-                                    // selected={isItemSelected}
-                                    sx={{ cursor: "pointer" }}
-                                  >
-                                    <TableCell
-                                      component="th"
-                                      id={labelId}
-                                      scope="row"
-                                      className="text-16 font-semibold"
-                                      padding="none"
-                                      style={{
-                                        border: "1px solid #ddd",
-                                        padding: "8px",
-                                        paddingLeft: 10,
-                                        paddingRight: 10,
-                                        textAlign: "left",
-                                        opacity: 0.7,
-                                        whiteSpace: "nowrap",
-                                      }}
-                                    >
-                                      {row.title}
-                                    </TableCell>
-                                  </TableRow>
-                                );
-                              })}
-                            </>
-                          </TableBody>
-                        </Table>
-                      </FuseScrollbars>
-                    </TableContainer>
-                  </AccordionDetails>
-                </Accordion>
+
                 <Accordion
                   expanded={expanded === "panel4"}
                   onChange={handleChange("panel4")}
@@ -1198,103 +834,6 @@ function UploadModulesModal() {
                     </TableContainer>
                   </AccordionDetails>
                 </Accordion>
-                <Accordion
-                  expanded={expanded === "panel5"}
-                  onChange={handleChange("panel5")}
-                >
-                  <AccordionSummary
-                    aria-controls="panel3d-content"
-                    id="panel3d-header"
-                  >
-                    <Typography className="text-16 font-semibold ">
-                      LEVEL
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails
-                    style={{
-                      padding: 0,
-                    }}
-                  >
-                    <TableContainer>
-                      <FuseScrollbars
-                        className={`custom-scroll-height-accordation`}
-                      >
-                        <Table
-                          // sx={{ minWidth: 1000 }}
-                          aria-labelledby="tableTitle"
-                          size={"small"}
-                          stickyHeader
-                          style={{
-                            borderCollapse: "collapse",
-                            width: "100%",
-                          }}
-                          aria-label="sticky table"
-                        >
-                          <TableBody>
-                            <>
-                              {reqs.levels.map((row, index) => {
-                                // const isItemSelected = isSelected(row.id);
-                                const labelId = `enhanced-table-checkbox-${index}`;
-                                return (
-                                  // Render child rows with your existing logic
-                                  <TableRow
-                                    hover
-                                    onClick={(event) => {
-                                      // handleClick(event, row.id)
-                                    }}
-                                    role="checkbox"
-                                    // aria-checked={isItemSelected}
-                                    tabIndex={-1}
-                                    key={row.level_code}
-                                    // selected={isItemSelected}
-                                    sx={{ cursor: "pointer" }}
-                                  >
-                                    <TableCell
-                                      component="th"
-                                      id={labelId}
-                                      scope="row"
-                                      className="text-16 font-semibold"
-                                      padding="none"
-                                      style={{
-                                        border: "1px solid #ddd",
-                                        padding: "8px",
-                                        paddingLeft: 10,
-                                        paddingRight: 10,
-                                        textAlign: "left",
-                                        opacity: 0.7,
-                                        whiteSpace: "nowrap",
-                                      }}
-                                    >
-                                      {row.level_code}
-                                    </TableCell>
-                                    <TableCell
-                                      component="th"
-                                      className="text-16 font-semibold"
-                                      id={labelId}
-                                      scope="row"
-                                      padding="none"
-                                      style={{
-                                        border: "1px solid #ddd",
-                                        padding: "8px",
-                                        paddingLeft: 10,
-                                        opacity: 0.7,
-                                        textAlign: "left",
-                                        whiteSpace: "nowrap",
-                                        paddingRight: 10,
-                                      }}
-                                    >
-                                      {row.level_title}
-                                    </TableCell>
-                                  </TableRow>
-                                );
-                              })}
-                            </>
-                          </TableBody>
-                        </Table>
-                      </FuseScrollbars>
-                    </TableContainer>
-                  </AccordionDetails>
-                </Accordion>
               </Grid>
             </Grid>
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -1304,7 +843,7 @@ function UploadModulesModal() {
                 disabled={extractedata.length == 0 ? true : false}
                 onClick={handleUpload}
               >
-                {uploadingCourses ? (
+                {uploadingCourseUnits ? (
                   <CircularProgress
                     variant="indeterminate"
                     disableShrink

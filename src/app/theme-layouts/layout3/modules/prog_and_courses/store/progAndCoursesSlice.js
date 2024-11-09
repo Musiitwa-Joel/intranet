@@ -59,6 +59,11 @@ const initialState = {
   selectedAlias: null,
   searchValue: "",
   uploadModulesModalOpen: false,
+  selectedUnit: null,
+  editModule: false,
+  moduleEdited: false,
+  filteredCourseUnits: [],
+  moduleSearchValue: "",
 };
 
 const progAndCoursesSlice = createSlice({
@@ -147,6 +152,21 @@ const progAndCoursesSlice = createSlice({
     setUploadModulesModalOpen: (state, action) => {
       state.uploadModulesModalOpen = action.payload;
     },
+    setSelectedUnit: (state, action) => {
+      state.selectedUnit = action.payload;
+    },
+    setEditModule: (state, action) => {
+      state.editModule = action.payload;
+    },
+    setModuleEdited: (state, action) => {
+      state.moduleEdited = action.payload;
+    },
+    setFilteredCourseUnits: (state, action) => {
+      state.filteredCourseUnits = action.payload;
+    },
+    setModuleSearchValue: (state, action) => {
+      state.moduleSearchValue = action.payload;
+    },
     resetProgAndCoursesSlice: (state, action) => initialState,
   },
 
@@ -176,6 +196,11 @@ const progAndCoursesSlice = createSlice({
     selectFilteredProgrammes: (state) => state.filteredProgrammes,
     selectSearchValue: (state) => state.searchValue,
     selectUploadModulesModalOpen: (state) => state.uploadModulesModalOpen,
+    selectSelectedUnit: (state) => state.selectedUnit,
+    selectEditModule: (state) => state.editModule,
+    selectModuleEdited: (state) => state.moduleEdited,
+    selectFilteredCourseUnits: (state) => state.filteredCourseUnits,
+    selectModuleSearchValue: (state) => state.moduleSearchValue,
   },
 });
 
@@ -214,6 +239,11 @@ export const {
   setSelectedAlias,
   setSearchValue,
   setUploadModulesModalOpen,
+  setSelectedUnit,
+  setEditModule,
+  setModuleEdited,
+  setFilteredCourseUnits,
+  setModuleSearchValue,
 } = progAndCoursesSlice.actions;
 
 export const {
@@ -241,6 +271,11 @@ export const {
   selectFilteredProgrammes,
   selectSearchValue,
   selectUploadModulesModalOpen,
+  selectSelectedUnit,
+  selectEditModule,
+  selectModuleEdited,
+  selectFilteredCourseUnits,
+  selectModuleSearchValue,
 } = injectedSlice.selectors;
 
 // export const selectUserShortcuts = ({ user }) => user.data.shortcuts;
