@@ -23,6 +23,7 @@ import {
   setHideInconsistences,
   setSelectedEnrollment,
   setEditEnrollmentVisible,
+  setModulesEnrollmentModalOpen,
 } from "../../../../store/registrationSlice";
 import formatDateToYYYYMMDD from "app/theme-layouts/layout3/utils/convertDateToYYMMDD";
 import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";
@@ -45,7 +46,7 @@ const EnrollmentTrack = () => {
   const scrollContainerRef = useRef(null);
   const psRef = useRef(null);
   const studentFile = useSelector(selectStudentData);
-  // const selectedEnrollment = useSelector(selectSelectedEnrollment)
+
   const arr = studentFile?.enrollment_history.filter(
     (enrollment) => enrollment.enrollment_status.id != "6"
   );
@@ -227,32 +228,15 @@ const EnrollmentTrack = () => {
                       <Card
                         title={`Year ${enrollment.study_yr}, Semester ${enrollment.sem} (${enrollment.acc_yr_title})`}
                         size="small"
-                        // type="inner"
                         style={{
                           borderColor: "lightgray",
                           borderWidth: 1,
                           color: "red",
                         }}
                       >
-                        <Row gutter={16}>
-                          <Col
-                            xs={{
-                              flex: "100%",
-                            }}
-                            sm={{
-                              flex: "40%",
-                            }}
-                            md={{
-                              flex: "50%",
-                            }}
-                            lg={{
-                              flex: "60%",
-                            }}
-                            xl={{
-                              flex: "70%",
-                            }}
-                          >
-                            {enrollment.enrollment_status.id == "6" && (
+                        <Row gutter={[16, 16]}>
+                          <Col xs={24} sm={12} md={12} lg={14} xl={16}>
+                            {enrollment.enrollment_status.id === "6" && (
                               <div
                                 style={{
                                   position: "absolute",
@@ -262,8 +246,8 @@ const EnrollmentTrack = () => {
                                   height: "100%",
                                   backgroundColor: "rgba(0, 0, 0, 0.5)", // Transparent black overlay
                                   zIndex: 1,
-                                  display: "flex", // Enable flexbox
-                                  justifyContent: "center", // Center horizontally
+                                  display: "flex",
+                                  justifyContent: "center",
                                   alignItems: "center",
                                 }}
                               >
@@ -271,7 +255,7 @@ const EnrollmentTrack = () => {
                                   style={{
                                     color: "white",
                                     textAlign: "center",
-                                    fontSize: "2.5rem",
+                                    fontSize: "1.5rem", // Scaled for smaller screens
                                     fontWeight: "bold",
                                   }}
                                 >
@@ -283,9 +267,7 @@ const EnrollmentTrack = () => {
                             <Descriptions
                               className="custom-descriptions"
                               bordered
-                              //   title="Custom Size"
                               size="small"
-                              // extra={<Button type="primary">Edit</Button>}
                               items={[
                                 {
                                   key: "1",
@@ -293,7 +275,6 @@ const EnrollmentTrack = () => {
                                   children: enrollment.enrolled_by,
                                   span: 2,
                                 },
-
                                 {
                                   key: "6",
                                   label: "Invoiced",
@@ -304,11 +285,10 @@ const EnrollmentTrack = () => {
                                 },
                                 {
                                   key: "3",
-                                  label: "Enrollement Token",
+                                  label: "Enrollment Token",
                                   children: enrollment.enrollment_token,
                                   span: 2,
                                 },
-
                                 {
                                   key: "6",
                                   label: "Enrollment Date",
@@ -322,43 +302,27 @@ const EnrollmentTrack = () => {
                                 borderColor: "lightgray",
                                 borderWidth: 0.2,
                                 borderRadius: 10,
-                                //   backgroundColor: "yellow",
                               }}
                               labelStyle={{
-                                // fontWeight: "bold",
-                                //   backgroundColor: "red",
-                                width: 200,
+                                width: "40%",
+                                backgroundColor: "#e7edfe",
+                                color: "#0832b7",
+                                fontWeight: "bold",
                               }}
                               contentStyle={{
                                 borderBottomColor: "red",
-                                //   backgroundColor: "red",
                                 textAlign: "left",
                               }}
                               column={2}
                             />
                           </Col>
 
-                          <Col
-                            xs={{
-                              flex: "100%",
-                            }}
-                            sm={{
-                              flex: "50%",
-                            }}
-                            md={{
-                              flex: "40%",
-                            }}
-                            lg={{
-                              flex: "20%",
-                            }}
-                            xl={{
-                              flex: "30%",
-                            }}
-                          >
+                          <Col xs={24} sm={12} md={12} lg={10} xl={8}>
                             <div
                               style={{
                                 display: "flex",
                                 flexDirection: "column",
+                                gap: 8, // Space between buttons
                                 marginTop: 2,
                                 marginBottom: 10,
                               }}
@@ -367,24 +331,23 @@ const EnrollmentTrack = () => {
                                 <Button
                                   type="primary"
                                   ghost
-                                  style={{
-                                    marginBottom: 10,
-                                  }}
                                   icon={<RemoveRedEye />}
-
-                                  //   onClick={() => handleOpenPreview(application)}
+                                  style={{ width: "100%" }}
+                                  onClick={() => {
+                                    dispatch(setSelectedEnrollment(enrollment));
+                                    dispatch(
+                                      setModulesEnrollmentModalOpen(true)
+                                    );
+                                  }}
                                 >
                                   View Registered Modules
                                 </Button>
                               )}
-
                               <Button
                                 type="primary"
                                 ghost
-                                style={{
-                                  marginBottom: 10,
-                                }}
                                 icon={<Edit />}
+                                style={{ width: "100%" }}
                                 onClick={() => {
                                   dispatch(setSelectedEnrollment(enrollment));
                                   dispatch(setEditEnrollmentVisible(true));
@@ -393,13 +356,9 @@ const EnrollmentTrack = () => {
                                 Edit Enrollment
                               </Button>
                               <Button
-                                // type="primary"
                                 danger
                                 icon={<Delete />}
-                                style={{
-                                  marginBottom: 10,
-                                  //   backgroundColor: "dodgerblue",
-                                }}
+                                style={{ width: "100%" }}
                                 onClick={() => handleDelete(enrollment)}
                               >
                                 Delete Enrollment

@@ -167,7 +167,7 @@ const titleRender = (nodeData, panelWidth) => {
         whiteSpace: "nowrap",
         overflow: "hidden",
         textOverflow: "ellipsis",
-        maxWidth: `${panelWidth * 10.4}px`,
+        maxWidth: `${panelWidth - 7.954}vw`,
         // display: "flex",
       }}
     >

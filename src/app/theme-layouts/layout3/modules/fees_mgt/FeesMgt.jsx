@@ -46,6 +46,7 @@ import { COPY_FEES_STRUCTURE } from "./gql/mutations";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import { selectUser } from "app/store/userSlice";
 import FeesStructure from "./tabs/fees_structure/FeesStructure";
+import ConfigureLevels from "./tabs/configure_levels/ConfigureLevels";
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
@@ -367,6 +368,7 @@ const FeesMgt = React.memo(function Admissions() {
             {activeTab === 3 && <FeesItems />}
             {activeTab === 4 && <OtherFees />}
             {activeTab === 5 && <FeesCategories />}
+            {/* {activeTab === 6 && <ConfigureLevels />} */}
             {/* {activeTab === 4 && <ConfigureLevels />}
             {activeTab === 3 && <FeesCategories />}
             {activeTab === 2 && <FeesItems />}

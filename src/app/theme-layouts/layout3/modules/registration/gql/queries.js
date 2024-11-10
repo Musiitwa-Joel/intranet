@@ -31,6 +31,7 @@ const LOAD_STUDENT_FILE = gql`
       campus_title
       study_time_title
       course_details {
+        id
         version_title
         course {
           id
@@ -154,4 +155,37 @@ const LOAD_ENROLLMENT_STATUSES = gql`
   }
 `;
 
-export { LOAD_STUDENT_FILE, LOAD_ENROLLMENT_STATUSES };
+const GET_STUDENT_REGISTERED_COURSEUNITS = gql`
+  query getStudentRegisteredCourseunits(
+    $studentNo: String!
+    $studyYear: Int!
+    $sem: Int!
+  ) {
+    student_registered_courseunits(
+      student_no: $studentNo
+      study_year: $studyYear
+      sem: $sem
+    ) {
+      id
+      student_no
+      study_year
+      semester
+      status
+      paid
+      retake_count
+      invoice_no
+      course_unit {
+        course_unit_code
+        course_unit_level
+        course_unit_title
+        credit_units
+      }
+    }
+  }
+`;
+
+export {
+  LOAD_STUDENT_FILE,
+  LOAD_ENROLLMENT_STATUSES,
+  GET_STUDENT_REGISTERED_COURSEUNITS,
+};

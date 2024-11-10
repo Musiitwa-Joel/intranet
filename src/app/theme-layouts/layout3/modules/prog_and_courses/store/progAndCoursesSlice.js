@@ -201,6 +201,7 @@ const progAndCoursesSlice = createSlice({
     selectModuleEdited: (state) => state.moduleEdited,
     selectFilteredCourseUnits: (state) => state.filteredCourseUnits,
     selectModuleSearchValue: (state) => state.moduleSearchValue,
+    selectActiveTab: (state) => state.activeTab,
   },
 });
 
@@ -276,6 +277,7 @@ export const {
   selectModuleEdited,
   selectFilteredCourseUnits,
   selectModuleSearchValue,
+  selectActiveTab,
 } = injectedSlice.selectors;
 
 // export const selectUserShortcuts = ({ user }) => user.data.shortcuts;

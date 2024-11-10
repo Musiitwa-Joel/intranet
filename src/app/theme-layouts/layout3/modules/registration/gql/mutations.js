@@ -108,10 +108,30 @@ const GENERATE_PRT = gql`
   }
 `;
 
+const REGISTER_MODULE = gql`
+  mutation Register_module($payload: RegisterModuleInput!) {
+    register_module(payload: $payload) {
+      message
+      success
+    }
+  }
+`;
+
+const REMOVE_MODULE = gql`
+  mutation removeModule($moduleId: String!) {
+    remove_module(module_id: $moduleId) {
+      message
+      success
+    }
+  }
+`;
+
 export {
   ENROLL_STUDENT,
   SAVE_PAST_ENROLLMENT,
   DELETE_ENROLLMENT,
   EDIT_ENROLLMENT,
   GENERATE_PRT,
+  REGISTER_MODULE,
+  REMOVE_MODULE,
 };

@@ -15,11 +15,11 @@ import College from "./tabs/college/College";
 import Schools from "./tabs/schools/Schools";
 import Departments from "./tabs/departments/Departments";
 import GradingSystems from "./tabs/grading/GradingSystems";
-import { updateActiveTab } from "./store/progAndCoursesSlice";
-import { ConfigProvider, Tabs as Tabs2 } from "antd";
+import { selectActiveTab, updateActiveTab } from "./store/progAndCoursesSlice";
+// import { ConfigProvider, Tabs as Tabs2 } from "antd";
 
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
+// import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -27,8 +27,6 @@ import IconButton from "@mui/material/IconButton";
 import "./programs.css";
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
-
-const { TabPane } = Tabs2;
 
 function ProgramsAndCourses() {
   const dispatch = useDispatch();
@@ -38,7 +36,7 @@ function ProgramsAndCourses() {
   const appExistsInTaskBar = useSelector((state) => state.apps.exists);
   const [loading, setLoading] = useState(!appExistsInTaskBar ? true : false);
   const activeApp = useSelector((state) => state.apps.activeApp);
-  // const { activeTab } = useSelector((state) => state.progAndCourses);
+  const activeTab = useSelector(selectActiveTab);
 
   // console.log("active app", activeApp);
 
@@ -177,7 +175,7 @@ function ProgramsAndCourses() {
       <Suspense fallback={<FuseLoading logo={ProgramAndCourseLogo} />}>
         <Box sx={{ flexGrow: 1 }}>
           {/* <AliveScope> */}
-          {/* <AppBar position="sticky">
+          <AppBar position="sticky">
             <Toolbar
               variant="dense"
               style={{
@@ -297,9 +295,9 @@ function ProgramsAndCourses() {
                 </Menu>
               </Box>
             </Toolbar>
-          </AppBar> */}
+          </AppBar>
 
-          <ConfigProvider
+          {/* <ConfigProvider
             theme={{
               components: {
                 Tabs: {
@@ -418,18 +416,13 @@ function ProgramsAndCourses() {
               ]}
               // onChange={onChange}
             />
-          </ConfigProvider>
+          </ConfigProvider> */}
 
-          {/* {activeTab === 0 && (
-              <KeepAlive name="courses">
-                <Programmes />
-              </KeepAlive>
-            )}
-
-            {activeTab === 1 && <College />}
-            {activeTab === 2 && <Schools />}
-            {activeTab === 3 && <Departments />}
-            {activeTab === 4 && <GradingSystems />} */}
+          {activeTab === 0 && <Programmes />}
+          {activeTab === 1 && <College />}
+          {activeTab === 2 && <Schools />}
+          {activeTab === 3 && <Departments />}
+          {activeTab === 4 && <GradingSystems />}
           {/* </AliveScope> */}
           {/* <Root
       content={

@@ -63,7 +63,7 @@ const DataTable = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const psRef = useRef(null);
   const dispatch = useDispatch();
-  const feesCategories = useSelector(selectFeesCategories);
+
   const { error, loading, data } = useQuery(GET_FEES_CATEGORIES, {
     notifyOnNetworkStatusChange: true,
   });

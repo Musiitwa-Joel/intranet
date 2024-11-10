@@ -48,6 +48,7 @@ import {
 import { ENROLL_STUDENT } from "../../gql/mutations";
 import PaymentModal from "./register_tabs/transactions/PaymentModal";
 import PaymentSlip from "./register_tabs/transactions/prt/PaymentSlip";
+import ModulesEnrollmentModal from "./modules_enrollment_modal/ModulesEnrollmentModal";
 
 const { Search } = Input2;
 
@@ -732,6 +733,7 @@ function Register() {
       )}
       <PaymentModal />
       <PaymentSlip />
+      <ModulesEnrollmentModal />
     </div>
   );
 }

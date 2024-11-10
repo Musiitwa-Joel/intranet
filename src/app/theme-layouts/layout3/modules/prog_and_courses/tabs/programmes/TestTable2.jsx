@@ -116,14 +116,14 @@ const TestTable2 = ({ panelWidth, deletingUnit }) => {
 
   const innerColumns = [
     {
-      title: "Course Code",
+      title: "Code",
       dataIndex: "course_unit_code",
       key: "course_unit_code",
       width: 120,
       ellipsis: true,
     },
     {
-      title: "Course Title",
+      title: "Course Unit Title",
       dataIndex: "course_unit_title",
       key: "course_unit_title",
       width: 300,

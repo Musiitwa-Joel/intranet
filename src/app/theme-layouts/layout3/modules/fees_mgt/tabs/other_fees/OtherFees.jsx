@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 // import AllCourses from "./AllCourses";
-import { Box, Typography } from "@mui/material";
-import { Button, ConfigProvider, Space, Tooltip } from "antd";
+import { Box } from "@mui/material";
+import { Button, Space, Tooltip } from "antd";
 import {
   Add,
   CopyAll,

@@ -142,13 +142,16 @@ const FileIcon = React.memo(() => (
 ));
 
 const titleRender = (nodeData, panelWidth) => {
+  const calculatedWidth = panelWidth * 10.8;
+  // console.log("inner width", innerWidth - 2600);
+  // console.log("pannel", panelWidth * 10.8);
   return (
     <div
       style={{
         whiteSpace: "nowrap",
         overflow: "hidden",
         textOverflow: "ellipsis",
-        maxWidth: `${panelWidth * 10.4}px`,
+        maxWidth: `${panelWidth - 7.954}vw`,
         // display: "flex",
       }}
     >
@@ -449,6 +452,7 @@ const AllCourses = memo(({ panelWidth }) => {
             <DirectoryTree
               //   multiple
               // defaultExpandAll
+
               showLine={true}
               height={dynamicHeight}
               onSelect={onSelect}
