@@ -9,12 +9,25 @@ import {
   Row,
   Col,
   Button,
+  ConfigProvider,
 } from "antd";
 import PerfectScrollbar from "perfect-scrollbar";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectStudentData,
+  setRegistrationPermitModalVisible,
+} from "../../../../store/registrationSlice";
+import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";
+import { Delete, Edit, Print, RemoveRedEye } from "@mui/icons-material";
+import ExaminationPermit from "./ExaminationPermit";
 
 const RegistrationTrack = () => {
+  const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
   const psRef = useRef(null);
+  const studentFile = useSelector(selectStudentData);
+
+  // console.log("student file", studentFile);
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -60,516 +73,161 @@ const RegistrationTrack = () => {
           overflow: "hidden", // Hide default scrollbars
         }}
       >
-        <Timeline
-          // style={{
-          //   paddingTop: 10,
-          // }}
-          items={[
-            {
-              color: "blue",
-              children: (
-                <Badge.Ribbon text="Fully Registered" color="blue">
-                  <Card
-                    title="Year 1, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
+        {studentFile ? (
+          <ConfigProvider
+            key={"registration"}
+            theme={{
+              components: {
+                Timeline: {
+                  tailColor: "lightgray",
+                },
+                Card: {
+                  headerBg: "#f4f4f4",
+                  headerHeightSM: 38,
+                },
+              },
+            }}
+          >
+            <Timeline
+              items={studentFile?.registration_history.map((reg) => ({
+                color: reg.provisional ? "green" : "blue",
+                dot:
+                  reg.study_yr == "1" && reg.sem == "1" ? (
+                    <SmileOutlined />
+                  ) : null,
+                children: (
+                  <Badge.Ribbon
+                    text={
+                      reg.provisional
+                        ? "Provisionally Registered"
+                        : "Fully Registered"
+                    }
+                    color={reg.provisional ? "green" : "blue"}
                   >
-                    <Row gutter={16}>
-                      <Col
-                        xs={{
-                          flex: "100%",
-                        }}
-                        sm={{
-                          flex: "50%",
-                        }}
-                        md={{
-                          flex: "40%",
-                        }}
-                        lg={{
-                          flex: "20%",
-                        }}
-                        xl={{
-                          flex: "75%",
-                        }}
-                      >
-                        <Descriptions
-                          className="custom-descriptions"
-                          bordered
-                          //   title="Custom Size"
-                          size="small"
-                          // extra={<Button type="primary">Edit</Button>}
-                          items={[
-                            {
-                              key: "1",
-                              label: "Registered By",
-                              children: "SELF",
-                              span: 2,
-                            },
-                            {
-                              key: "3",
-                              label: "Registration Date",
-                              children: `MON 10 AUGUST 2024, 01:45 AM`,
-                              span: 2,
-                            },
-                            {
-                              key: "6",
-                              label: "Provisional Expiry",
-                              children: "",
-                              span: 2,
-                            },
-                          ]}
-                          style={
-                            {
-                              //   borderColor: "red",
-                              //   backgroundColor: "yellow",
-                            }
-                          }
-                          labelStyle={{
-                            // fontWeight: "bold",
-                            //   backgroundColor: "red",
-                            width: 200,
-                          }}
-                          contentStyle={{
-                            borderBottomColor: "red",
-                            //   backgroundColor: "red",
-                            textAlign: "left",
-                          }}
-                          column={2}
-                        />
-                      </Col>
-
-                      <Col
-                        xs={{
-                          flex: "100%",
-                        }}
-                        sm={{
-                          flex: "50%",
-                        }}
-                        md={{
-                          flex: "40%",
-                        }}
-                        lg={{
-                          flex: "20%",
-                        }}
-                        xl={{
-                          flex: "25%",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            marginTop: 10,
-                            marginBottom: 10,
-                          }}
-                        >
-                          <Button
-                            type="primary"
+                    <Card
+                      key={"registration"}
+                      title={`Year ${reg.study_yr}, Semester ${reg.sem} (${reg.acc_yr_title})`}
+                      size="small"
+                      style={{
+                        borderColor: "lightgray",
+                        borderWidth: 1,
+                      }}
+                    >
+                      <Row gutter={[16, 16]}>
+                        <Col xs={24} sm={12} md={12} lg={14} xl={16}>
+                          <Descriptions
+                            className="custom-descriptions"
+                            bordered
+                            size="small"
+                            items={[
+                              {
+                                key: "1",
+                                label: "Registered By",
+                                children: reg.registered_by,
+                                span: 2,
+                              },
+                              {
+                                key: "6",
+                                label: "Registration Date",
+                                children: formatDateString(parseInt(reg.date)),
+                                span: 2,
+                              },
+                              {
+                                key: "6",
+                                label: "Registration Token",
+                                children: reg.registration_token,
+                                span: 2,
+                              },
+                              // {
+                              //   key: "3",
+                              //   label: "Provisional Expiry",
+                              //   children: reg.provisional_expiry,
+                              //   span: 2,
+                              // },
+                              {
+                                key: "4",
+                                label: "Comment",
+                                children: reg.reg_comments,
+                                span: 2,
+                              },
+                            ]}
                             style={{
+                              borderColor: "lightgray",
+                              borderWidth: 0.2,
+                              borderRadius: 10,
+                            }}
+                            labelStyle={{
+                              width: "40%",
+                              backgroundColor: "#e7edfe",
+                              color: "#0832b7",
+                              fontWeight: "bold",
+                            }}
+                            contentStyle={{
+                              borderBottomColor: "red",
+                              textAlign: "left",
+                            }}
+                            column={2}
+                          />
+                        </Col>
+
+                        <Col xs={24} sm={12} md={12} lg={10} xl={8}>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 8, // Space between buttons
+                              marginTop: 2,
                               marginBottom: 10,
-                              backgroundColor: "dodgerblue",
                             }}
                           >
-                            Exam Permit
-                          </Button>
-                          <Button
-                            type="primary"
-                            style={{
-                              marginBottom: 10,
-                              backgroundColor: "dodgerblue",
-                            }}
+                            <Button
+                              type="primary"
+                              ghost
+                              icon={<Print />}
+                              style={{ width: "100%" }}
+                              onClick={() => {
+                                // dispatch(setSelectedEnrollment(enrollment));
+                                dispatch(
+                                  setRegistrationPermitModalVisible(true)
+                                );
+                              }}
+                            >
+                              Preview Examination Permit
+                            </Button>
 
-                            //   onClick={() => handleOpenPreview(application)}
-                          >
-                            View Registered Modules
-                          </Button>
-                        </div>
-                      </Col>
-                    </Row>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-            {
-              color: "red",
-              children: (
-                <Badge.Ribbon text="Not Registered" color="red">
-                  <Card
-                    title="Year 1, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
-                  >
-                    <Row gutter={16}>
-                      <Col
-                        xs={{
-                          flex: "100%",
-                        }}
-                        sm={{
-                          flex: "50%",
-                        }}
-                        md={{
-                          flex: "40%",
-                        }}
-                        lg={{
-                          flex: "20%",
-                        }}
-                        xl={{
-                          flex: "75%",
-                        }}
-                      >
-                        <Descriptions
-                          className="custom-descriptions"
-                          bordered
-                          //   title="Custom Size"
-                          size="small"
-                          // extra={<Button type="primary">Edit</Button>}
-                          items={[
-                            {
-                              key: "1",
-                              label: "Registered By",
-                              children: "SELF",
-                              span: 2,
-                            },
-                            {
-                              key: "3",
-                              label: "Registration Date",
-                              children: `MON 10 AUGUST 2024, 01:45 AM`,
-                              span: 2,
-                            },
-                            {
-                              key: "6",
-                              label: "Provisional Expiry",
-                              children: "",
-                              span: 2,
-                            },
-                          ]}
-                          style={
-                            {
-                              //   borderColor: "red",
-                              //   backgroundColor: "yellow",
-                            }
-                          }
-                          labelStyle={{
-                            // fontWeight: "bold",
-                            //   backgroundColor: "red",
-                            width: 200,
-                          }}
-                          contentStyle={{
-                            borderBottomColor: "red",
-                            //   backgroundColor: "red",
-                            textAlign: "left",
-                          }}
-                          column={2}
-                        />
-                      </Col>
+                            <Button
+                              type="primary"
+                              ghost
+                              icon={<Edit />}
+                              style={{ width: "100%" }}
+                              // onClick={() => {
+                              //   dispatch(setSelectedEnrollment(enrollment));
+                              //   dispatch(setEditEnrollmentVisible(true));
+                              // }}
+                            >
+                              Edit Registration
+                            </Button>
 
-                      <Col
-                        xs={{
-                          flex: "100%",
-                        }}
-                        sm={{
-                          flex: "50%",
-                        }}
-                        md={{
-                          flex: "40%",
-                        }}
-                        lg={{
-                          flex: "20%",
-                        }}
-                        xl={{
-                          flex: "25%",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            marginTop: 10,
-                            marginBottom: 10,
-                          }}
-                        >
-                          <Button
-                            type="primary"
-                            style={{
-                              marginBottom: 10,
-                              backgroundColor: "dodgerblue",
-                            }}
-                          >
-                            Exam Permit
-                          </Button>
-                          <Button
-                            type="primary"
-                            style={{
-                              marginBottom: 10,
-                              backgroundColor: "dodgerblue",
-                            }}
-
-                            //   onClick={() => handleOpenPreview(application)}
-                          >
-                            View Registered Modules
-                          </Button>
-                        </div>
-                      </Col>
-                    </Row>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-            {
-              color: "green",
-              children: (
-                <Badge.Ribbon text="Provisionally Registered" color="green">
-                  <Card
-                    title="Year 1, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
-                  >
-                    <Row gutter={16}>
-                      <Col
-                        xs={{
-                          flex: "100%",
-                        }}
-                        sm={{
-                          flex: "50%",
-                        }}
-                        md={{
-                          flex: "40%",
-                        }}
-                        lg={{
-                          flex: "20%",
-                        }}
-                        xl={{
-                          flex: "75%",
-                        }}
-                      >
-                        <Descriptions
-                          className="custom-descriptions"
-                          bordered
-                          //   title="Custom Size"
-                          size="small"
-                          // extra={<Button type="primary">Edit</Button>}
-                          items={[
-                            {
-                              key: "1",
-                              label: "Registered By",
-                              children: "SELF",
-                              span: 2,
-                            },
-                            {
-                              key: "3",
-                              label: "Registration Date",
-                              children: `MON 10 AUGUST 2024, 01:45 AM`,
-                              span: 2,
-                            },
-                            {
-                              key: "6",
-                              label: "Provisional Expiry",
-                              children: "",
-                              span: 2,
-                            },
-                          ]}
-                          style={
-                            {
-                              //   borderColor: "red",
-                              //   backgroundColor: "yellow",
-                            }
-                          }
-                          labelStyle={{
-                            // fontWeight: "bold",
-                            //   backgroundColor: "red",
-                            width: 200,
-                          }}
-                          contentStyle={{
-                            borderBottomColor: "red",
-                            //   backgroundColor: "red",
-                            textAlign: "left",
-                          }}
-                          column={2}
-                        />
-                      </Col>
-
-                      <Col
-                        xs={{
-                          flex: "100%",
-                        }}
-                        sm={{
-                          flex: "50%",
-                        }}
-                        md={{
-                          flex: "40%",
-                        }}
-                        lg={{
-                          flex: "20%",
-                        }}
-                        xl={{
-                          flex: "25%",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            marginTop: 10,
-                            marginBottom: 10,
-                          }}
-                        >
-                          <Button
-                            type="primary"
-                            style={{
-                              marginBottom: 10,
-                              backgroundColor: "dodgerblue",
-                            }}
-                          >
-                            Exam Permit
-                          </Button>
-                          <Button
-                            type="primary"
-                            style={{
-                              marginBottom: 10,
-                              backgroundColor: "dodgerblue",
-                            }}
-
-                            //   onClick={() => handleOpenPreview(application)}
-                          >
-                            View Registered Modules
-                          </Button>
-                        </div>
-                      </Col>
-                    </Row>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-
-            {
-              color: "#00CCFF",
-              dot: <SmileOutlined />,
-              children: (
-                <Badge.Ribbon text="Fully Registered" color="blue">
-                  <Card
-                    title="Year 1, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
-                  >
-                    <Row gutter={16}>
-                      <Col
-                        xs={{
-                          flex: "100%",
-                        }}
-                        sm={{
-                          flex: "50%",
-                        }}
-                        md={{
-                          flex: "40%",
-                        }}
-                        lg={{
-                          flex: "20%",
-                        }}
-                        xl={{
-                          flex: "75%",
-                        }}
-                      >
-                        <Descriptions
-                          className="custom-descriptions"
-                          bordered
-                          //   title="Custom Size"
-                          size="small"
-                          // extra={<Button type="primary">Edit</Button>}
-                          items={[
-                            {
-                              key: "1",
-                              label: "Registered By",
-                              children: "SELF",
-                              span: 2,
-                            },
-                            {
-                              key: "3",
-                              label: "Registration Date",
-                              children: `MON 10 AUGUST 2024, 01:45 AM`,
-                              span: 2,
-                            },
-                            {
-                              key: "6",
-                              label: "Provisional Expiry",
-                              children: "",
-                              span: 2,
-                            },
-                          ]}
-                          style={
-                            {
-                              //   borderColor: "red",
-                              //   backgroundColor: "yellow",
-                            }
-                          }
-                          labelStyle={{
-                            // fontWeight: "bold",
-                            //   backgroundColor: "red",
-                            width: 200,
-                          }}
-                          contentStyle={{
-                            borderBottomColor: "red",
-                            //   backgroundColor: "red",
-                            textAlign: "left",
-                          }}
-                          column={2}
-                        />
-                      </Col>
-
-                      <Col
-                        xs={{
-                          flex: "100%",
-                        }}
-                        sm={{
-                          flex: "50%",
-                        }}
-                        md={{
-                          flex: "40%",
-                        }}
-                        lg={{
-                          flex: "20%",
-                        }}
-                        xl={{
-                          flex: "25%",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            marginTop: 10,
-                            marginBottom: 10,
-                          }}
-                        >
-                          <Button
-                            type="primary"
-                            style={{
-                              marginBottom: 10,
-                              backgroundColor: "dodgerblue",
-                            }}
-                          >
-                            Exam Permit
-                          </Button>
-                          <Button
-                            type="primary"
-                            style={{
-                              marginBottom: 10,
-                              backgroundColor: "dodgerblue",
-                            }}
-
-                            //   onClick={() => handleOpenPreview(application)}
-                          >
-                            View Registered Modules
-                          </Button>
-                        </div>
-                      </Col>
-                    </Row>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-          ]}
-        />
+                            <Button
+                              danger
+                              icon={<Delete />}
+                              style={{ width: "100%" }}
+                              // onClick={() => handleDelete(enrollment)}
+                            >
+                              Delete Registration
+                            </Button>
+                          </div>
+                        </Col>
+                      </Row>
+                    </Card>
+                  </Badge.Ribbon>
+                ),
+              }))}
+            />
+          </ConfigProvider>
+        ) : null}
       </div>
+      <ExaminationPermit />
     </>
   );
 };

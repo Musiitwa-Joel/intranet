@@ -21,6 +21,8 @@ const initialState = {
   invoiceDetailsModalVisible: false,
   selectedInvoice: null,
   modulesEnrollmentModalOpen: false,
+  registrationmodalVisible: false,
+  regPermitModalVisible: false,
 };
 /**
  * The File Manager App slice.
@@ -86,6 +88,12 @@ export const registrationSlice = createSlice({
     setModulesEnrollmentModalOpen: (state, action) => {
       state.modulesEnrollmentModalOpen = action.payload;
     },
+    setRegistrationModalVisible: (state, action) => {
+      state.registrationmodalVisible = action.payload;
+    },
+    setRegistrationPermitModalVisible: (state, action) => {
+      state.regPermitModalVisible = action.payload;
+    },
   },
 
   selectors: {
@@ -112,6 +120,9 @@ export const registrationSlice = createSlice({
     selectSelectedInvoice: (state) => state.selectedInvoice,
     selectModulesEnrollmentModalOpen: (state) =>
       state.modulesEnrollmentModalOpen,
+    selectRegistrationModalVisible: (state) => state.registrationmodalVisible,
+    selectRegistrationPermitModalVisible: (state) =>
+      state.regPermitModalVisible,
   },
 });
 /**
@@ -139,6 +150,8 @@ export const {
   setInvoiceDetailsModalVisible,
   setSelectedInvoice,
   setModulesEnrollmentModalOpen,
+  setRegistrationModalVisible,
+  setRegistrationPermitModalVisible,
 } = registrationSlice.actions;
 
 export const {
@@ -161,5 +174,7 @@ export const {
   selectInvoiceDetailsModalVisible,
   selectSelectedInvoice,
   selectModulesEnrollmentModalOpen,
+  selectRegistrationModalVisible,
+  selectRegistrationPermitModalVisible,
 } = injectedSlice.selectors;
 export default registrationSlice.reducer;

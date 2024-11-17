@@ -126,6 +126,15 @@ const REMOVE_MODULE = gql`
   }
 `;
 
+const REGISTER_STUDENT = gql`
+  mutation registerStudent($payload: RegInput) {
+    registerStudent(payload: $payload) {
+      message
+      success
+    }
+  }
+`;
+
 export {
   ENROLL_STUDENT,
   SAVE_PAST_ENROLLMENT,
@@ -134,4 +143,5 @@ export {
   GENERATE_PRT,
   REGISTER_MODULE,
   REMOVE_MODULE,
+  REGISTER_STUDENT,
 };

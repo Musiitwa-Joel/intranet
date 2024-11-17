@@ -1,9 +1,8 @@
 import * as React from "react";
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardActions from "@mui/material/CardActions";
-
 import { lighten } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Unstable_Grid2";
@@ -23,9 +22,7 @@ import {
 } from "antd";
 import PerfectScrollbar from "perfect-scrollbar";
 import { Input as Input2, Space, Button as Button2 } from "antd";
-
 import { useDispatch, useSelector } from "react-redux";
-
 import { selectUser } from "app/store/userSlice";
 import RegisterTabs from "./register_tabs/RegisterTabs";
 import { SearchOutlined } from "@mui/icons-material";
@@ -40,6 +37,7 @@ import {
   selectStudentNo,
   setEnrollModalVisible,
   setLoadingStudentData,
+  setRegistrationModalVisible,
   setSelectedInvoice,
   setSpecificEnrollmentStatuses,
   setStudentData,
@@ -49,8 +47,14 @@ import { ENROLL_STUDENT } from "../../gql/mutations";
 import PaymentModal from "./register_tabs/transactions/PaymentModal";
 import PaymentSlip from "./register_tabs/transactions/prt/PaymentSlip";
 import ModulesEnrollmentModal from "./modules_enrollment_modal/ModulesEnrollmentModal";
+import RegistrationModal from "./RegistrationModal";
 
 const { Search } = Input2;
+
+function getTotalAmountDue(invoices) {
+  if (!invoices) return 0;
+  return invoices.reduce((total, invoice) => total + invoice.amount_due, 0);
+}
 
 const items = [
   {
@@ -105,6 +109,21 @@ const enrollment_statuses = [
 ];
 
 function Register() {
+  const studentFile = useSelector(selectStudentData);
+  const enrollModalVisible = useSelector(selectEnrollModalVisible);
+  const enrollmentTypes = useSelector(selectEnrollmentStatuses);
+  const specificEnrollmentTypes = useSelector(selectSpecificEnrollmentStatuses);
+  const studentNo = useSelector(selectStudentNo);
+  const dispatch = useDispatch();
+  const [form] = Form.useForm();
+  const [form2] = Form.useForm();
+  const totalAmountDue = React.useMemo(
+    () => getTotalAmountDue(studentFile?.invoices || []),
+    [studentFile?.invoices]
+  );
+  const scrollContainerRef = React.useRef(null);
+  const psRef = React.useRef(null);
+  const userObj = useSelector(selectUser);
   const [loadStudentFile, { error, loading: loadingStudentFile, data }] =
     useLazyQuery(LOAD_STUDENT_FILE, {
       fetchPolicy: "network-only",
@@ -126,25 +145,7 @@ function Register() {
     }
   }, [data]);
 
-  const studentFile = useSelector(selectStudentData);
-  const enrollModalVisible = useSelector(selectEnrollModalVisible);
-  const enrollmentTypes = useSelector(selectEnrollmentStatuses);
-  const specificEnrollmentTypes = useSelector(selectSpecificEnrollmentStatuses);
-  const studentNo = useSelector(selectStudentNo);
-  const [activeTab, setActiveTab] = React.useState("1");
-  const [searchText, setSearchText] = useState("");
-  const dispatch = useDispatch();
-  const [form] = Form.useForm();
-  const [form2] = Form.useForm();
-
-  // console.log("enrollment types", enrollmentTypes);
-
-  const [value, setValue] = useState("");
-  const [options, setOptions] = useState([]);
-  const scrollContainerRef = React.useRef(null);
-  const psRef = React.useRef(null);
-  const userObj = useSelector(selectUser);
-  const [image, setImage] = useState(null);
+  // console.log("student file", studentFile);
 
   React.useEffect(() => {
     if (error) {
@@ -257,6 +258,10 @@ function Register() {
     dispatch(setEnrollModalVisible(true));
   };
 
+  const handleRegister = () => {
+    dispatch(setRegistrationModalVisible(true));
+  };
+
   const onEnroll = async (values) => {
     // console.log("the values", values);
 
@@ -286,7 +291,7 @@ function Register() {
 
     dispatch(setEnrollModalVisible(false));
   };
-  // console.log("selected option", selectedStd);
+
   return (
     <div
       className="flex-auto p-10 sm:p-24"
@@ -414,7 +419,16 @@ function Register() {
                     >
                       <motion.div animate={{ x: [0, 30, 0] }}>
                         <Avatar
-                          sx={{ borderColor: studentFile ? "red" : "purple" }}
+                          sx={{
+                            borderColor:
+                              studentFile?.current_info.registration_status ==
+                              "Registered"
+                                ? "#4d4dff"
+                                : studentFile?.current_info
+                                      .registration_status == "Not Registered"
+                                  ? "#ff4d4d"
+                                  : "purple",
+                          }}
                           className="w-200 h-200 border-4"
                           src={`http://localhost:2222/api/student_image/${studentFile?.student_no}`}
                           alt="User avatar"
@@ -532,31 +546,53 @@ function Register() {
                       >
                         Block
                       </Button2>
-
-                      <Button2
-                        type="primary"
-                        disabled={!studentFile}
-                        style={{
-                          backgroundColor: studentFile ? "green" : "",
-                        }}
-                        //   disabled={!selectedStd || !image}
-                        // onClick={handleSave}
-                      >
-                        Register Provisionally
-                      </Button2>
-
-                      <Button2
-                        type="primary"
-                        disabled={
-                          !studentFile ||
-                          studentFile?.current_info.enrollment_status ==
-                            "Enrolled"
-                        }
-                        //   disabled={!selectedStd || !image}
-                        onClick={handleEnroll}
-                      >
-                        Enroll
-                      </Button2>
+                      {studentFile?.current_info.enrollment_status ==
+                      "Enrolled" ? (
+                        <>
+                          {totalAmountDue > 0 ? (
+                            <Button2
+                              type="primary"
+                              disabled={!studentFile}
+                              style={{
+                                backgroundColor: studentFile ? "green" : "",
+                              }}
+                              //   disabled={!selectedStd || !image}
+                              // onClick={handleSave}
+                            >
+                              Register Provisionally
+                            </Button2>
+                          ) : (
+                            <Button2
+                              type="primary"
+                              // disabled={
+                              //   !studentFile ||
+                              //   studentFile?.current_info.enrollment_status ==
+                              //     "Enrolled"
+                              // }
+                              disabled={
+                                studentFile?.current_info.registration_status ==
+                                "Registered"
+                              }
+                              onClick={handleRegister}
+                            >
+                              Register
+                            </Button2>
+                          )}
+                        </>
+                      ) : (
+                        <Button2
+                          type="primary"
+                          disabled={
+                            !studentFile ||
+                            studentFile?.current_info.enrollment_status ==
+                              "Enrolled"
+                          }
+                          //   disabled={!selectedStd || !image}
+                          onClick={handleEnroll}
+                        >
+                          Enroll
+                        </Button2>
+                      )}
                     </Space>
                   </CardActions>
                 </Card>
@@ -709,7 +745,7 @@ function Register() {
                   rules={[
                     {
                       required: true,
-                      message: "Please input the enrollmennt status",
+                      message: "Please input the enrollment status",
                     },
                   ]}
                 >
@@ -731,6 +767,8 @@ function Register() {
           </div>
         </Modal>
       )}
+
+      <RegistrationModal />
       <PaymentModal />
       <PaymentSlip />
       <ModulesEnrollmentModal />

@@ -31,9 +31,9 @@ const columns = [
   },
   {
     title: "PAID",
-    key: "paid",
+    key: "amount_paid",
     render: (text) => text.toLocaleString(),
-    dataIndex: "paid",
+    dataIndex: "amount_paid",
   },
   {
     title: "AMOUNT DUE",
@@ -75,6 +75,7 @@ const GenerateTable = () => {
   const userObj = useSelector(selectUser);
   const dispatch = useDispatch();
   const [generatePRT, { loading, error, data }] = useMutation(GENERATE_PRT);
+  // console.log("invoices", studentFile?.invoices);
 
   useEffect(() => {
     if (error) {
@@ -102,7 +103,7 @@ const GenerateTable = () => {
     unpaidInvoices.map((inv, index) => {
       newData.push({
         ...inv,
-        allocate_amount: inv.total_amount,
+        allocate_amount: inv.amount_due,
       });
     });
 

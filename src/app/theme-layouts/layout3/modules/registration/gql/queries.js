@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 const LOAD_STUDENT_FILE = gql`
-  query loadStudentFile($studentNo: String) {
+  query LoadStudentFile($studentNo: String) {
     loadStudentFile(student_no: $studentNo) {
       id
       form_no
@@ -68,6 +68,24 @@ const LOAD_STUDENT_FILE = gql`
         acc_yr_title
         invoiced
       }
+      registration_history {
+        id
+        acc_yr_id
+        acc_yr_title
+        date
+        study_yr
+        student_no
+        sem
+        enrollment_token
+        registration_token
+        reg_comments
+        provisional_reason
+        provisional_expiry
+        provisional
+        de_registered_reason
+        de_registered
+        registered_by
+      }
       invoices {
         id
         student_id
@@ -85,6 +103,7 @@ const LOAD_STUDENT_FILE = gql`
           quantity
           unit_amount
         }
+
         currency_code
         amount_paid
         amount_due
@@ -137,6 +156,7 @@ const LOAD_STUDENT_FILE = gql`
         acc_yr_id
         progress
         active_sem_id
+        registration_status
       }
       status
       is_on_sponsorship

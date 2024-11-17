@@ -25,7 +25,6 @@ import {
   setEditEnrollmentVisible,
   setModulesEnrollmentModalOpen,
 } from "../../../../store/registrationSlice";
-import formatDateToYYYYMMDD from "app/theme-layouts/layout3/utils/convertDateToYYMMDD";
 import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";
 import {
   Delete,
@@ -126,7 +125,7 @@ const EnrollmentTrack = () => {
         psRef.current = null;
       }
     };
-  }, [enrollmentHist]);
+  }, [enrollmentHist, studentFile]);
 
   useEffect(() => {
     if (studentFile) {
@@ -198,6 +197,7 @@ const EnrollmentTrack = () => {
                   },
                   Card: {
                     headerBg: "#f4f4f4",
+                    headerHeightSM: 38,
                   },
                 },
               }}
@@ -226,6 +226,7 @@ const EnrollmentTrack = () => {
                       }
                     >
                       <Card
+                        key={"enrollment"}
                         title={`Year ${enrollment.study_yr}, Semester ${enrollment.sem} (${enrollment.acc_yr_title})`}
                         size="small"
                         style={{

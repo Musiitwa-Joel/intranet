@@ -137,7 +137,10 @@ const PaymentModal = () => {
             background: token.colorBgContainer,
             marginTop: 15,
           }}
-          items={getItems(panelStyle, studentFile?.invoices)}
+          items={getItems(
+            panelStyle,
+            studentFile?.invoices.filter((inv) => inv.amount_due > 0)
+          )}
         />
       </Modal>
     </>

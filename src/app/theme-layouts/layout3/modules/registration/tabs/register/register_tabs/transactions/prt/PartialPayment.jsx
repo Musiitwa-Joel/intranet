@@ -31,9 +31,9 @@ const columns = [
   },
   {
     title: "PAID",
-    dataIndex: "paid",
+    dataIndex: "amount_paid",
     render: (text) => text.toLocaleString(),
-    key: "paid",
+    key: "amount_paid",
   },
   {
     title: "AMOUNT DUE",
