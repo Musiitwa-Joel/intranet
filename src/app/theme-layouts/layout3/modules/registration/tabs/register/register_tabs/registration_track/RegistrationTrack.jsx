@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { SmileOutlined } from "@ant-design/icons";
 import {
   Timeline,
@@ -20,12 +20,53 @@ import {
 import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";
 import { Delete, Edit, Print, RemoveRedEye } from "@mui/icons-material";
 import ExaminationPermit from "./ExaminationPermit";
+import { useLazyQuery } from "@apollo/client";
+import { GET_STUDENT_REGISTERED_COURSEUNITS } from "../../../../gql/queries";
+import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 
 const RegistrationTrack = () => {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
   const psRef = useRef(null);
   const studentFile = useSelector(selectStudentData);
+  const [selectedReg, setSelectedReg] = React.useState(null);
+  const [selectedModules, setSelectedModules] = useState([]);
+
+  const [
+    getStudentRegisteredCourseUnits,
+    { error, loading, data: studentRegisteredCourseUnitsRes },
+  ] = useLazyQuery(GET_STUDENT_REGISTERED_COURSEUNITS, {
+    notifyOnNetworkStatusChange: true,
+  });
+
+  useEffect(() => {
+    if (error) {
+      dispatch(
+        showMessage({
+          message: error.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [error]);
+
+  const handlePreviewExamPermit = async (reg) => {
+    const res = await getStudentRegisteredCourseUnits({
+      variables: {
+        studentNo: studentFile?.student_no,
+        studyYear: parseInt(reg?.study_yr),
+        sem: parseInt(reg?.sem),
+      },
+    });
+
+    // console.log("modules", res.data?.student_registered_courseunits);
+    if (res.data?.student_registered_courseunits) {
+      setSelectedModules(res.data?.student_registered_courseunits);
+    }
+
+    setSelectedReg(reg);
+    dispatch(setRegistrationPermitModalVisible(true));
+  };
 
   // console.log("student file", studentFile);
 
@@ -185,12 +226,9 @@ const RegistrationTrack = () => {
                               ghost
                               icon={<Print />}
                               style={{ width: "100%" }}
-                              onClick={() => {
-                                // dispatch(setSelectedEnrollment(enrollment));
-                                dispatch(
-                                  setRegistrationPermitModalVisible(true)
-                                );
-                              }}
+                              loading={loading}
+                              disabled={loading}
+                              onClick={() => handlePreviewExamPermit(reg)}
                             >
                               Preview Examination Permit
                             </Button>
@@ -227,7 +265,12 @@ const RegistrationTrack = () => {
           </ConfigProvider>
         ) : null}
       </div>
-      <ExaminationPermit />
+      <ExaminationPermit
+        study_yr={selectedReg?.study_yr}
+        semester={selectedReg?.sem}
+        reg={selectedReg}
+        selectedModules={selectedModules}
+      />
     </>
   );
 };

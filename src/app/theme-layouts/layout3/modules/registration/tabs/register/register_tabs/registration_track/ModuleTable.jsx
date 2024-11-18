@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { theme } from "antd";
 
-const ModuleTable = ({ onCourseSelect }) => {
+const ModuleTable = ({ courseUnits }) => {
   const [selectedCourses, setSelectedCourses] = useState({});
   const [hoveredRow, setHoveredRow] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -92,7 +92,7 @@ const ModuleTable = ({ onCourseSelect }) => {
     borderCollapse: "collapse",
     fontFamily: "Arial, sans-serif",
     fontSize: "1.7rem",
-    fontWeight: "bold",
+    fontWeight: "500",
   };
 
   const thStyle = {
@@ -101,6 +101,7 @@ const ModuleTable = ({ onCourseSelect }) => {
     padding: "4px",
     // backgroundColor: "blue",
     whiteSpace: "nowrap",
+    fontWeight: "bold",
   };
 
   const tdStyle = {
@@ -142,7 +143,7 @@ const ModuleTable = ({ onCourseSelect }) => {
           <table style={tableStyle}>
             <thead>
               <tr style={{ color: token.colorPrimary }}>
-                {/* <th style={thStyle}>###</th> */}
+                <th style={thStyle}>#</th>
                 <th style={thStyle}>CODE</th>
                 <th style={thStyle}>MODULE TITLE</th>
                 <th style={thStyle}>CU</th>
@@ -151,27 +152,34 @@ const ModuleTable = ({ onCourseSelect }) => {
               </tr>
             </thead>
             <tbody>
-              {semesterData.courses.map((course, courseIndex) => (
+              {courseUnits.map((_module, index) => (
                 <tr
-                  key={courseIndex}
-                  style={getRowStyle(course.code)}
-                  onMouseEnter={() => handleMouseEnter(course.code)}
+                  key={index}
+                  style={getRowStyle(_module?.course_unit.course_unit_code)}
+                  onMouseEnter={() =>
+                    handleMouseEnter(_module?.course_unit.course_unit_code)
+                  }
                   onMouseLeave={handleMouseLeave}
                 >
-                  <td style={tdStyle}>
-                    <span>{course.code}</span>
+                  <td>
+                    <span>{index + 1}</span>
+                  </td>
+                  <td>
+                    <span>{_module?.course_unit.course_unit_code}</span>
                   </td>
                   <td style={tdStyle}>
-                    <span>{course.title}</span>
+                    <span>{_module?.course_unit.course_unit_title}</span>
                   </td>
                   <td style={tdStyle}>
-                    <span>{course.cu}</span>
+                    <span>{_module?.course_unit.credit_units}</span>
                   </td>
                   <td style={tdStyle}>
-                    <span>{course.category}</span>
+                    <span>
+                      {_module?.course_unit.course_unit_level.toUpperCase()}
+                    </span>
                   </td>
                   <td style={tdStyle}>
-                    <span>{course.status}</span>
+                    <span>{_module?.status.toUpperCase()}</span>
                   </td>
                 </tr>
               ))}
