@@ -40,7 +40,7 @@ function StudentRecords() {
   return (
     <div
       style={{
-        height: "calc(100vh - 110px)",
+        height: "calc(100vh - 113px)",
         // backgroundColor: "red",
       }}
     >

@@ -143,6 +143,7 @@ const FileIcon = React.memo(() => (
 
 const titleRender = (nodeData, panelWidth) => {
   const calculatedWidth = panelWidth * 10.8;
+  // console.log(panelWidth)
   // console.log("inner width", innerWidth - 2600);
   // console.log("pannel", panelWidth * 10.8);
   return (

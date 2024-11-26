@@ -37,6 +37,7 @@ import {
   selectStudentNo,
   setEnrollModalVisible,
   setLoadingStudentData,
+  setProvisionalRegModalVisible,
   setRegistrationModalVisible,
   setSelectedInvoice,
   setSpecificEnrollmentStatuses,
@@ -48,6 +49,7 @@ import PaymentModal from "./register_tabs/transactions/PaymentModal";
 import PaymentSlip from "./register_tabs/transactions/prt/PaymentSlip";
 import ModulesEnrollmentModal from "./modules_enrollment_modal/ModulesEnrollmentModal";
 import RegistrationModal from "./RegistrationModal";
+import ProvisionalRegistrationModal from "./ProvisionalRegistrationModal";
 
 const { Search } = Input2;
 
@@ -258,6 +260,10 @@ function Register() {
     dispatch(setEnrollModalVisible(true));
   };
 
+  const handleProvisionalReg = () => {
+    dispatch(setProvisionalRegModalVisible(true));
+  };
+
   const handleRegister = () => {
     dispatch(setRegistrationModalVisible(true));
   };
@@ -296,8 +302,8 @@ function Register() {
     <div
       className="flex-auto p-10 sm:p-24"
       style={{
-        height: "calc(100vh - 100px)",
-        // backgroundColor: "#F0F8FF",
+        height: "calc(100vh - 99.2px)",
+        // backgroundColor: "red",
         backgroundColor: "#dfe5ef",
       }}
     >
@@ -306,7 +312,7 @@ function Register() {
         style={{
           height: "calc(100vh - 138px)",
           borderColor: "lightgray",
-          //   backgroundColor: "red",
+          // backgroundColor: "red",
         }}
       >
         <motion.div
@@ -427,7 +433,11 @@ function Register() {
                                 : studentFile?.current_info
                                       .registration_status == "Not Registered"
                                   ? "#ff4d4d"
-                                  : "purple",
+                                  : studentFile?.current_info
+                                        .registration_status ==
+                                      "Provisionally Registered"
+                                    ? "green"
+                                    : "purple",
                           }}
                           className="w-200 h-200 border-4"
                           src={`http://localhost:2222/api/student_image/${studentFile?.student_no}`}
@@ -490,8 +500,7 @@ function Register() {
                               key: "1",
                               label: "Registration Status",
                               children:
-                                studentFile?.current_info.recent_enrollment &&
-                                "Not Registered",
+                                studentFile?.current_info.registration_status,
                               span: 3,
                             },
 
@@ -552,12 +561,22 @@ function Register() {
                           {totalAmountDue > 0 ? (
                             <Button2
                               type="primary"
-                              disabled={!studentFile}
+                              // disabled={!studentFile}
                               style={{
-                                backgroundColor: studentFile ? "green" : "",
+                                backgroundColor:
+                                  studentFile &&
+                                  studentFile?.current_info
+                                    .registration_status !=
+                                    "Provisionally Registered"
+                                    ? "green"
+                                    : null,
                               }}
-                              //   disabled={!selectedStd || !image}
-                              // onClick={handleSave}
+                              disabled={
+                                !studentFile ||
+                                studentFile?.current_info.registration_status ==
+                                  "Provisionally Registered"
+                              }
+                              onClick={handleProvisionalReg}
                             >
                               Register Provisionally
                             </Button2>
@@ -767,7 +786,7 @@ function Register() {
           </div>
         </Modal>
       )}
-
+      <ProvisionalRegistrationModal />
       <RegistrationModal />
       <PaymentModal />
       <PaymentSlip />

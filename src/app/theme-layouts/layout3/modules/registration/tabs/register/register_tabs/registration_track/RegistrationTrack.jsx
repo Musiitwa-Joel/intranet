@@ -24,6 +24,39 @@ import { useLazyQuery } from "@apollo/client";
 import { GET_STUDENT_REGISTERED_COURSEUNITS } from "../../../../gql/queries";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 
+function formatCustomDate(dateString) {
+  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  const months = [
+    "JAN",
+    "FEB",
+    "MAR",
+    "APR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AUG",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DEC",
+  ];
+
+  const date = new Date(dateString);
+
+  const day = days[date.getDay()]; // Day abbreviation
+  const month = months[date.getMonth()]; // Month abbreviation
+  const dateOfMonth = date.getDate(); // Day of the month
+  const year = date.getFullYear(); // Year
+
+  // Format hours and minutes
+  let hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12; // Convert to 12-hour format
+
+  return `${day}-${month}-${dateOfMonth}-${year}`;
+}
+
 const RegistrationTrack = () => {
   const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
@@ -164,7 +197,7 @@ const RegistrationTrack = () => {
                               {
                                 key: "1",
                                 label: "Registered By",
-                                children: reg.registered_by,
+                                children: `${reg?.registered_user.title} ${reg?.registered_user.staff_name}`,
                                 span: 2,
                               },
                               {
@@ -173,24 +206,50 @@ const RegistrationTrack = () => {
                                 children: formatDateString(parseInt(reg.date)),
                                 span: 2,
                               },
-                              {
-                                key: "6",
-                                label: "Registration Token",
-                                children: reg.registration_token,
-                                span: 2,
-                              },
-                              // {
-                              //   key: "3",
-                              //   label: "Provisional Expiry",
-                              //   children: reg.provisional_expiry,
-                              //   span: 2,
-                              // },
-                              {
-                                key: "4",
-                                label: "Comment",
-                                children: reg.reg_comments,
-                                span: 2,
-                              },
+                              ...(reg.provisional
+                                ? [
+                                    {
+                                      key: "3",
+                                      label: "Provisional Expiry",
+                                      children: (
+                                        <span
+                                          style={{
+                                            color:
+                                              new Date() <
+                                              new Date(reg.provisional_expiry)
+                                                ? "green"
+                                                : "red",
+                                          }}
+                                        >
+                                          {formatCustomDate(
+                                            reg.provisional_expiry
+                                          )}
+                                        </span>
+                                      ),
+                                      span: 2,
+                                    },
+                                    {
+                                      key: "3",
+                                      label: "Provisional Reason",
+                                      children: reg.provisional_reason,
+                                      span: 2,
+                                    },
+                                  ]
+                                : [
+                                    {
+                                      key: "6",
+                                      label: "Registration Token",
+                                      children: reg.registration_token,
+                                      span: 2,
+                                    },
+
+                                    {
+                                      key: "4",
+                                      label: "Comment",
+                                      children: reg.reg_comments,
+                                      span: 2,
+                                    },
+                                  ]),
                             ]}
                             style={{
                               borderColor: "lightgray",
@@ -221,17 +280,20 @@ const RegistrationTrack = () => {
                               marginBottom: 10,
                             }}
                           >
-                            <Button
-                              type="primary"
-                              ghost
-                              icon={<Print />}
-                              style={{ width: "100%" }}
-                              loading={loading}
-                              disabled={loading}
-                              onClick={() => handlePreviewExamPermit(reg)}
-                            >
-                              Preview Examination Permit
-                            </Button>
+                            {studentFile?.current_info.registration_status ==
+                              "Registered" && (
+                              <Button
+                                type="primary"
+                                ghost
+                                icon={<Print />}
+                                style={{ width: "100%" }}
+                                loading={loading}
+                                disabled={loading}
+                                onClick={() => handlePreviewExamPermit(reg)}
+                              >
+                                Preview Examination Permit
+                              </Button>
+                            )}
 
                             <Button
                               type="primary"
@@ -252,7 +314,7 @@ const RegistrationTrack = () => {
                               style={{ width: "100%" }}
                               // onClick={() => handleDelete(enrollment)}
                             >
-                              Delete Registration
+                              De Register
                             </Button>
                           </div>
                         </Col>

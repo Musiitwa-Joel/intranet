@@ -1,24 +1,27 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Form, Input, Modal } from "antd";
+import { DatePicker, Form, Input, Modal } from "antd";
 import {
-  selectRegistrationModalVisible,
+  selectProvisionalRegModalVisible,
   selectStudentData,
-  setRegistrationModalVisible,
+  setProvisionalRegModalVisible,
 } from "../../store/registrationSlice";
 import { REGISTER_STUDENT } from "../../gql/mutations";
 import { useMutation } from "@apollo/client";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
+import formatDateToYYYYMMDD from "app/theme-layouts/layout3/utils/convertDateToYYMMDD";
 
 const { TextArea } = Input;
 
-function RegistrationModal() {
+function ProvisionalRegistrationModal() {
   const dispatch = useDispatch();
   const studentFile = useSelector(selectStudentData);
-  const registrationmodalVisible = useSelector(selectRegistrationModalVisible);
+  const registrationmodalVisible = useSelector(
+    selectProvisionalRegModalVisible
+  );
   const [form] = Form.useForm();
 
-  const [registerStudent, { error, loading, data }] = useMutation(
+  const [provisonallyRegisterStudent, { error, loading, data }] = useMutation(
     REGISTER_STUDENT,
     {
       refetchQueries: ["loadStudentFile"],
@@ -40,16 +43,21 @@ function RegistrationModal() {
     const payload = {
       payload: {
         acc_yr_id: studentFile?.current_info.acc_yr_id,
-        reg_comments: values.reg_comment,
+        reg_comments: null,
         sem: studentFile?.current_info.true_sem,
         student_no: studentFile?.student_no,
         study_yr: studentFile?.current_info.true_study_yr,
         enrollment_token:
           studentFile?.current_info.recent_enrollment.enrollment_token,
+        provisional: 1,
+        provisional_expiry: formatDateToYYYYMMDD(values.expiry_date.$d),
+        provisional_reason: values?.reg_comment,
       },
     };
 
-    const res = await registerStudent({
+    // console.log("payload", payload);
+
+    const res = await provisonallyRegisterStudent({
       variables: payload,
     });
 
@@ -61,7 +69,8 @@ function RegistrationModal() {
         })
       );
 
-      dispatch(setRegistrationModalVisible(false));
+      form.resetFields();
+      dispatch(setProvisionalRegModalVisible(false));
     }
   };
 
@@ -79,10 +88,10 @@ function RegistrationModal() {
           >
             <span
               style={{
-                color: "purple",
+                color: "green",
               }}
             >
-              Register{" "}
+              Provisionally Register{" "}
               {`${studentFile?.biodata.surname} ${studentFile?.biodata.other_names}`}{" "}
               - {studentFile?.student_no}
             </span>
@@ -91,11 +100,14 @@ function RegistrationModal() {
         style={{ top: "25%" }}
         open={registrationmodalVisible}
         onOk={() => form.submit()}
-        onCancel={() => dispatch(setRegistrationModalVisible(false))}
-        okText="Register"
+        onCancel={() => dispatch(setProvisionalRegModalVisible(false))}
+        okText="Provisonally Register"
         okButtonProps={{
           loading: loading,
           disabled: loading,
+          style: {
+            backgroundColor: "green",
+          },
         }}
         maskClosable={false}
       >
@@ -114,8 +126,35 @@ function RegistrationModal() {
             }}
             autoComplete="off"
           >
-            <Form.Item label="Registration Comment" name="reg_comment">
-              <TextArea rows={4} placeholder="Registration Comment" />
+            <Form.Item
+              label="Expiry Date"
+              name="expiry_date"
+              rules={[
+                {
+                  required: true,
+                  message: "Expiry Date is required",
+                },
+              ]}
+            >
+              <DatePicker
+                format="YYYY-MM-DD"
+                style={{
+                  width: "100%",
+                }}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Registration Comment"
+              name="reg_comment"
+              rules={[
+                {
+                  required: true,
+                  message: "Please Provide a comment",
+                },
+              ]}
+            >
+              <TextArea rows={3} placeholder="Registration Comment" />
             </Form.Item>
           </Form>
         </div>
@@ -124,4 +163,4 @@ function RegistrationModal() {
   );
 }
 
-export default RegistrationModal;
+export default ProvisionalRegistrationModal;

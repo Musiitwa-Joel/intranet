@@ -96,9 +96,10 @@ const ModuleTable = ({ courseUnits }) => {
   };
 
   const thStyle = {
-    border: `1px solid ${token.colorPrimary}`,
+    // border: `1px solid ${token.colorPrimary}`,
     textAlign: "left",
     padding: "4px",
+
     // backgroundColor: "blue",
     whiteSpace: "nowrap",
     fontWeight: "bold",
@@ -142,7 +143,12 @@ const ModuleTable = ({ courseUnits }) => {
           <div style={semesterTitleStyle}>{semesterData.semester}</div>
           <table style={tableStyle}>
             <thead>
-              <tr style={{ color: token.colorPrimary }}>
+              <tr
+                style={{
+                  color: token.colorPrimary,
+                  border: `1px solid ${token.colorPrimary}`,
+                }}
+              >
                 <th style={thStyle}>#</th>
                 <th style={thStyle}>CODE</th>
                 <th style={thStyle}>MODULE TITLE</th>

@@ -1,6 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { rootReducer } from "app/store/lazyLoadedSlices";
 
+const regReportInputInitialState = {
+  acc_yr_id: null,
+  campus_id: null,
+  college_id: null,
+  intake_id: null,
+  sem: null,
+  study_time_id: null,
+  school_id: null,
+  ccourse_id: null,
+};
+
 const initialState = {
   activeTab: 0,
   activeRegisterTab: "biodata",
@@ -23,6 +34,13 @@ const initialState = {
   modulesEnrollmentModalOpen: false,
   registrationmodalVisible: false,
   regPermitModalVisible: false,
+  provisionalRegModalVisible: false,
+  activeRegReportsTab: "1",
+  registrationReport: null,
+  registrationReportLoading: false,
+  studentsModalVisible: false,
+  regReportInput: regReportInputInitialState,
+  selection: null,
 };
 /**
  * The File Manager App slice.
@@ -94,6 +112,27 @@ export const registrationSlice = createSlice({
     setRegistrationPermitModalVisible: (state, action) => {
       state.regPermitModalVisible = action.payload;
     },
+    setProvisionalRegModalVisible: (state, action) => {
+      state.provisionalRegModalVisible = action.payload;
+    },
+    setActiveRegReportsTab: (state, action) => {
+      state.activeRegReportsTab = action.payload;
+    },
+    setRegistrationReport: (state, action) => {
+      state.registrationReport = action.payload;
+    },
+    setRegistrationReportLoading: (state, action) => {
+      state.registrationReportLoading = action.payload;
+    },
+    setStudentsModalVisible: (state, action) => {
+      state.studentsModalVisible = action.payload;
+    },
+    setRegReportInput: (state, action) => {
+      state.regReportInput = action.payload;
+    },
+    setSelecttion: (state, action) => {
+      state.selection = action.payload;
+    },
   },
 
   selectors: {
@@ -123,6 +162,14 @@ export const registrationSlice = createSlice({
     selectRegistrationModalVisible: (state) => state.registrationmodalVisible,
     selectRegistrationPermitModalVisible: (state) =>
       state.regPermitModalVisible,
+    selectProvisionalRegModalVisible: (state) =>
+      state.provisionalRegModalVisible,
+    selectActiveRegReportsTab: (state) => state.activeRegReportsTab,
+    selectRegistrationReport: (state) => state.registrationReport,
+    selectRegistrationReportLoading: (state) => state.registrationReportLoading,
+    selectStudentsModalVisible: (state) => state.studentsModalVisible,
+    selectRegReportInput: (state) => state.regReportInput,
+    selectSelection: (state) => state.selection,
   },
 });
 /**
@@ -152,6 +199,13 @@ export const {
   setModulesEnrollmentModalOpen,
   setRegistrationModalVisible,
   setRegistrationPermitModalVisible,
+  setProvisionalRegModalVisible,
+  setActiveRegReportsTab,
+  setRegistrationReport,
+  setRegistrationReportLoading,
+  setStudentsModalVisible,
+  setRegReportInput,
+  setSelecttion,
 } = registrationSlice.actions;
 
 export const {
@@ -176,5 +230,12 @@ export const {
   selectModulesEnrollmentModalOpen,
   selectRegistrationModalVisible,
   selectRegistrationPermitModalVisible,
+  selectProvisionalRegModalVisible,
+  selectActiveRegReportsTab,
+  selectRegistrationReport,
+  selectRegistrationReportLoading,
+  selectStudentsModalVisible,
+  selectRegReportInput,
+  selectSelection,
 } = injectedSlice.selectors;
 export default registrationSlice.reducer;

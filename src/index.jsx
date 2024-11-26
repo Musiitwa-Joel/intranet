@@ -28,7 +28,7 @@ import { userLoggedOut } from "app/store/userSlice";
 
 // Create an HTTP link for file uploads
 const uploadLink = createUploadLink({
-  uri: "http://localhost:2323",
+  uri: "http://199.241.139.118:2323",
 });
 
 // Create a middleware to dynamically set headers

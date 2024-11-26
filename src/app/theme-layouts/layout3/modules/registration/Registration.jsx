@@ -32,6 +32,7 @@ import { gql, useQuery } from "@apollo/client";
 import { LOAD_ENROLLMENT_STATUSES } from "./gql/queries";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import { updateAccYrs } from "../setup/store/setUpSlice";
+import Reports from "./tabs/reports/Reports";
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
@@ -299,6 +300,7 @@ const Registration = React.memo(function Setup() {
             </AppBar>
 
             {activeTab === 0 && <Register />}
+            {activeTab === 1 && <Reports />}
           </Box>
         </Suspense>
       )}

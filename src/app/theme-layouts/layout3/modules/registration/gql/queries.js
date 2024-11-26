@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 const LOAD_STUDENT_FILE = gql`
-  query LoadStudentFile($studentNo: String) {
+  query loadStudentFile($studentNo: String) {
     loadStudentFile(student_no: $studentNo) {
       id
       form_no
@@ -84,7 +84,11 @@ const LOAD_STUDENT_FILE = gql`
         provisional
         de_registered_reason
         de_registered
-        registered_by
+        registered_user {
+          title
+          staff_name
+          id
+        }
       }
       invoices {
         id
@@ -204,8 +208,66 @@ const GET_STUDENT_REGISTERED_COURSEUNITS = gql`
   }
 `;
 
+const LOAD_STD_REGISTRATION_REPORT = gql`
+  query studentRegistrationReport($payload: RegReportInput!) {
+    student_registration_report(payload: $payload) {
+      totals {
+        total_enrolled
+        total_provisional
+        total_registered
+      }
+      report_summary {
+        course_id
+        school_code
+        course_code
+        course_title
+        school_id
+        school_title
+        study_yr
+        total_enrolled
+        total_provisional
+        total_registered
+      }
+    }
+  }
+`;
+
+const LOAD_REG_STUDENTS = gql`
+  query getStudents($payload: RegReportInput!) {
+    get_students(payload: $payload) {
+      # id
+      surname
+      other_names
+      student_no
+      registration_no
+      enrollment_token
+      enrollment_status
+      entry_acc_yr
+      registration_token
+      provisional
+      acc_yr
+      nationality
+      study_yr
+      sem
+      study_time
+      course_code
+      course_title
+      gender
+    }
+  }
+`;
+
+const DOWNLOAD_STDS_REG_REPORT = gql`
+  query downloadStdsRegReport($payload: RegReportInput!) {
+    download_report(payload: $payload)
+  }
+`;
+
 export {
   LOAD_STUDENT_FILE,
   LOAD_ENROLLMENT_STATUSES,
   GET_STUDENT_REGISTERED_COURSEUNITS,
+  LOAD_STD_REGISTRATION_REPORT,
+  LOAD_REG_STUDENTS,
+  DOWNLOAD_STDS_REG_REPORT,
 };

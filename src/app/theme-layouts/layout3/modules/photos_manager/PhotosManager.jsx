@@ -194,7 +194,7 @@ function PhotosManager() {
                   justifyContent: "center",
                   alignItems: "center",
                   // backgroundColor: "red",
-                  height: "calc(100vh - 99px)",
+                  height: "calc(100vh - 106px)",
                 }}
               >
                 <div>

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import {
   Modal,
@@ -20,12 +20,19 @@ import {
   setRegistrationPermitModalVisible,
 } from "../../../../store/registrationSlice";
 import { Print, Refresh } from "@mui/icons-material";
+import PerfectScrollbar from "perfect-scrollbar";
 
 const { Text, Title } = Typography;
 
 // Correctly forward the ref to the printable content
 const PrintableContent = React.forwardRef((props, ref) => {
   const studentFile = useSelector(selectStudentData);
+
+  const totalCreditUnits = props.selectedModules.reduce((total, item) => {
+    const creditUnits = parseInt(item.course_unit.credit_units, 10) || 0;
+    return total + creditUnits;
+  }, 0);
+  //   console.log("course units", props.selectedModules);
   return (
     <div
       ref={ref} // Pass the ref to the root DOM element
@@ -66,7 +73,7 @@ const PrintableContent = React.forwardRef((props, ref) => {
           size={70}
           bordered={false}
           type="svg"
-          value={studentFile?.student_no}
+          value={props.reg?.registration_token}
         />
       </div>
 
@@ -141,7 +148,7 @@ const PrintableContent = React.forwardRef((props, ref) => {
           marginBottom: 5,
         }}
       >
-        REGISTERED COURSE MODULES
+        REGISTERED COURSE UNITS
       </Title>
       <div style={{ marginTop: "-5px" }}>
         <ModuleTable courseUnits={props.selectedModules} />
@@ -161,8 +168,8 @@ const PrintableContent = React.forwardRef((props, ref) => {
         <Title level={5}>NOTES:</Title>
         <Text style={{ fontStyle: "italic", lineHeight: 0.75 }}>
           <em>
-            1. The total credits registered for Semester 1 of the 2024/2025
-            academic year is 5.
+            {`1. The total credits registered for Semester ${props.semester} of the ${props.reg?.acc_yr_title} academic year is ${totalCreditUnits}`}
+            .
           </em>
           <br />
           <em>
@@ -206,6 +213,8 @@ const PrintableContent = React.forwardRef((props, ref) => {
 function ExaminationPermit({ study_yr, semester, selectedModules, reg }) {
   const dispatch = useDispatch();
   const componentRef = useRef();
+  const scrollContainerRef = useRef(null);
+  const psRef = useRef(null);
   const registrationPermitModalVisible = useSelector(
     selectRegistrationPermitModalVisible
   );
@@ -245,6 +254,24 @@ function ExaminationPermit({ study_yr, semester, selectedModules, reg }) {
     console.log("Reloading data...");
   };
 
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      psRef.current = new PerfectScrollbar(scrollContainerRef.current, {
+        wheelSpeed: 2,
+        wheelPropagation: true,
+        minScrollbarLength: 20,
+      });
+    }
+
+    return () => {
+      if (psRef.current) {
+        psRef.current.destroy();
+        psRef.current = null;
+      }
+    };
+  }, [reg]);
+
+  if (!reg) return null;
   return (
     <div>
       <Modal
@@ -252,7 +279,7 @@ function ExaminationPermit({ study_yr, semester, selectedModules, reg }) {
         open={registrationPermitModalVisible}
         onCancel={() => dispatch(setRegistrationPermitModalVisible(false))}
         footer={false}
-        width={900}
+        width={1000}
         style={{ top: 20, maxHeight: 500 }}
       >
         <Alert
@@ -291,17 +318,22 @@ function ExaminationPermit({ study_yr, semester, selectedModules, reg }) {
           }
         />
         <div
+          ref={scrollContainerRef}
           style={{
+            position: "relative",
             maxHeight: "calc(100vh - 220px)",
-            overflowY: "auto",
+            overflowY: "hidden",
           }}
         >
-          <PrintableContent
-            study_yr={study_yr}
-            semester={semester}
-            ref={componentRef}
-            selectedModules={selectedModules}
-          />
+          <div>
+            <PrintableContent
+              study_yr={study_yr}
+              semester={semester}
+              ref={componentRef}
+              selectedModules={selectedModules}
+              reg={reg}
+            />
+          </div>
         </div>
       </Modal>
     </div>

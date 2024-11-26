@@ -21,6 +21,8 @@ import FeesMgt from "app/theme-layouts/layout3/modules/fees_mgt/FeesMgt";
 import Registration from "app/theme-layouts/layout3/modules/registration/Registration";
 import ProtectedRoute from "../auth/ProtectedRoute";
 import FullScreenUnlockSessionPage from "../main/unlock-session/FullScreenUnlockSessionPage";
+import Finance from "app/theme-layouts/layout3/modules/finance/Finance";
+import TredPay from "app/theme-layouts/layout3/modules/tredpay/TredPay";
 
 // const ProgramsAndCourses = lazy(
 //   () =>
@@ -76,6 +78,22 @@ const routes = [
     element: (
       <ProtectedRoute>
         <Setup />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "finance",
+    element: (
+      <ProtectedRoute>
+        <Finance />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "tredpay",
+    element: (
+      <ProtectedRoute>
+        <TredPay />
       </ProtectedRoute>
     ),
   },

@@ -9,7 +9,7 @@
     font-weight: 600;
     min-height: 38px;
     font-size: 14px;
-    background: #f4f4f4;
+    /* background: #f4f4f4; */
     border-bottom: 1px solid lightgray;
     border-radius: 8px 8px 0 0;
 
@@ -31,6 +31,6 @@
     border-radius: 8px 8px 0 0;
 }
 
-:where(.css-dev-only-do-not-override-4y8l68).ant-card-small>.ant-card-body {
-    padding: 12px;
+.ant-card-small>.ant-card-body {
+    padding: 12px !important;
 }
