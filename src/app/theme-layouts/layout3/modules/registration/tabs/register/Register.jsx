@@ -440,7 +440,7 @@ function Register() {
                                     : "purple",
                           }}
                           className="w-200 h-200 border-4"
-                          src={`http://localhost:2222/api/student_image/${studentFile?.student_no}`}
+                          src={`https://tredumo.nkumbauniversity.ac.ug:2222/api/student_image/${studentFile?.student_no}`}
                           alt="User avatar"
                         />
                       </motion.div>

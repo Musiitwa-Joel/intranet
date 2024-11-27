@@ -344,7 +344,7 @@ function UploadModulesModal() {
 
   const handleDownloadExcel = () => {
     window.location.href =
-      "http://localhost:2222/templates/upload-modules-template.xlsx";
+      "https://tredumo.nkumbauniversity.ac.ug:2222/templates/upload-modules-template.xlsx";
   };
 
   //   console.log("createModuleModalOpen", createModuleModalOpen);

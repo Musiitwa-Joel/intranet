@@ -107,7 +107,7 @@ const PrintableContent = React.forwardRef((props, ref) => {
               preview={false}
               width={100}
               style={{ borderRadius: "50%" }}
-              src={`http://localhost:2222/api/student_image/${studentFile?.student_no}`}
+              src={`https://tredumo.nkumbauniversity.ac.ug:2222/api/student_image/${studentFile?.student_no}`}
             />
           </div>
 
