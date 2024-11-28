@@ -31,6 +31,8 @@ const initialState = {
   reloadStudents: false,
   reloadStdCourses: false,
   selectedStudent: null,
+  addStudentModalVisible: false,
+  uploadStudentsModalVisible: false,
 };
 /**
  * The File Manager App slice.
@@ -101,6 +103,12 @@ export const infoCenterSlice = createSlice({
     setSelectedStudent: (state, action) => {
       state.selectedStudent = action.payload;
     },
+    setAddStudentModalVisible: (state, action) => {
+      state.addStudentModalVisible = action.payload;
+    },
+    setUploadStudentsModalVisible: (state, action) => {
+      state.uploadStudentsModalVisible = action.payload;
+    },
   },
   selectors: {
     selectActiveTab: (state) => state.activeTab,
@@ -120,6 +128,9 @@ export const infoCenterSlice = createSlice({
     selectReloadStudents: (state) => state.reloadStudents,
     selectReloadStdCourses: (state) => state.reloadStdCourses,
     selectSelectedStudent: (state) => state.selectedStudent,
+    selectAddStudentModalVisible: (state) => state.addStudentModalVisible,
+    selectUploadStudentsModalVisible: (state) =>
+      state.uploadStudentsModalVisible,
   },
 });
 /**
@@ -145,6 +156,8 @@ export const {
   setReloadStudents,
   setReloadStdCourses,
   setSelectedStudent,
+  setAddStudentModalVisible,
+  setUploadStudentsModalVisible,
 } = infoCenterSlice.actions;
 export const {
   selectLayout,
@@ -164,5 +177,7 @@ export const {
   selectReloadStudents,
   selectReloadStdCourses,
   selectSelectedStudent,
+  selectAddStudentModalVisible,
+  selectUploadStudentsModalVisible,
 } = injectedSlice.selectors;
 export default infoCenterSlice.reducer;

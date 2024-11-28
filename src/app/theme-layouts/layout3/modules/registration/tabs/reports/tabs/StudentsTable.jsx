@@ -115,7 +115,7 @@ const StudentsTable = React.memo(() => {
         dataIndex: "index",
         key: "date",
         render: (text, record, index) => index + 1,
-        width: 30,
+        width: 45,
         // fixed: "left",
       },
       {
@@ -130,7 +130,7 @@ const StudentsTable = React.memo(() => {
       {
         title: "Student No",
         dataIndex: "student_no",
-        width: 100,
+        width: 130,
         key: "student_no",
       },
 
@@ -172,6 +172,7 @@ const StudentsTable = React.memo(() => {
         title: "Nationality",
         key: "nationality",
         dataIndex: "nationality",
+        ellipsis: true,
         width: 120,
       },
       {

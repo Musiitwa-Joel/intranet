@@ -18,9 +18,13 @@ import StudentDetails from "./StudentDetails";
 import StudentInfoModal from "./StudentInfoModal";
 import StudentSearchModal from "./StudentSearchModal";
 import {
+  setAddStudentModalVisible,
   setReloadStdCourses,
   setStudentSearchModalVisible,
+  setUploadStudentsModalVisible,
 } from "../../store/infoCenterSlice";
+import AddNewStudentModal from "./student_details/AddNewStudentModal";
+import UploadStudentsModal from "./student_details/UploadStudentsModal";
 
 // import TestTable from "./TestTable";
 
@@ -80,36 +84,30 @@ function StudentRecords() {
               </Button>
             </Tooltip>
 
-            <Tooltip title="Create Course Version">
-              <Button
-                size="small"
-                icon={<Add />}
-                // disabled={!selectedItem || selectedItem.typename != "Course"}
-                // onClick={handleCreateCourseVersion}
-              >
-                Add New Student
-              </Button>
-            </Tooltip>
+            <Button
+              size="small"
+              icon={<Add />}
+              // disabled={!selectedItem || selectedItem.typename != "Course"}
+              onClick={() => dispatch(setAddStudentModalVisible(true))}
+            >
+              Add New Student
+            </Button>
 
-            <Tooltip title="Upload Courses">
-              <Button
-                size="small"
-                icon={<Upload />}
-                // onClick={handleCoursesUpload}
-              >
-                Upload Students
-              </Button>
-            </Tooltip>
+            <Button
+              size="small"
+              icon={<Upload />}
+              onClick={() => dispatch(setUploadStudentsModalVisible(true))}
+            >
+              Upload Students
+            </Button>
 
-            <Tooltip title="Download Courses">
-              <Button
-                size="small"
-                icon={<Download />}
-                // onClick={handleCoursesDownload}
-              >
-                Download Students
-              </Button>
-            </Tooltip>
+            <Button
+              size="small"
+              icon={<Download />}
+              // onClick={handleCoursesDownload}
+            >
+              Download Students
+            </Button>
 
             <Tooltip title="Reload Courses">
               <Button
@@ -164,6 +162,8 @@ function StudentRecords() {
       </PanelGroup>
       <StudentInfoModal />
       <StudentSearchModal />
+      <AddNewStudentModal />
+      <UploadStudentsModal />
     </div>
   );
 }

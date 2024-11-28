@@ -440,7 +440,8 @@ function Register() {
                                     : "purple",
                           }}
                           className="w-200 h-200 border-4"
-                          src={`https://tredumo.nkumbauniversity.ac.ug:2222/api/student_image/${studentFile?.student_no}`}
+                          // src={`https://tredumo.nkumbauniversity.ac.ug:2222/api/student_image/${studentFile?.student_no}`}
+                          src={` https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=${studentFile?.student_no}`}
                           alt="User avatar"
                         />
                       </motion.div>
@@ -555,10 +556,69 @@ function Register() {
                       >
                         Block
                       </Button2>
-                      {studentFile?.current_info.enrollment_status ==
+                      {/* {studentFile?.current_info.enrollment_status ==
                       "Enrolled" ? (
                         <>
                           {totalAmountDue > 0 ? (
+                            <Button2
+                              type="primary"
+                              // disabled={!studentFile}
+                              style={{
+                                backgroundColor:
+                                  studentFile &&
+                                  studentFile?.current_info
+                                    .registration_status !=
+                                    "Provisionally Registered"
+                                    ? "green"
+                                    : null,
+                              }}
+                              disabled={
+                                !studentFile ||
+                                studentFile?.current_info.registration_status ==
+                                  "Provisionally Registered"
+                              }
+                              onClick={handleProvisionalReg}
+                            >
+                              Register Provisionally
+                            </Button2>
+                          ) : (
+                            <Button2
+                              type="primary"
+                              // disabled={
+                              //   !studentFile ||
+                              //   studentFile?.current_info.enrollment_status ==
+                              //     "Enrolled"
+                              // }
+                              disabled={
+                                studentFile?.current_info.registration_status ==
+                                "Registered"
+                              }
+                              onClick={handleRegister}
+                            >
+                              Register
+                            </Button2>
+                          )}
+                        </>
+                      ) : (
+                        <Button2
+                          type="primary"
+                          disabled={
+                            !studentFile ||
+                            studentFile?.current_info.enrollment_status ==
+                              "Enrolled"
+                          }
+                          //   disabled={!selectedStd || !image}
+                          onClick={handleEnroll}
+                        >
+                          Enroll
+                        </Button2>
+                      )} */}
+
+                      {studentFile?.current_info.enrollment_status ==
+                      "Enrolled" ? (
+                        <>
+                          {studentFile?.current_info.registration_status ==
+                          "Not Registered" ? (
                             <Button2
                               type="primary"
                               // disabled={!studentFile}

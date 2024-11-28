@@ -179,7 +179,9 @@ const StudentInfoModal = () => {
             >
               <div>
                 <img
-                  src={`http://localhost:2222/api/student_image/${selectedStudent.student_no}`}
+                  // src={`http://localhost:2222/api/student_image/${selectedStudent.student_no}`}
+                  // src={`https://tredumo.nkumbauniversity.ac.ug:2222/api/student_image/${studentFile?.student_no}`}
+                  src={` https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=${selectedStudent.student_no}`}
                   style={{
                     width: 130,
                     height: 130,

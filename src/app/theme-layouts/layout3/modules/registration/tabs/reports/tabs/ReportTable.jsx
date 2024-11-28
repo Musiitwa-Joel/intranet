@@ -275,7 +275,7 @@ function ReportTable() {
         dataSource={data}
         pagination={false}
         size="small"
-        rowKey="course_id"
+        // rowKey="course_id"
         loading={regReportLoading}
         // rowSelection={{
         //   type: "radio",
@@ -562,23 +562,23 @@ function ReportTable() {
               //   expandedRowKeys: expandedKeys,
               onExpand: (expanded, record) => {
                 // console.log("key", record);
-                dispatch(
-                  setDefaultExpandedModuleRowKeys(
-                    expanded
-                      ? [
-                          ...expandedKeys,
-                          `${record.course_unit_year}-${record.course_unit_sem}`,
-                        ]
-                      : expandedKeys.filter(
-                          (key) =>
-                            key !==
-                            `${record.course_unit_year}-${record.course_unit_sem}`
-                        )
-                  )
-                );
+                // dispatch(
+                //   setDefault(
+                //     expanded
+                //       ? [
+                //           ...expandedKeys,
+                //           `${record.course_unit_year}-${record.course_unit_sem}`,
+                //         ]
+                //       : expandedKeys.filter(
+                //           (key) =>
+                //             key !==
+                //             `${record.course_unit_year}-${record.course_unit_sem}`
+                //         )
+                //   )
+                // );
               },
             }}
-            rowKey={"key"}
+            rowKey={"school_code"}
             style={{
               width: "100%",
               borderColor: "lightgray",

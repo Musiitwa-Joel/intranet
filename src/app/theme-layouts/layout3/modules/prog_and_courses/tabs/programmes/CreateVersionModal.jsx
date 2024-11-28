@@ -37,14 +37,16 @@ const CreateVersionModal = () => {
     refetchQueries: ["getAllProgrammesCategorisedBySchools"],
   });
 
-  if (saveCourseVersionError) {
-    dispatch(
-      showMessage({
-        message: "Error saving course " + saveCourseVersionError.message,
-        variant: "error",
-      })
-    );
-  }
+  useEffect(() => {
+    if (saveCourseVersionError) {
+      dispatch(
+        showMessage({
+          message: "Error saving course " + saveCourseVersionError.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [saveCourseVersionError]);
 
   const handleOk = () => {
     form.submit(); // Trigger form submission on OK button click

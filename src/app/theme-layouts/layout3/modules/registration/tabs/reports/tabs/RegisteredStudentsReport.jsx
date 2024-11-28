@@ -111,7 +111,7 @@ function RegisteredStudentsReport() {
   };
 
   const onFinish = (values) => {
-    // console.log("values", values);
+    console.log("values", values);
     dispatch(setRegReportInput(values));
     const payload = {
       payload: {

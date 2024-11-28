@@ -138,7 +138,9 @@ const StudentList = () => {
                   <div className="w-130 h-128 mx-auto rounded-full overflow-hidden">
                     <img
                       className="w-full h-full object-cover"
-                      src={`http://localhost:2222/api/student_image/${item.student_no}`}
+                      // src={`http://localhost:2222/api/student_image/${item.student_no}`}
+                      // src={`https://tredumo.nkumbauniversity.ac.ug:2222/api/student_image/${studentFile?.student_no}`}
+                      src={` https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=${item.student_no}`}
                       alt="member"
                     />
                   </div>

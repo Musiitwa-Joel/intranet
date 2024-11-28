@@ -296,7 +296,9 @@ const AllCourses = memo(({ panelWidth }) => {
 
   const _reloadCourses = async () => {
     if (reloadCourses) {
-      await refetch();
+      const res = await refetch();
+      // console.log("res", res.data);
+      dispatch(setFilteredProgrammes(res.data.schools));
       if (networkStatus === NetworkStatus.refetch) {
         console.log("Refetching...");
       }
@@ -309,7 +311,7 @@ const AllCourses = memo(({ panelWidth }) => {
   }, [reloadCourses]);
 
   useEffect(() => {
-    if (data && filteredProgrammes.length == 0) {
+    if (data) {
       dispatch(updateAllProgrammes(data.schools));
       dispatch(setFilteredProgrammes(data.schools));
       const searchResult = searchHierarchy(data.schools, searchValue);
@@ -329,6 +331,7 @@ const AllCourses = memo(({ panelWidth }) => {
 
   useEffect(() => {
     dispatch(setLoadingCourseUnits(loadingCourseUnits));
+    // dispatch(setFilteredProgrammes(data.schools));
   }, [loadingCourseUnits, loadingVersionDetails]);
 
   useEffect(() => {

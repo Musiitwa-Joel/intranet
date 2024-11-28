@@ -27,6 +27,10 @@ import { userLoggedOut } from "app/store/userSlice";
  */
 
 // Create an HTTP link for file uploads
+// const uploadLink = createUploadLink({
+//   uri: "http://localhost:2323",
+// });
+
 const uploadLink = createUploadLink({
   uri: "https://tredumo.nkumbauniversity.ac.ug:2323",
 });
