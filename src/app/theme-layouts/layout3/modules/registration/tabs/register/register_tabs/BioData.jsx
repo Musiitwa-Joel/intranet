@@ -50,7 +50,7 @@ const BioData = () => {
       key: "7",
       label: "Gender",
       children: studentFile?.biodata.gender
-        ? studentFile?.biodata.gender.toUpperCase()
+        ? studentFile?.biodata.gender?.toUpperCase()
         : null,
       span: 1,
     },
@@ -80,7 +80,7 @@ const BioData = () => {
       label: "Billing Nationality",
       children:
         studentFile?.biodata.nationality &&
-        studentFile?.biodata.nationality.nationality_category.toUpperCase(),
+        studentFile?.biodata.nationality.nationality_category?.toUpperCase(),
       span: 1,
     },
 
