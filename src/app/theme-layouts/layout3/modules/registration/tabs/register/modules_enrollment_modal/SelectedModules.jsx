@@ -205,14 +205,14 @@ function SelectedModules() {
         dataIndex: "course_unit_code",
         width: "18%",
         ellipsis: true,
-        render: (text, record, index) => record.course_unit.course_unit_code,
+        render: (text, record, index) => record.course_unit?.course_unit_code,
       },
       {
         title: "Course unit title",
         dataIndex: "course_unit_title",
         width: "40%",
         ellipsis: true,
-        render: (text, record, index) => record.course_unit.course_unit_title,
+        render: (text, record, index) => record.course_unit?.course_unit_title,
       },
 
       {
@@ -226,7 +226,7 @@ function SelectedModules() {
         title: "Level",
         dataIndex: "course_unit_level",
         width: "15%",
-        render: (text, record, index) => record.course_unit.course_unit_level,
+        render: (text, record, index) => record.course_unit?.course_unit_level,
         ellipsis: true,
       },
       {
@@ -276,7 +276,7 @@ function SelectedModules() {
         title: "CU",
         dataIndex: "credit_units",
         width: "10%",
-        render: (text, record, index) => record.course_unit.credit_units,
+        render: (text, record, index) => record.course_unit?.credit_units,
         ellipsis: true,
       },
     ];

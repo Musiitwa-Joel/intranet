@@ -23,6 +23,7 @@ import {
   OpenInNew,
 } from "@mui/icons-material";
 import { DOWNLOAD_STDS_REG_REPORT } from "../../../gql/queries";
+import { url2 } from "app/configs/apiConfig";
 
 const { Search } = Input;
 
@@ -449,7 +450,9 @@ function ReportTable() {
   ];
 
   const handleDownloadStdsReport = (school_id = null) => {
-    let downloadUrl = `http://localhost:2222/download-student-reg-report?campus_id=${regReportInput?.campus_id}&college=${regReportInput?.college_id}&acc_yr_id=${regReportInput?.acc_yr_id}&intake_id=${regReportInput?.intake_id}&sem=${regReportInput?.sem}&study_time_id=${regReportInput?.study_time_id}`;
+    // let downloadUrl = `http://localhost:2222/download-student-reg-report?campus_id=${regReportInput?.campus_id}&college=${regReportInput?.college_id}&acc_yr_id=${regReportInput?.acc_yr_id}&intake_id=${regReportInput?.intake_id}&sem=${regReportInput?.sem}&study_time_id=${regReportInput?.study_time_id}`;
+    let downloadUrl = `${url2}/download-student-reg-report?campus_id=${regReportInput?.campus_id}&college=${regReportInput?.college_id}&acc_yr_id=${regReportInput?.acc_yr_id}&intake_id=${regReportInput?.intake_id}&sem=${regReportInput?.sem}&study_time_id=${regReportInput?.study_time_id}`;
+
     if (school_id) {
       downloadUrl += `&school_id=${school_id}`;
     }

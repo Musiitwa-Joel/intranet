@@ -20,6 +20,7 @@ import { setToken } from "app/store/tokenSlice";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import { addAppToTaskBar } from "app/store/appSlice";
 import { userLoggedOut } from "app/store/userSlice";
+import { mainUrl } from "app/configs/apiConfig";
 // import * as serviceWorker from './serviceWorker';
 // import reportWebVitals from './reportWebVitals';
 /**
@@ -32,7 +33,7 @@ import { userLoggedOut } from "app/store/userSlice";
 // });
 
 const uploadLink = createUploadLink({
-  uri: "https://tredumo.nkumbauniversity.ac.ug:2323",
+  uri: mainUrl,
 });
 
 // Create a middleware to dynamically set headers
