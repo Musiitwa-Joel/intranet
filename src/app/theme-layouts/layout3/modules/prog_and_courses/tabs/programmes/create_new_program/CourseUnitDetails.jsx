@@ -190,7 +190,7 @@ function CourseUnitDetails() {
     }
     const res = await generateModuleCode({
       variables: {
-        courseCode: selectedCourseVersion.course.course_code,
+        courseCode: selectedCourseVersion.parent.course_code,
       },
     });
 
@@ -202,9 +202,9 @@ function CourseUnitDetails() {
   useEffect(() => {
     if (selectedCourseVersion) {
       form.setFieldsValue({
-        course_code: selectedCourseVersion.course.course_code,
-        course_title: selectedCourseVersion.course.id,
-        course_version: selectedCourseVersion.id,
+        course_code: selectedCourseVersion.parent.code,
+        course_title: selectedCourseVersion.parent.id,
+        course_version: selectedCourseVersion.selected.id,
       });
     }
   }, [selectedCourseVersion, editModule]);
@@ -452,7 +452,7 @@ function CourseUnitDetails() {
                                 ? allCourses
                                     ?.filter(
                                       (c) =>
-                                        c.id == selectedCourseVersion.course.id
+                                        c.id == selectedCourseVersion.parent.id
                                     )[0]
                                     ?.course_versions.map((version) => ({
                                       value: version.id,
@@ -505,7 +505,7 @@ function CourseUnitDetails() {
                                       length: allCourses.filter(
                                         (c) =>
                                           c.id ==
-                                          selectedCourseVersion.course.id
+                                          selectedCourseVersion.parent.id
                                       )[0].course_duration,
                                     },
                                     (_, index) => ({

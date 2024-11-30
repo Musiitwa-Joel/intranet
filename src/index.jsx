@@ -21,6 +21,7 @@ import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import { addAppToTaskBar } from "app/store/appSlice";
 import { userLoggedOut } from "app/store/userSlice";
 import { mainUrl } from "app/configs/apiConfig";
+import { ConfigProvider, theme } from "antd";
 // import * as serviceWorker from './serviceWorker';
 // import reportWebVitals from './reportWebVitals';
 /**
@@ -99,7 +100,15 @@ if (!container) {
 const root = createRoot(container);
 root.render(
   <ApolloProvider client={client}>
-    <App />
+    <ConfigProvider
+      theme={
+        {
+          // algorithm: [theme.compactAlgorithm],
+        }
+      }
+    >
+      <App />
+    </ConfigProvider>
   </ApolloProvider>
 );
 // reportWebVitals();

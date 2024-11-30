@@ -39,6 +39,19 @@ import {
 const { DirectoryTree } = Tree;
 const { Search } = Input;
 
+const findParent = (treeData, key) => {
+  for (const node of treeData) {
+    if (node.children?.some((child) => child.id === key)) {
+      return node; // Parent found
+    }
+    const parent = node.children && findParent(node.children, key);
+    if (parent) {
+      return parent;
+    }
+  }
+  return null; // Parent not found
+};
+
 const containsSearchTerm = (str, searchTerm) =>
   str.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -342,11 +355,27 @@ const AllCourses = memo(({ panelWidth }) => {
 
   const onSelect = async (keys, info) => {
     // console.log("Trigger Select", keys, info);
-    // console.log("selected ", info.selectedNodes[0]);
+
+    const parentNode = findParent(
+      filteredProgrammes,
+      info.selectedNodes[0].key
+    );
+
     dispatch(setSelectedItem(info.selectedNodes[0]));
+    // console.log("parent ", {
+    //   parent: parentNode,
+    //   selected: info.selectedNodes[0].item,
+    // });
 
     if (info.selectedNodes[0].typename == "CourseVersion") {
-      dispatch(setSelectedCourseVersion(info.selectedNodes[0].item));
+      // dispatch(setSelectedCourseVersion(info.selectedNodes[0].item));
+      dispatch(
+        setSelectedCourseVersion({
+          parent: parentNode,
+          selected: info.selectedNodes[0].item,
+        })
+      );
+
       dispatch(setCourseVersionToEdit(info.selectedNodes[0].item));
 
       const res = await getCourseUnits({

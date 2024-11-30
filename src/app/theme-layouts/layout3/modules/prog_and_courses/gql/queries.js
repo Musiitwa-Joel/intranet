@@ -121,11 +121,11 @@ const GET_ALL_PROGRAMMES = gql`
           children: course_versions {
             id
             label: version_title
-            course {
-              id
-              course_code
-              course_title
-            }
+            # course {
+            #   id
+            #   course_code
+            #   course_title
+            # }
           }
         }
       }

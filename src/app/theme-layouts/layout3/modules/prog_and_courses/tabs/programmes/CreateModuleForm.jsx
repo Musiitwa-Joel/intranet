@@ -188,7 +188,7 @@ function CreateModuleForm() {
     }
     const res = await generateModuleCode({
       variables: {
-        courseCode: selectedCourseVersion.course.course_code,
+        courseCode: selectedCourseVersion.parent.code,
       },
     });
 
@@ -200,9 +200,9 @@ function CreateModuleForm() {
   useEffect(() => {
     if (selectedCourseVersion) {
       form.setFieldsValue({
-        course_code: selectedCourseVersion.course.course_code,
-        course_title: selectedCourseVersion.course.id,
-        course_version: selectedCourseVersion.id,
+        course_code: selectedCourseVersion?.parent?.code,
+        course_title: selectedCourseVersion?.parent?.label,
+        course_version: selectedCourseVersion.selected?.id,
       });
     }
   }, [selectedCourseVersion, createModuleModalOpen]);
@@ -415,7 +415,7 @@ function CreateModuleForm() {
                               ? allCourses
                                   ?.filter(
                                     (c) =>
-                                      c.id == selectedCourseVersion.course.id
+                                      c.id == selectedCourseVersion?.parent?.id
                                   )[0]
                                   ?.course_versions.map((version) => ({
                                     value: version.id,
@@ -467,7 +467,7 @@ function CreateModuleForm() {
                                   {
                                     length: allCourses.filter(
                                       (c) =>
-                                        c.id == selectedCourseVersion.course.id
+                                        c.id == selectedCourseVersion.parent.id
                                     )[0].course_duration,
                                   },
                                   (_, index) => ({

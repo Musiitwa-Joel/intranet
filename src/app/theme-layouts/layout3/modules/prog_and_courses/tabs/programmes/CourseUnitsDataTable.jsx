@@ -267,7 +267,7 @@ function CourseUnitsDatable({ panelWidth }) {
               // fontWeight: "bold",
             }}
           >
-            {`${selectedCourseVersion.course.course_title} - ${selectedCourseVersion.label}`}
+            {`(${selectedCourseVersion?.parent?.code}) ${selectedCourseVersion?.parent?.label} - ${selectedCourseVersion?.selected?.label}`}
           </Typography>
         ) : (
           <div></div>

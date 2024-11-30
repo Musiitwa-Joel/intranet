@@ -114,7 +114,7 @@ export default function CreateProgrammeModal() {
           </IconButton>
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
             {selectedCourseVersion && !createNew
-              ? `(${selectedCourseVersion.course.course_code}) ${selectedCourseVersion.course.course_title} - ${selectedCourseVersion.label}`
+              ? `(${selectedCourseVersion.parent.code}) ${selectedCourseVersion.parent.label} - ${selectedCourseVersion.selected.label}`
               : "CREATE A NEW PROGRAMME/COURSE"}
           </Typography>
           {/* <Button
