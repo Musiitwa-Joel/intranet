@@ -22,13 +22,14 @@ import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LOGIN_USER } from "app/theme-layouts/layout3/graphql/mutations";
 import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
-import { userLogin } from "app/store/userSlice";
+import { setUserPermissions, userLogin } from "app/store/userSlice";
 import { updateApps } from "app/store/appSlice";
 import { setToken } from "app/store/tokenSlice";
 import UseJwtAuth from "src/app/auth/services/jwt/useJwtAuth";
 import config from "../../auth/services/jwt/jwtAuthConfig";
 import { GET_MY_PROFILE } from "app/theme-layouts/layout3/graphql/queries";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
+import jwtDecode from "jwt-decode";
 
 /**
  * Form Validation Schema
@@ -110,6 +111,12 @@ function SignInPage() {
 
     dispatch(setToken(res.data?.login?.token));
 
+    // lets decode the token to get the user permissions
+    const decoded = jwtDecode(res.data?.login?.token);
+
+    // console.log(decoded);
+    dispatch(setUserPermissions(decoded.permissions));
+
     if (res.data?.login) {
       //make another query for the user profile
       const res2 = await loadMyProfile();
@@ -119,6 +126,7 @@ function SignInPage() {
       dispatch(userLogin(res2.data.my_profile));
 
       dispatch(updateApps(res2.data.my_profile.role._modules));
+
       navigate("/example");
     }
 

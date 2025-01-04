@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import _ from "@lodash";
-import admissions from "../theme-layouts/layout3/assets/admissions.png";
 
 const initialModuleState = {
   activeTab: 0,
@@ -15,7 +14,7 @@ const initialState = {
   route: "admissions",
   data: [],
   module_state: initialModuleState,
-  logo: admissions,
+  // logo: admissions,
   admitStdsModalOpen: false,
   studeentToBeAdmitted: [],
 };

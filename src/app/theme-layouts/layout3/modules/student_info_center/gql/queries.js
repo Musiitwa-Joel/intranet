@@ -60,6 +60,7 @@ const GET_STUDENTS = gql`
         phone_no
         religion
         nationality {
+          id
           nationality_title
           nationality_category
         }
@@ -70,28 +71,36 @@ const GET_STUDENTS = gql`
         date_of_birth
       }
       course {
+        id
         course_code
         course_title
         level_details {
           level_title
         }
         school {
+          id
           school_title
           school_code
           college {
+            id
             college_title
           }
         }
       }
+      intake_id
       intake_title
+      entry_acc_yr
       entry_acc_yr_title
       course_details {
+        id
         version_title
       }
       entry_study_yr
+      campus_id
       campus_title
       status
       sponsorship
+      study_time_id
       study_time_title
     }
   }

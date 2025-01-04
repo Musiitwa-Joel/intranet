@@ -506,7 +506,7 @@ function CourseUnitDetails() {
                                         (c) =>
                                           c.id ==
                                           selectedCourseVersion.parent.id
-                                      )[0].course_duration,
+                                      )[0]?.course_duration,
                                     },
                                     (_, index) => ({
                                       value: `${index + 1}`,
@@ -516,7 +516,9 @@ function CourseUnitDetails() {
                                 : selectedCourse
                                   ? Array.from(
                                       {
-                                        length: selectedCourse.course_duration,
+                                        length: selectedCourse?.course_duration
+                                          ? selectedCourse?.course_duration
+                                          : 0,
                                       },
                                       (_, index) => ({
                                         value: `${index + 1}`,

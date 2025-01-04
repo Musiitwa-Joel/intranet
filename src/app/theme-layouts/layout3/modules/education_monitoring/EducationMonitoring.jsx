@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import FuseLoading from "@fuse/core/FuseLoading";
-// import resultsLogo from "../../assets/results.png";
-import StudentAssessmentLogo from "../../assets/assesement.png";
 
 function EducationMonitoring() {
   const [loading, setLoading] = useState(false);
   const appExistsInTaskBar = useSelector((state) => state.apps.exists);
+  const activeApp = useSelector((state) => state.apps.activeApp);
 
   // console.log("apps in taskbar", taskBarApps);
   useEffect(() => {
@@ -24,7 +23,7 @@ function EducationMonitoring() {
   return (
     <>
       {loading ? (
-        <FuseLoading logo={StudentAssessmentLogo} />
+        <FuseLoading logo={activeApp?.logo} />
       ) : (
         <div
           style={{

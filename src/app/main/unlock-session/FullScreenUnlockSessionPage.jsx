@@ -70,7 +70,7 @@ function SignInPage() {
   useEffect(() => {
     setValue(
       "name",
-      `${userObj.user?.biodata?.title} ${userObj.user?.biodata?.staff_name}`
+      `${userObj.user?.biodata?.salutation} ${userObj.user?.biodata?.surname} ${userObj.user?.biodata?.other_names}`
     );
   }, [userObj]);
 
@@ -209,7 +209,7 @@ function SignInPage() {
                   dispatch(userLoggedOut()); // remove the user profile
                 }}
               >
-                {`${userObj.user?.biodata?.title} ${userObj.user?.biodata?.staff_name}`}
+                {`${userObj.user?.biodata?.salutation} ${userObj.user?.biodata?.surname} ${userObj.user?.biodata?.other_names}`}
               </Link>
             </Typography>
           </form>

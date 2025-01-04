@@ -9,6 +9,15 @@ const SAVE_NEW_STUDENT = gql`
   }
 `;
 
+const SAVE_STUDENT_DATA = gql`
+  mutation SaveStudentData($payload: saveStdInput) {
+    saveStudentData(payload: $payload) {
+      message
+      success
+    }
+  }
+`;
+
 const UPLOAD_STUDENTS = gql`
   mutation UploadStudents($payload: [uploadStdInput]!) {
     uploadStudents(payload: $payload) {
@@ -18,4 +27,4 @@ const UPLOAD_STUDENTS = gql`
   }
 `;
 
-export { SAVE_NEW_STUDENT, UPLOAD_STUDENTS };
+export { SAVE_NEW_STUDENT, UPLOAD_STUDENTS, SAVE_STUDENT_DATA };

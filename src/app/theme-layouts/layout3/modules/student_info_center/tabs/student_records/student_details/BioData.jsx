@@ -11,7 +11,7 @@ import AcademicInfo from "./biodata_tabs/AcademicInfo";
 import PersonalInfo from "./biodata_tabs/PersonalInfo";
 import TranscriptSettings from "./biodata_tabs/TranscriptSettings";
 
-function BioData() {
+function BioData({ form }) {
   const dispatch = useDispatch();
   const activeBioDataTab = useSelector(selectActiveBioDataTab);
   const scrollContainerRef = useRef(null);
@@ -68,7 +68,7 @@ function BioData() {
           overflow: "hidden", // Hide default scrollbars
         }}
       >
-        {activeBioDataTab == "academic_info" && <AcademicInfo />}
+        {activeBioDataTab == "academic_info" && <AcademicInfo form={form} />}
         {activeBioDataTab == "personal_info" && <PersonalInfo />}
         {activeBioDataTab == "transcript_settings" && <TranscriptSettings />}
       </div>

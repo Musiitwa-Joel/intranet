@@ -1,21 +1,9 @@
 import React, { Suspense, useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import Box from "@mui/material/Box";
-import Tab from "@mui/material/Tab";
-import Tabs from "@mui/material/Tabs";
 import FuseLoading from "@fuse/core/FuseLoading";
-import Typography from "@mui/material/Typography";
 import { useDispatch, useSelector } from "react-redux";
 import useThemeMediaQuery from "@fuse/hooks/useThemeMediaQuery";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import fees_module from "../../assets/fees_module.png";
-import Avatar from "@mui/material/Avatar";
-import Tooltip from "@mui/material/Tooltip";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import IconButton from "@mui/material/IconButton";
-// import StudentRecords from "./tabs/student_records/StudentRecords";
 import {
   selectActiveTab,
   selectCopyFeesStructureModal,
@@ -47,8 +35,7 @@ import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import { selectUser } from "app/store/userSlice";
 import FeesStructure from "./tabs/fees_structure/FeesStructure";
 import ConfigureLevels from "./tabs/configure_levels/ConfigureLevels";
-
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+import AppNav from "../../components/AppNav";
 
 const LOAD_REQS = gql`
   query Query {
@@ -66,6 +53,15 @@ const LOAD_REQS = gql`
     }
   }
 `;
+
+const tabs = [
+  "Fees Structure",
+  "Tuition",
+  "Functional Fees",
+  "Fees Items",
+  "Other Fees",
+  "Fees Categories",
+];
 
 const FeesMgt = React.memo(function Admissions() {
   const appExistsInTaskBar = useSelector((state) => state.apps.exists);
@@ -119,20 +115,6 @@ const FeesMgt = React.memo(function Admissions() {
     }
   }, [reqsErr]);
 
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
   useEffect(() => {
     setLeftSidebarOpen(!isMobile);
   }, [isMobile]);
@@ -144,22 +126,11 @@ const FeesMgt = React.memo(function Admissions() {
   }, [location, isMobile]);
 
   function handleTabChange(event, value) {
-    // setSelectedTab(value);
-    // dispatch(admissionsTabChanged(value));
-    // dispatch(updateActiveTab(value));
     dispatch(setActiveTab(value));
   }
 
-  // console.log("selected tab", selectedTab);
-
-  // console.log("apps in taskbar", taskBarApps);
   useEffect(() => {
-    // const exists = checkAppExistence(taskBarApps, "route", "admissions");
-
     if (!appExistsInTaskBar) {
-      // if (!applicantReqsLoaded && !error) {
-
-      // }
       setLoading(true);
     } else {
       setLoading(false);
@@ -193,13 +164,11 @@ const FeesMgt = React.memo(function Admissions() {
       overwrite: values.overwrite,
       addedBy: user.user.id,
     };
-    // console.log("payload", payload);
 
     const res = await copyFeesStructure({
       variables: payload,
     });
 
-    // console.log("the response", res.data);
     form.resetFields();
     dispatch(setCopyFeesStructureModal(false));
 
@@ -218,162 +187,24 @@ const FeesMgt = React.memo(function Admissions() {
   return (
     <>
       {loading ? (
-        <FuseLoading logo={fees_module} />
+        <FuseLoading logo={activeApp?.logo} />
       ) : (
-        <Suspense fallback={<FuseLoading logo={fees_module} />}>
+        <Suspense fallback={<FuseLoading logo={activeApp?.logo} />}>
           <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="sticky">
-              <Toolbar
-                variant="dense"
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <div
-                    style={{
-                      marginRight: 10,
-                    }}
-                  >
-                    <img
-                      src={activeApp.logo}
-                      alt="logo"
-                      width={30}
-                      height={30}
-                    />
-                  </div>
-                  {/* <IconButton
-                  edge="start"
-                  color="inherit"
-                  aria-label="menu"
-                  // sx={{ mr: 2 }}
-                >
-                  <MenuIcon />
-                </IconButton> */}
-                  <Typography variant="h6" color="inherit" component="div">
-                    Fees Management
-                  </Typography>
+            <AppNav
+              tabs={tabs}
+              activeApp={activeApp}
+              activeTab={activeTab}
+              handleTabChange={handleTabChange}
+            />
 
-                  <div className="hidden lg:flex h-32 mx-20" />
-
-                  <Tabs
-                    value={activeTab}
-                    onChange={handleTabChange}
-                    indicatorColor="primary"
-                    textColor="inherit"
-                    variant="scrollable"
-                    scrollButtons={false}
-                    className="-mx-4 min-h-40"
-                    classes={{
-                      indicator:
-                        "flex justify-center bg-transparent w-full h-full",
-                    }}
-                    TabIndicatorProps={{
-                      children: (
-                        <Box
-                          sx={{ bgcolor: "text.disabled" }}
-                          className="w-full h-full rounded-full opacity-20"
-                        />
-                      ),
-                    }}
-                  >
-                    <Tab
-                      className="text-16 font-semibold min-h-40 min-w-64 mx-4 px-12 "
-                      disableRipple
-                      label="Fees Structure"
-                    />
-                    <Tab
-                      className="text-16 font-semibold min-h-40 min-w-64 mx-4 px-12 "
-                      disableRipple
-                      label="Tuition"
-                    />
-                    <Tab
-                      className="text-16 font-semibold min-h-40 min-w-64 mx-4 px-12 "
-                      disableRipple
-                      label="Functional Fees"
-                    />
-                    <Tab
-                      className="text-16 font-semibold min-h-40 min-w-64 mx-4 px-12 "
-                      disableRipple
-                      label="Fees Items"
-                    />
-                    <Tab
-                      className="text-16 font-semibold min-h-40 min-w-64 mx-4 px-12 "
-                      disableRipple
-                      label="Other Fees"
-                    />
-
-                    <Tab
-                      className="text-16 font-semibold min-h-40 min-w-64 mx-4 px-12 "
-                      disableRipple
-                      label="Fees Categories"
-                    />
-
-                    {/* <Tab
-                      className="text-16 font-semibold min-h-40 min-w-64 mx-4 px-12 "
-                      disableRipple
-                      label="Configure Levels"
-                    /> */}
-                  </Tabs>
-                </div>
-
-                <Box sx={{ flexGrow: 0 }}>
-                  <Tooltip title="Open settings">
-                    <IconButton
-                      onClick={handleOpenUserMenu}
-                      sx={{
-                        p: 0,
-                      }}
-                    >
-                      <Avatar
-                        alt="Remy Sharp"
-                        src="/material-ui-static/images/avatar/2.jpg"
-                      />
-                    </IconButton>
-                  </Tooltip>
-                  <Menu
-                    sx={{ mt: "45px" }}
-                    id="menu-appbar"
-                    anchorEl={anchorElUser}
-                    anchorOrigin={{
-                      vertical: "top",
-                      horizontal: "right",
-                    }}
-                    keepMounted
-                    transformOrigin={{
-                      vertical: "top",
-                      horizontal: "right",
-                    }}
-                    open={Boolean(anchorElUser)}
-                    onClose={handleCloseUserMenu}
-                  >
-                    {settings.map((setting) => (
-                      <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                        <Typography textAlign="center">{setting}</Typography>
-                      </MenuItem>
-                    ))}
-                  </Menu>
-                </Box>
-              </Toolbar>
-            </AppBar>
             {activeTab === 0 && <FeesStructure />}
             {activeTab === 1 && <Tuition />}
             {activeTab === 2 && <FunctionalFees />}
             {activeTab === 3 && <FeesItems />}
             {activeTab === 4 && <OtherFees />}
             {activeTab === 5 && <FeesCategories />}
-            {/* {activeTab === 6 && <ConfigureLevels />} */}
-            {/* {activeTab === 4 && <ConfigureLevels />}
-            {activeTab === 3 && <FeesCategories />}
-            {activeTab === 2 && <FeesItems />}
-            {activeTab === 1 && <FeesVersions />}
-            {activeTab === 0 && <FeesStructure />} */}
+
             <Modal
               title="Copy Fees Structure"
               open={copyFeesStructureModalVisible}

@@ -1,5 +1,5 @@
 import React from "react";
-import tredumoLogo from "../../../../assets/nkumba-uninersity.png";
+import { url2 } from "app/configs/apiConfig";
 
 function UniversityLogo() {
   return (
@@ -21,7 +21,7 @@ function UniversityLogo() {
         }}
       >
         <img
-          src={tredumoLogo}
+          src={`${url2}/university/nkumba-university.png`}
           style={{
             width: "80%",
           }}

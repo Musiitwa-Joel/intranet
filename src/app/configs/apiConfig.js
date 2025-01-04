@@ -1,4 +1,4 @@
-const mainUrl = "https://tredumo.nkumbauniversity.ac.ug:2222";
-const url2 = "https://tredumo.nkumbauniversity.ac.ug:2323";
+const mainUrl = "http://localhost:2323/graphql";
+const url2 = "http://localhost:2222";
 
 export { mainUrl, url2 };

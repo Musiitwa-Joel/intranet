@@ -21,7 +21,7 @@ import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import { addAppToTaskBar } from "app/store/appSlice";
 import { userLoggedOut } from "app/store/userSlice";
 import { mainUrl } from "app/configs/apiConfig";
-import { ConfigProvider, theme } from "antd";
+import { ConfigProvider } from "antd";
 // import * as serviceWorker from './serviceWorker';
 // import reportWebVitals from './reportWebVitals';
 /**

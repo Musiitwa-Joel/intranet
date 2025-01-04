@@ -23,11 +23,12 @@ import LeftSideLayout3 from "./components/LeftSideLayout3";
 import { motion } from "framer-motion";
 import NavbarWrapperLayout3 from "./components/NavbarWrapperLayout3";
 import RightSideLayout3 from "./components/RightSideLayout3";
-import ToolbarLayout3 from "./components/ToolbarLayout3";
 
+import ToolbarLayout3 from "./components/ToolbarLayout3";
 import FuseSvgIcon from "../../../@fuse/core/FuseSvgIcon";
 import Input from "@mui/material/Input";
 import Paper from "@mui/material/Paper";
+
 import MyApp from "./components/my_app/MyApp";
 
 import { selectFooterTheme } from "@fuse/core/FuseSettings/fuseSettingsSlice";
@@ -43,6 +44,8 @@ import {
 } from "app/store/appSlice";
 import bgApps from "./assets/bg-apps3.png";
 import { selectToken } from "app/store/tokenSlice";
+import { Tooltip } from "antd";
+import SettingsPanel from "../shared-components/configurator/SettingsPanel";
 
 const Root = styled("div")(({ theme, config }) => ({
   ...(config.mode === "boxed" && {
@@ -75,38 +78,11 @@ const checkAppExistence = (array, property, value) => {
   return false;
 };
 
-function SelectedComponent({ routes, activeApp }) {
-  // const selectedRoute = routes.filter(
-  //   (route) => route.path === activeApp.route
-  // )[0];
-
-  const selectedRoute = useMemo(() => {
-    return routes.filter((route) => route.path === activeApp.route)[0];
-  }, [activeApp.route]);
-
-  // console.log("selected route", selectedRoute);
-
-  return selectedRoute?.element; // Return element using optional chaining
-}
-
-const debounce = (func, delay) => {
-  let timeoutId;
-  return (...args) => {
-    if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      func.apply(null, args);
-    }, delay);
-  };
-};
-
 function Layout3(props) {
   const dispatch = useDispatch();
   const token = useSelector(selectToken);
   const isLocked = useSelector(selectIsLocked);
-  // const [isLocked, setIsLocked] = useState(false);
-  const [timeoutId, setTimeoutId] = useState(null);
   const config = useSelector(selectFuseCurrentLayoutConfig);
-  const [selectedTabIndex, setTabIndex] = useState(0);
   const appContext = useContext(AppContext);
   const appsVisible = useSelector((state) => state.apps.visible);
   const apps = useSelector((state) => state.apps.apps);
@@ -123,24 +99,14 @@ function Layout3(props) {
 
   const footerTheme = useSelector(selectFooterTheme);
   const activeApp = useSelector((state) => state.apps.activeApp);
-  const scrollRef = useRef(null);
-
-  // console.log("apps", apps);
-  // console.log("filtered", filteredApps);
 
   useEffect(() => {
     setFilteredApps(apps);
   }, [apps]);
 
   const handleClick = (app) => {
-    // console.log("app", app);
-
-    // console.log("taskbar apps", taskBarApps);
-
     let exists = checkAppExistence(taskBarApps, "route", app.route);
     dispatch(appExistsInTaskBar(exists));
-
-    // console.log("exists", exists);
 
     if (exists) {
       dispatch(updateActiveApp(app));
@@ -153,8 +119,6 @@ function Layout3(props) {
       // insert the new app right next to the active app
       let insertIndex = activeAppIndex == -1 ? 0 : activeAppIndex + 1;
 
-      // taskBarApps.splice(insertIndex, 0, app);
-
       const newArray = [
         ...taskBarApps.slice(0, insertIndex),
         app,
@@ -162,15 +126,9 @@ function Layout3(props) {
       ];
 
       dispatch(addAppToTaskBar(newArray));
-      // console.log("taskbar apps", newArray);
-      // dispatch(addAppToTaskBar([...taskBarApps, app]));
 
       dispatch(updateActiveApp(app));
-      // exists = checkAppExistence(taskBarApps, "route", app.route);
     }
-
-    // dispatch(addAppToTaskBar([...new Set([...taskBarApps, app])]));
-    // dispatch(updateActiveApp(app));
 
     navigate(`/${app.route}`);
     dispatch(viewApps(!appsVisible));
@@ -226,31 +184,6 @@ function Layout3(props) {
       window.removeEventListener("scroll", resetTimer);
     };
   }, []);
-
-  // useEffect(() => {
-
-  //   // List of events to track for user activity
-
-  //   const events = [
-  //     "mousemove",
-  //     "mousedown",
-  //     "keypress",
-  //     "scroll",
-  //     "touchstart",
-  //   ];
-
-  //   // Attach the reset timer to each event
-  //   events.forEach((event) => window.addEventListener(event, resetTimer));
-
-  //   // Start the timer initially
-  //   resetTimer();
-
-  //   // Cleanup function to remove event listeners and clear timeout on unmount
-  //   return () => {
-  //     events.forEach((event) => window.removeEventListener(event, resetTimer));
-  //     if (timeoutId) clearTimeout(timeoutId);
-  //   };
-  // }, [resetTimer, timeoutId, token]);
 
   return (
     <>
@@ -424,8 +357,8 @@ function Layout3(props) {
             )}
 
             {/* <div className="sticky top-0 z-99">
-            <SettingsPanel />
-          </div> */}
+              <Settings />
+            </div> */}
 
             <div className="flex flex-col flex-auto min-h-0 relative z-10">
               <FuseDialog />

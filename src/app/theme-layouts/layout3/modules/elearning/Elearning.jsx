@@ -2,12 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import FuseLoading from "@fuse/core/FuseLoading";
 
-// import resultsLogo from "../../assets/results.png";
-import elearning from "../../assets/elearning.png";
-
 function Elearnig() {
   const [loading, setLoading] = useState(false);
   const appExistsInTaskBar = useSelector((state) => state.apps.exists);
+  const activeApp = useSelector((state) => state.apps.activeApp);
 
   useEffect(() => {
     // const exists = checkAppExistence(taskBarApps, "route", "admissions");
@@ -24,7 +22,7 @@ function Elearnig() {
   return (
     <>
       {loading ? (
-        <FuseLoading logo={elearning} />
+        <FuseLoading logo={activeApp?.logo} />
       ) : (
         <div
           style={{

@@ -58,58 +58,6 @@ function getTotalAmountDue(invoices) {
   return invoices.reduce((total, invoice) => total + invoice.amount_due, 0);
 }
 
-const items = [
-  {
-    key: "6",
-    label: "Account Balance",
-    children: "UGX 0",
-    span: 3,
-  },
-  {
-    key: "2",
-    label: "Enrollment Status",
-    children: "Not Enrolled in SEM 2",
-    span: 4,
-  },
-  {
-    key: "1",
-    label: "Registration Status",
-    children: "Not Registered",
-    span: 3,
-  },
-
-  {
-    key: "3",
-    label: "Study Year",
-    children: "2",
-    span: 3,
-  },
-  {
-    key: "6",
-    label: "Semester",
-    children: "2",
-    span: 3,
-  },
-  {
-    key: "4",
-    label: "Accademic Year",
-    children: "2023/2024",
-    span: 3,
-  },
-];
-
-const study_yrs = [
-  { value: "1", label: "1" },
-  { value: "2", label: "2" },
-  { value: "3", label: "3" },
-];
-
-const enrollment_statuses = [
-  { value: "1", label: "FRESHER" },
-  { value: "2", label: "CONTINIUNIG" },
-  { value: "3", label: "FINALIST" },
-];
-
 function Register() {
   const studentFile = useSelector(selectStudentData);
   const enrollModalVisible = useSelector(selectEnrollModalVisible);

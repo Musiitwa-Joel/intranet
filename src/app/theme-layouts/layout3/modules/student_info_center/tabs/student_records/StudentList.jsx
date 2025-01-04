@@ -12,33 +12,6 @@ import {
   setShowInfoModal,
 } from "../../store/infoCenterSlice";
 
-const data = [
-  {
-    title: "Title 1",
-  },
-  {
-    title: "Title 2",
-  },
-  {
-    title: "Title 3",
-  },
-  {
-    title: "Title 4",
-  },
-  {
-    title: "Title 1",
-  },
-  {
-    title: "Title 2",
-  },
-  {
-    title: "Title 3",
-  },
-  {
-    title: "Title 4",
-  },
-];
-
 const StudentList = () => {
   const scrollContainerRef = useRef(null);
   const psRef = useRef(null);

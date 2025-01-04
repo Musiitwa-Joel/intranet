@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Button, Modal, Space, Typography } from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, Form, Modal, Space, Typography } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -28,6 +28,9 @@ import Enrollment from "./student_details/Enrollment";
 import Registration from "./student_details/Registration";
 import Finance from "./student_details/Finance";
 import StudentLogs from "./student_details/StudentLogs";
+import { useMutation } from "@apollo/client";
+import { SAVE_STUDENT_DATA } from "../../gql/mutations";
+import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 const { Header, Content, Footer, Sider } = Layout;
 
 // const items = [
@@ -103,9 +106,66 @@ const StudentInfoModal = () => {
   const activeMenuItem = useSelector(selectActiveMenuItem);
   const dispatch = useDispatch();
   const selectedStudent = useSelector(selectSelectedStudent);
+  const [saveStudentData, { error, loading, data }] = useMutation(
+    SAVE_STUDENT_DATA,
+    {
+      refetchQueries: ["Students"],
+    }
+  );
+  const [form] = Form.useForm();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  useEffect(() => {
+    if (error) {
+      dispatch(
+        showMessage({
+          message: error.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [error]);
+
+  const handleSave = async () => {
+    // const valid = await form.validateFields();
+    console.log("selectted std", selectedStudent);
+
+    const values = form.getFieldsValue();
+
+    const payload = {
+      payload: {
+        applicant_id: selectedStudent?.biodata.id,
+        campus_id: values.campus || null,
+        completed: values.completed || null,
+        course_id: values?.course_title || null,
+        course_version_id: values?.course_version || null,
+        entry_acc_yr: values.entry_acc_yr || null,
+        entry_study_yr: parseInt(values?.entry_study_yr) || null,
+        intake_id: values?.intake || null,
+        reg_no: values?.reg_no || null,
+        sponsorship: values?.sponsorship || null,
+        student_no: values.student_no || null,
+        study_time_id: values.study_time || null,
+        // study_yr: null,
+      },
+    };
+
+    // console.log("payload", payload);
+
+    const res = await saveStudentData({
+      variables: payload,
+    });
+
+    // console.log("response", res);
+    dispatch(
+      showMessage({
+        message: res.data.saveStudentData.message,
+        variant: "success",
+      })
+    );
+  };
 
   // console.log("selected Student", selectedStudent);
   if (!selectedStudent) return;
@@ -147,12 +207,14 @@ const StudentInfoModal = () => {
           //   backgroundColor: "red",
           padding: 0,
           height: 300,
+          top: 70,
         }}
+        maskClosable={false}
       >
         <Layout
           style={{
             // backgroundColor: "red",
-            height: 500,
+            height: 550,
             overflow: "hidden",
           }}
         >
@@ -166,6 +228,23 @@ const StudentInfoModal = () => {
               console.log(collapsed, type);
             }}
           >
+            <div
+              style={{
+                padding: 10,
+              }}
+            >
+              <Typography.Title
+                level={5}
+                style={{
+                  color: "#fff",
+                  textAlign: "center",
+                  padding: 0,
+                  margin: 0,
+                }}
+              >
+                ACTIVE STUDENT
+              </Typography.Title>
+            </div>
             <div className="demo-logo-vertical" />
             <div
               style={{
@@ -173,7 +252,7 @@ const StudentInfoModal = () => {
                 flexDirection: "column",
                 // justifyContent: "center",
                 alignItems: "center",
-                marginTop: 20,
+                marginTop: 0,
                 marginBottom: 5,
               }}
             >
@@ -251,7 +330,7 @@ const StudentInfoModal = () => {
                   // overflow: "scroll",
                 }}
               >
-                {activeMenuItem == "1" && <BioData />}
+                {activeMenuItem == "1" && <BioData form={form} />}
                 {activeMenuItem == "2" && <Enrollment />}
                 {activeMenuItem == "3" && <Registration />}
                 {activeMenuItem == "4" && <Finance />}
@@ -271,14 +350,16 @@ const StudentInfoModal = () => {
                 <Button type="primary" danger>
                   Reset Student Portal Password
                 </Button>
-                <Button
-                  type="primary"
-                  style={{
-                    backgroundColor: "dodgerblue",
-                  }}
-                >
-                  Save Changes
-                </Button>
+                {activeMenuItem == "1" && (
+                  <Button
+                    type="primary"
+                    onClick={handleSave}
+                    loading={loading}
+                    disabled={loading}
+                  >
+                    Save Changes
+                  </Button>
+                )}
               </Space>
             </Footer>
           </Layout>

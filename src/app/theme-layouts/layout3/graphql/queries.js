@@ -297,10 +297,11 @@ const GET_MY_PROFILE = gql`
       sys_gen_pwd
       biodata {
         id
-        staff_name
-        role
-        title
         email
+        salutation
+        surname
+        other_names
+        telno
       }
       last_logged_in {
         id
@@ -308,9 +309,9 @@ const GET_MY_PROFILE = gql`
         logged_in
       }
       role {
-        id
+        id: role_id
         role_name
-        permissions
+        # permissions
         _modules {
           id
           title

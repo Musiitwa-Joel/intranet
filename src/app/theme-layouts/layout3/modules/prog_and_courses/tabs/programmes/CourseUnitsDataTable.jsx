@@ -117,7 +117,7 @@ function CourseUnitsDatable({ panelWidth }) {
     // Initialize an array to hold the structured data
     const formattedData = [
       [
-        `COURSE UNITS FOR ${selectedCourseVersion?.course.course_title} ${selectedCourseVersion?.label}`,
+        `COURSE UNITS FOR ${selectedCourseVersion?.parent?.label} ${selectedCourseVersion?.selected?.label}`,
         "",
         "",
         "",
@@ -225,7 +225,7 @@ function CourseUnitsDatable({ panelWidth }) {
     // Export to Excel file
     XLSX.writeFile(
       workbook,
-      `${selectedCourseVersion?.course.course_title} ${selectedCourseVersion?.label} MODDULES.xlsx`
+      `${selectedCourseVersion?.parent?.label} ${selectedCourseVersion?.selected.label} MODDULES.xlsx`
     );
   };
 

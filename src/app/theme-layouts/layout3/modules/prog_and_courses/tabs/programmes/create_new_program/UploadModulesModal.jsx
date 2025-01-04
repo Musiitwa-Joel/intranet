@@ -41,6 +41,7 @@ import {
   setUploadModulesModalOpen,
 } from "../../../store/progAndCoursesSlice";
 import { UPLOAD_COURSE_UNITS } from "../../../gql/mutations";
+import { url2 } from "app/configs/apiConfig";
 
 const duration_measures = [
   {
@@ -343,8 +344,7 @@ function UploadModulesModal() {
   };
 
   const handleDownloadExcel = () => {
-    window.location.href =
-      "https://tredumo.nkumbauniversity.ac.ug:2222/templates/upload-modules-template.xlsx";
+    window.location.href = `${url2}/templates/upload-modules-template.xlsx`;
   };
 
   //   console.log("createModuleModalOpen", createModuleModalOpen);

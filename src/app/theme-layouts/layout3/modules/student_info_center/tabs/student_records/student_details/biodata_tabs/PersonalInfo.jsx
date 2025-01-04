@@ -63,15 +63,15 @@ const PersonalInfo = () => {
       othernames: selectedStudent.biodata.other_names,
       email: selectedStudent.biodata.email,
       phoneNo: selectedStudent.biodata.phone_no,
-      religion: selectedStudent.biodata.religion.toUpperCase(),
-      national_id: selectedStudent.biodata.nin.toUpperCase(),
-      gender: selectedStudent.biodata.gender.toUpperCase(),
-      marital_status: selectedStudent.biodata.marital_status.toUpperCase(),
-      date_of_birth: selectedStudent.biodata.date_of_birth.toUpperCase(),
+      religion: selectedStudent.biodata.religion?.toUpperCase(),
+      national_id: selectedStudent.biodata.nin?.toUpperCase(),
+      gender: selectedStudent.biodata.gender?.toUpperCase(),
+      marital_status: selectedStudent.biodata.marital_status?.toUpperCase(),
+      date_of_birth: selectedStudent.biodata.date_of_birth?.toUpperCase(),
       nationality:
-        selectedStudent.biodata.nationality.nationality_title.toUpperCase(),
+        selectedStudent.biodata.nationality.nationality_title?.toUpperCase(),
       billing_nationality:
-        selectedStudent.biodata.nationality.nationality_category.toUpperCase(),
+        selectedStudent.biodata.nationality.nationality_category?.toUpperCase(),
     });
   }
 

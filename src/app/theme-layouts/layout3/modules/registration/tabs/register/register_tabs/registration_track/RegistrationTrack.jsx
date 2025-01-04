@@ -197,7 +197,7 @@ const RegistrationTrack = () => {
                               {
                                 key: "1",
                                 label: "Registered By",
-                                children: `${reg?.registered_user.title} ${reg?.registered_user.staff_name}`,
+                                children: `${reg?.registered_user?.title} ${reg?.registered_user?.staff_name}`,
                                 span: 2,
                               },
                               {

@@ -7,15 +7,16 @@ import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import FuseSvgIcon from "@fuse/core/FuseSvgIcon";
 import { selectUser, userLoggedOut } from "app/store/userSlice";
-import { addAppToTaskBar } from "app/store/appSlice";
+import { addAppToTaskBar, updateApps } from "app/store/appSlice";
 import { setToken } from "app/store/tokenSlice";
 import { useApolloClient } from "@apollo/client";
 
 function UserMenu(props) {
   const user = useSelector((state) => state.user.user);
+  const currentRoute = useLocation();
   const client = useApolloClient();
   const [userMenu, setUserMenu] = useState(null);
   const dispatch = useDispatch();
@@ -35,26 +36,28 @@ function UserMenu(props) {
         onClick={userMenuClick}
         color="inherit"
       >
-        <div className="hidden md:flex flex-col mx-4 items-end">
-          <Typography component="span" className="font-semibold flex">
-            {user?.biodata?.title + " " + user?.biodata?.staff_name}
-          </Typography>
-          <Typography
-            className="text-11 font-medium capitalize"
-            color="text.secondary"
-          >
-            {user?.role.role_name}
-          </Typography>
-        </div>
+        {currentRoute.pathname == "/example" && (
+          <div className="hidden md:flex flex-col mx-4 items-end">
+            <Typography component="span" className="font-semibold flex">
+              {`${user?.biodata?.salutation} ${user?.biodata?.surname} ${user?.biodata?.other_names}`}
+            </Typography>
+            <Typography
+              className="text-11 font-medium capitalize"
+              color="text.secondary"
+            >
+              {user?.role.role_name}
+            </Typography>
+          </div>
+        )}
 
         {user?.biodata ? (
           <Avatar
             className="md:mx-4"
             alt="user photo"
-            src={user?.biodata.title}
+            src={user?.biodata.salutation}
           />
         ) : (
-          <Avatar className="md:mx-4">{user?.biodata.title}</Avatar>
+          <Avatar className="md:mx-4">{user?.biodata.salutation}</Avatar>
         )}
       </Button>
 
@@ -74,77 +77,47 @@ function UserMenu(props) {
           paper: "py-8",
         }}
       >
-        {!user?.biodata.role ? (
-          <>
-            {/* <MenuItem component={Link} to="/sign-in" role="button">
-              <ListItemIcon className="min-w-40">
-                <FuseSvgIcon>heroicons-outline:lock-closed</FuseSvgIcon>
-              </ListItemIcon>
-              <ListItemText primary="Sign In" />
-            </MenuItem>
-            <MenuItem component={Link} to="/sign-up" role="button">
-              <ListItemIcon className="min-w-40">
-                <FuseSvgIcon>heroicons-outline:user-add </FuseSvgIcon>
-              </ListItemIcon>
-              <ListItemText primary="Sign up" />
-            </MenuItem> */}
-            <MenuItem
-              component={Link}
-              to="/"
-              role="button"
-              onClick={() => {
-                dispatch(userLoggedOut());
-              }}
-            >
-              <ListItemIcon className="min-w-40">
-                <FuseSvgIcon>heroicons-outline:user-add </FuseSvgIcon>
-              </ListItemIcon>
-              <ListItemText primary="Logout" />
-            </MenuItem>
-          </>
-        ) : (
-          <>
-            <MenuItem
-              component={Link}
-              to="/apps/profile"
-              onClick={userMenuClose}
-              role="button"
-            >
-              <ListItemIcon className="min-w-40">
-                <FuseSvgIcon>heroicons-outline:user-circle</FuseSvgIcon>
-              </ListItemIcon>
-              <ListItemText primary="My Profile" />
-            </MenuItem>
-            <MenuItem
-              component={Link}
-              to="/apps/mailbox"
-              onClick={userMenuClose}
-              role="button"
-            >
-              <ListItemIcon className="min-w-40">
-                <FuseSvgIcon>heroicons-outline:mail-open</FuseSvgIcon>
-              </ListItemIcon>
-              <ListItemText primary="Inbox" />
-            </MenuItem>
-            <MenuItem
-              component={NavLink}
-              // to="/"
-              onClick={() => {
-                // dispatch(userLoggedOut());
-                // dispatch(updateApps([]));
-                dispatch(setToken(null)); // remove token
-                dispatch(addAppToTaskBar([])); // close all apps
-                dispatch(userLoggedOut()); // remove the user profile
-                client.resetStore(); // reset all queries
-              }}
-            >
-              <ListItemIcon className="min-w-40">
-                <FuseSvgIcon>heroicons-outline:logout</FuseSvgIcon>
-              </ListItemIcon>
-              <ListItemText primary="Sign out" />
-            </MenuItem>
-          </>
-        )}
+        <>
+          <MenuItem
+            component={Link}
+            to="/apps/profile"
+            onClick={userMenuClose}
+            role="button"
+          >
+            <ListItemIcon className="min-w-40">
+              <FuseSvgIcon>heroicons-outline:user-circle</FuseSvgIcon>
+            </ListItemIcon>
+            <ListItemText primary="My Profile" />
+          </MenuItem>
+          <MenuItem
+            component={Link}
+            to="/apps/mailbox"
+            onClick={userMenuClose}
+            role="button"
+          >
+            <ListItemIcon className="min-w-40">
+              <FuseSvgIcon>heroicons-outline:mail-open</FuseSvgIcon>
+            </ListItemIcon>
+            <ListItemText primary="Inbox" />
+          </MenuItem>
+          <MenuItem
+            component={NavLink}
+            // to="/"
+            onClick={() => {
+              // dispatch(userLoggedOut());
+              // dispatch(updateApps([]));
+              dispatch(setToken(null)); // remove token
+              dispatch(addAppToTaskBar([])); // close all apps
+              dispatch(userLoggedOut()); // remove the user profile
+              client.resetStore(); // reset all queries
+            }}
+          >
+            <ListItemIcon className="min-w-40">
+              <FuseSvgIcon>heroicons-outline:logout</FuseSvgIcon>
+            </ListItemIcon>
+            <ListItemText primary="Sign out" />
+          </MenuItem>
+        </>
       </Popover>
     </>
   );
