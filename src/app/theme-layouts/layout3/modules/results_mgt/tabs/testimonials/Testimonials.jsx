@@ -31,7 +31,7 @@ import PerfectScrollbar from "perfect-scrollbar";
 import { useDispatch, useSelector } from "react-redux";
 import { Download, SearchOutlined } from "@mui/icons-material";
 import ResultsTable from "./ResultsTable";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import { GET_STUDENT_MARKS } from "../../gql/queries";
 import { selectMarksDetails, setMarksDetails } from "../../store/resultsSlice";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
@@ -104,6 +104,7 @@ function Testimonials() {
         onOk() {},
       });
     } else {
+      console.log("student marks", res.data.get_student_marks);
       dispatch(setMarksDetails(res.data.get_student_marks));
     }
   };

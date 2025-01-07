@@ -86,17 +86,15 @@ const EDIT_ENROLLMENT = gql`
 
 const GENERATE_PRT = gql`
   mutation generatePRT(
-    $studentNo: String!
+    $studentNo: String
     $amount: Int!
     $type: String!
-    $generatedBy: String!
     $invoices: String
   ) {
     generatePRT(
       student_no: $studentNo
       amount: $amount
       type: $type
-      generated_by: $generatedBy
       invoices: $invoices
     ) {
       student_no

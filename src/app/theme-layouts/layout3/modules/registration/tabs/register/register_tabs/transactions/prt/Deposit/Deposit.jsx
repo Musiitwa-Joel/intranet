@@ -56,54 +56,6 @@ const Deposit = () => {
     setDepositAmount(0);
 
     dispatch(setPaymentSlipVisible(true));
-
-    // console.log("response", res.data);
-
-    // Modal.success({
-    //   title: (
-    //     <div style={{ textAlign: "center" }}>
-    //       PAYMENT REFERENCE TOKEN GENERATED SUCCESSFULLY 🎉
-    //     </div>
-    //   ), // Centering the title
-    //   content: (
-    //     <div
-    //       style={{
-    //         display: "flex",
-    //         flexDirection: "column",
-    //         alignItems: "center",
-    //         margin: 0,
-    //       }}
-    //     >
-    //       <p style={{ marginTop: "-10px" }}>
-    //         PAYMENT REFERENCE TOKEN:{" "}
-    //         <span style={{ color: "blue", fontWeight: "bold" }}>
-    //           2250001512200
-    //         </span>
-    //       </p>
-    //       <p style={{ marginTop: "-10px" }}>
-    //         TOTAL AMOUNT TO PAY:{" "}
-    //         <span style={{ color: "blue", fontWeight: "bold" }}>
-    //           {" "}
-    //           {depositAmount.toLocaleString()}
-    //         </span>{" "}
-    //         <span style={{ color: "blue", fontWeight: "bold" }}> UGX</span>
-    //       </p>
-    //       <p style={{ marginTop: "-10px" }}>
-    //         EXPIRY DATE:{" "}
-    //         <span style={{ color: "blue", fontWeight: "bold" }}>
-    //           2024.08.24
-    //         </span>
-    //       </p>
-    //       <Alert
-    //         message="Copy this reference number and visit your bank to pay."
-    //         type="info"
-    //         showIcon
-    //       />
-    //     </div>
-    //   ),
-    //   width: 600, // Set your desired width here
-    //   onOk() {},
-    // });
   };
   return (
     <div style={{ margin: 16 }}>
