@@ -2,7 +2,7 @@
   "name": "fuse-react-app",
   "version": "10.4.0",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "dependencies": {
     "@ant-design/pro-components": "^2.7.15",
     "@apollo/client": "^3.10.6",
