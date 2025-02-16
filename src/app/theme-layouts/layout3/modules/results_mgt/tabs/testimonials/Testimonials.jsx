@@ -33,7 +33,12 @@ import { Download, SearchOutlined } from "@mui/icons-material";
 import ResultsTable from "./ResultsTable";
 import { useLazyQuery } from "@apollo/client";
 import { GET_STUDENT_MARKS } from "../../gql/queries";
-import { selectMarksDetails, setMarksDetails } from "../../store/resultsSlice";
+import {
+  selectMarksDetails,
+  selectStdNo,
+  setMarksDetails,
+  setStdNo,
+} from "../../store/resultsSlice";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import convertTimestampToDate from "app/theme-layouts/layout3/utils/convertTimestampToDate";
 
@@ -41,6 +46,7 @@ const { Search } = Input2;
 
 function Testimonials() {
   const dispatch = useDispatch();
+  const studentNo = useSelector(selectStdNo);
   const [form] = Form.useForm();
   const [getStudentMarks, { error, loading, data }] = useLazyQuery(
     GET_STUDENT_MARKS,
@@ -83,6 +89,7 @@ function Testimonials() {
 
   const onFinish = async (values) => {
     // console.log("values", values);
+    dispatch(setStdNo(values.student_no));
 
     const res = await getStudentMarks({
       variables: {
@@ -104,7 +111,7 @@ function Testimonials() {
         onOk() {},
       });
     } else {
-      console.log("student marks", res.data.get_student_marks);
+      // console.log("student marks", res.data.get_student_marks);
       dispatch(setMarksDetails(res.data.get_student_marks));
     }
   };
@@ -169,9 +176,9 @@ function Testimonials() {
                         name="basic"
                         form={form}
                         layout="vertical"
-                        // initialValues={{
-                        //   student_no: studentNo,
-                        // }}
+                        initialValues={{
+                          student_no: studentNo,
+                        }}
                         onFinish={onFinish}
                         autoComplete="off"
                       >

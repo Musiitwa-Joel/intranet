@@ -75,7 +75,6 @@ const SAVE_RUNNING_ADMISSION = gql`
     $eastAfricanApplicationFees: String!
     $internationalApplicationFees: String!
     $activateAdmissionFees: Int!
-    $addedBy: String!
     $description: String
     $saveRunningAdmissionId: ID
     $nationalAdmissionFees: String
@@ -96,7 +95,6 @@ const SAVE_RUNNING_ADMISSION = gql`
       east_african_application_fees: $eastAfricanApplicationFees
       international_application_fees: $internationalApplicationFees
       activate_admission_fees: $activateAdmissionFees
-      added_by: $addedBy
       description: $description
       id: $saveRunningAdmissionId
       national_admission_fees: $nationalAdmissionFees
@@ -171,6 +169,15 @@ const PUSH_TO_STD_INFO_CENTER = gql`
   }
 `;
 
+const SAVE_ADMISSION_LETTER = gql`
+  mutation saveAdmissionLetter($payload: AdmissionLetterInput) {
+    saveAdmissionLetter(payload: $payload) {
+      message
+      success
+    }
+  }
+`;
+
 export {
   SAVE_SCHEME,
   DELETE_SCHEME,
@@ -182,4 +189,5 @@ export {
   REMOVE_ADVERTISED_COURSE,
   ADMIT_STDS,
   PUSH_TO_STD_INFO_CENTER,
+  SAVE_ADMISSION_LETTER,
 };

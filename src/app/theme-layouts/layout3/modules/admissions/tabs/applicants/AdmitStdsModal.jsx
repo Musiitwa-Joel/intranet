@@ -122,7 +122,7 @@ function AdmitStdsModal() {
 
   const getRowHeight = (index) => 48;
 
-  console.log("studeentToBeAdmitted", studeentToBeAdmitted);
+  // console.log("studeentToBeAdmitted", studeentToBeAdmitted);
 
   const [
     admitPhdStdsMutation,

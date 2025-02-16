@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import _ from "@lodash";
 
 const initialModuleState = {
-  activeTab: 0,
+  activeTab: "applicants",
   acc_yr: "",
   scheme: "",
   intake: "",

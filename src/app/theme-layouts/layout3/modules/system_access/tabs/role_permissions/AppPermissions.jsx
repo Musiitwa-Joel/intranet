@@ -22,6 +22,7 @@ const permissionsConfig = {
   admissions: [
     { name: "can_view_applicants", label: "Can View Applicants" },
     { name: "can_upload_applicants", label: "Can Upload Applicants" },
+    { name: "can_manage_all_applicants", label: "Can Manage All Applicants" },
   ],
   hr: [
     { name: "can_view_employees", label: "Can View Employees" },

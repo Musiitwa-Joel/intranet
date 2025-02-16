@@ -10,9 +10,14 @@ import {
   InMemoryCache,
   ApolloProvider,
   ApolloLink,
+  split,
+  HttpLink,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { createClient } from "graphql-ws";
+import { getMainDefinition } from "@apollo/client/utilities";
 import createUploadLink from "apollo-upload-client/createUploadLink.mjs";
 import { useEffect } from "react";
 import store from "app/store/store";
@@ -22,29 +27,32 @@ import { addAppToTaskBar } from "app/store/appSlice";
 import { userLoggedOut } from "app/store/userSlice";
 import { mainUrl } from "app/configs/apiConfig";
 import { ConfigProvider } from "antd";
-// import * as serviceWorker from './serviceWorker';
-// import reportWebVitals from './reportWebVitals';
-/**
- * The root element of the application.
- */
 
-// Create an HTTP link for file uploads
-// const uploadLink = createUploadLink({
-//   uri: "http://localhost:2323",
-// });
-
-const uploadLink = createUploadLink({
+// HTTP link for queries, mutations, and file uploads
+const httpLink = createUploadLink({
   uri: mainUrl,
 });
 
-// Create a middleware to dynamically set headers
+// WebSocket link for subscriptions
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: mainUrl.replace("http", "ws"), // Replace "http" with "ws" for WebSocket
+    connectionParams: () => {
+      const token = store.getState().token.token;
+      return {
+        Authorization: token ? `Bearer ${token}` : "",
+      };
+    },
+  })
+);
+
+// Middleware to dynamically set headers for HTTP requests
 const authLink = setContext((operation, { headers }) => {
   const token = store.getState().token.token;
   return {
     headers: {
       ...headers,
-      // "content-type": "application/json",
-      "x-apollo-operation-name": operation.operationName || "Unknown", // Using full operation object
+      "x-apollo-operation-name": operation.operationName || "Unknown",
       "apollo-require-preflight": "true",
       Authorization: token ? `Bearer ${token}` : "",
     },
@@ -55,16 +63,14 @@ const authLink = setContext((operation, { headers }) => {
 const errorLink = onError(({ graphQLErrors }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, extensions }) => {
-      console.log("message", message);
-      console.log("extensions", extensions);
       if (
         extensions?.code === "UNAUTHENTICATED" ||
         extensions?.code === "UNAUTHORIZED"
       ) {
         // Clear the token in your Redux store
         store.dispatch(setToken(null)); // Dispatch an action to clear the token
-        store.dispatch(addAppToTaskBar([])); // close all apps
-        store.dispatch(userLoggedOut()); // remove the user profile
+        store.dispatch(addAppToTaskBar([])); // Close all apps
+        store.dispatch(userLoggedOut()); // Remove the user profile
 
         store.dispatch(
           showMessage({
@@ -77,18 +83,26 @@ const errorLink = onError(({ graphQLErrors }) => {
   }
 });
 
-// Combine links
+// Split links: use WebSocket for subscriptions and HTTP for everything else
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === "OperationDefinition" &&
+      definition.operation === "subscription"
+    );
+  },
+  wsLink, // Use WebSocket for subscriptions
+  ApolloLink.from([errorLink, authLink, httpLink]) // Use HTTP for queries/mutations
+);
+
+// Apollo Client instance
 const client = new ApolloClient({
-  // link: authLink.concat(uploadLink), // Chain the middleware with the upload link
-  link: ApolloLink.from([errorLink, authLink, uploadLink]),
+  link: splitLink,
   cache: new InMemoryCache(),
 });
-const container = document.getElementById("root");
 
-// const client = new ApolloClient({
-//   uri: "http://localhost:2323",
-//   cache: new InMemoryCache(),
-// });
+const container = document.getElementById("root");
 
 if (!container) {
   throw new Error("Failed to find the root element");
@@ -111,8 +125,3 @@ root.render(
     </ConfigProvider>
   </ApolloProvider>
 );
-// reportWebVitals();
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: http://bit.ly/CRA-PWA
-// serviceWorker.unregister();

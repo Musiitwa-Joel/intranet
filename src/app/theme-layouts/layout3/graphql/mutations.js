@@ -95,6 +95,15 @@ const ADD_USER = gql`
   }
 `;
 
+const ADMIT_STUDENTS = gql`
+  mutation admitStudents($applicants: [AdmissionInput]!) {
+    admit_students(applicants: $applicants) {
+      message
+      success
+    }
+  }
+`;
+
 const SEND_PHD_STDS = gql`
   mutation sendPhdStds($stds: [PostGradInput]!, $sentBy: String!) {
     save_sent_phd_stds(stds: $stds, sent_by: $sentBy) {
@@ -132,4 +141,5 @@ export {
   SAVE_SEC_QNS,
   SAVE_ROLE_PERMISSIONS,
   UNLOCK_SESSION,
+  ADMIT_STUDENTS,
 };

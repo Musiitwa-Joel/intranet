@@ -1,4 +1,4 @@
-import { Box, Typography, Tooltip } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import {
   AccessTimeFilledSharp,
   AddCircleSharp,
@@ -21,11 +21,14 @@ import {
   Button,
   ConfigProvider,
   Modal,
+  Typography,
+  FloatButton,
 } from "antd";
 import { DownOutlined, UserOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectAdmitStdsModalVisible,
+  selectApplicantsAdmissionList,
   selectApplicationPreviewModalOpen,
   selectApplications,
   selectLoadingApplications,
@@ -33,6 +36,7 @@ import {
   selectSelectedApplications,
   selectSelectedRowKeys,
   setAdmitStdsModalVisible,
+  setApplicanntsAdmissionListModal,
   setApplicationForm,
   setApplicationPreviewModalOpen,
   setSelectedApplications,
@@ -52,11 +56,14 @@ import { ADMIT_STDS } from "../../../graphql/mutations";
 import { selectUser } from "app/store/userSlice";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import CheckIcon from "@mui/icons-material/Check";
+import FormPreview from "./FormPreview";
+import AddStdToAdmissionModal from "./AddStdToAdmissionModal";
+import ApplicantAdmissionList from "../ApplicantsAdmissionList";
 
 const { Search } = Input;
 
 const renderRow = (record, text) => {
-  const color = parseInt(record.is_admitted)
+  const color = record.is_admitted
     ? "blue"
     : parseInt(record.is_paid)
       ? "green"
@@ -138,7 +145,7 @@ const columns = [
         return (
           <CheckIcon
             style={{
-              color: parseInt(record.is_admitted)
+              color: record.is_admitted
                 ? "blue"
                 : parseInt(record.is_paid)
                   ? "green"
@@ -158,7 +165,7 @@ const columns = [
     ellipsis: true,
     // render: (text, record, index) => <>{`_`}</>,
     render: (text, record, index) => {
-      if (Boolean(parseInt(record.is_admitted))) {
+      if (record.is_admitted) {
         return (
           <CheckIcon
             style={{
@@ -233,40 +240,40 @@ const items = [
       />
     ),
   },
-  {
-    label: "Edit Application",
-    key: "2",
-    icon: (
-      <EditNoteSharp
-        style={{
-          fontSize: 18,
-        }}
-      />
-    ),
-  },
-  {
-    label: "Edit Campus",
-    key: "3",
-    icon: (
-      <HouseSidingSharp
-        style={{
-          fontSize: 18,
-        }}
-      />
-    ),
-    // danger: true,
-  },
-  {
-    label: "Edit Study Time",
-    key: "4",
-    icon: (
-      <AccessTimeFilledSharp
-        style={{
-          fontSize: 18,
-        }}
-      />
-    ),
-  },
+  // {
+  //   label: "Edit Application",
+  //   key: "2",
+  //   icon: (
+  //     <EditNoteSharp
+  //       style={{
+  //         fontSize: 18,
+  //       }}
+  //     />
+  //   ),
+  // },
+  // {
+  //   label: "Edit Campus",
+  //   key: "3",
+  //   icon: (
+  //     <HouseSidingSharp
+  //       style={{
+  //         fontSize: 18,
+  //       }}
+  //     />
+  //   ),
+  //   // danger: true,
+  // },
+  // {
+  //   label: "Edit Study Time",
+  //   key: "4",
+  //   icon: (
+  //     <AccessTimeFilledSharp
+  //       style={{
+  //         fontSize: 18,
+  //       }}
+  //     />
+  //   ),
+  // },
   {
     label: "Import Applicants",
     key: "5",
@@ -289,17 +296,17 @@ const items = [
       />
     ),
   },
-  {
-    label: "Administratively Admit",
-    key: "7",
-    icon: (
-      <DownloadDone
-        style={{
-          fontSize: 18,
-        }}
-      />
-    ),
-  },
+  // {
+  //   label: "Administratively Admit",
+  //   key: "7",
+  //   icon: (
+  //     <DownloadDone
+  //       style={{
+  //         fontSize: 18,
+  //       }}
+  //     />
+  //   ),
+  // },
 ];
 
 const defaultExpandable = {
@@ -320,9 +327,7 @@ function AdmissionsDataTable() {
   const loadingApplications = useSelector(selectLoadingApplications);
   const applications = useSelector(selectApplications);
   const selectedApplications = useSelector(selectSelectedApplications);
-  const applicationPreviewModalOpen = useSelector(
-    selectApplicationPreviewModalOpen
-  );
+  const applicantsAdmissionList = useSelector(selectApplicantsAdmissionList);
   const admitStdsModalVisible = useSelector(selectAdmitStdsModalVisible);
   const selectedRowKeys = useSelector(selectSelectedRowKeys);
 
@@ -330,7 +335,13 @@ function AdmissionsDataTable() {
     refetchQueries: ["loadApplications"],
   });
 
-  // console.log("selectedApplication", selectedApplications);
+  // console.log("applications", applications);
+  const completedApplications = applications.filter(
+    (form) => form.is_completed
+  );
+  const inCompletedApplications = applications.filter(
+    (form) => !form.is_completed
+  );
   const [
     loadApplicationDetails,
     {
@@ -416,15 +427,19 @@ function AdmissionsDataTable() {
     if (selectedApplications.length > 0) {
       let latestAppSelected =
         selectedApplications[selectedApplications.length - 1];
+      // console.log("application", latestAppSelected);
       const res = await loadApplicationDetails({
         variables: {
-          formNo: latestAppSelected.form_no,
+          admissionsId: latestAppSelected.admissions_id,
           applicantId: latestAppSelected.applicant.id,
+          formNo: latestAppSelected.form_no,
+          admissionLevelId:
+            latestAppSelected.running_admissions.admission_level.id,
         },
       });
 
       // console.log("response", res.data);
-      dispatch(setApplicationForm(res.data.application));
+      dispatch(setApplicationForm(res.data));
       dispatch(setApplicationPreviewModalOpen(true));
     }
     // setIsOpen(true);
@@ -440,7 +455,7 @@ function AdmissionsDataTable() {
     >
       <Box
         sx={{
-          backgroundColor: "#1e293b",
+          backgroundColor: "#2f405d",
         }}
         className="p-5"
         style={{
@@ -451,21 +466,16 @@ function AdmissionsDataTable() {
           paddingRight: 15,
         }}
       >
-        <Typography
-          variant="h6"
-          color="inherit"
-          component="div"
+        <Typography.Text
+          strong
           style={{
-            //   opacity: 0.7,
-            color: "white",
-            fontSize: "1.7rem",
-            // fontWeight: "bold",
+            color: "#fff",
           }}
         >
           {selectedCourseGroup
             ? `${selectedCourseGroup.course_title} - (${selectedCourseGroup.course_code})`
             : null}
-        </Typography>
+        </Typography.Text>
 
         <div>
           <Space>
@@ -543,7 +553,7 @@ function AdmissionsDataTable() {
               }}
             />
 
-            <Dropdown menu={menuProps}>
+            <Dropdown menu={menuProps} trigger={["click"]}>
               <Button size="small">
                 <Space>
                   Actions
@@ -553,6 +563,9 @@ function AdmissionsDataTable() {
             </Dropdown>
 
             <Button size="small">Download All Applicants</Button>
+            <Button size="small" disabled={inCompletedApplications.length == 0}>
+              View Incomplete Forms
+            </Button>
           </Space>
 
           <Button
@@ -577,8 +590,8 @@ function AdmissionsDataTable() {
                 borderRadius: 0,
                 headerBorderRadius: 0,
                 // colorBorderBg: "black",
-                cellFontSize: 10,
-                fontSize: 13,
+                // cellFontSize: 10,
+                // fontSize: 13,
                 // controlHeight: 12
                 lineHeight: 0.8,
 
@@ -594,7 +607,7 @@ function AdmissionsDataTable() {
         >
           <Table
             columns={columns}
-            dataSource={applications}
+            dataSource={completedApplications}
             loading={loadingApplications}
             rowKey="id"
             bordered
@@ -617,33 +630,12 @@ function AdmissionsDataTable() {
             //   x: "100vw",
             // }}
           />
-
-          {/* <TestTable /> */}
         </ConfigProvider>
       </div>
 
-      <Modal
-        title="APPLICATION FORM PREVIEW"
-        // centered
-        open={applicationPreviewModalOpen}
-        style={{
-          top: 0,
-          //   overflow: "auto",
-        }}
-        onOk={() => dispatch(setApplicationPreviewModalOpen(false))}
-        onCancel={() => dispatch(setApplicationPreviewModalOpen(false))}
-        okButtonProps={{
-          style: {
-            color: "#000",
-            borderColor: "lightgray",
-          },
-        }}
-        width={1000}
-        zIndex={10000}
-      >
-        <ApplicationPreview />
-      </Modal>
-
+      <FormPreview />
+      <AddStdToAdmissionModal />
+      <ApplicantAdmissionList />
       <Modal
         title="ADMIT STUDENTS"
         // centered
@@ -667,6 +659,26 @@ function AdmissionsDataTable() {
         {/* <ApplicationPreview form_details={selectedApplication} /> */}
         <AdmitStudentsModal />
       </Modal>
+
+      <FloatButton.Group
+        shape="circle"
+        style={{
+          insetInlineEnd: 30,
+          insetBlockEnd: 70,
+        }}
+      >
+        <FloatButton
+          // href="https://ant.design/index-cn"
+          tooltip={<div>Applicant Admission List</div>}
+          shape="square"
+          type="primary"
+          badge={{
+            count: applicantsAdmissionList.length,
+            overflowCount: 999,
+          }}
+          onClick={() => dispatch(setApplicanntsAdmissionListModal(true))}
+        />
+      </FloatButton.Group>
     </div>
   );
 }

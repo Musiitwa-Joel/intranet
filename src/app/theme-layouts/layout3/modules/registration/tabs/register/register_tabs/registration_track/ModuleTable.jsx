@@ -161,9 +161,9 @@ const ModuleTable = ({ courseUnits }) => {
               {courseUnits.map((_module, index) => (
                 <tr
                   key={index}
-                  style={getRowStyle(_module?.course_unit.course_unit_code)}
+                  style={getRowStyle(_module?.course_unit?.course_unit_code)}
                   onMouseEnter={() =>
-                    handleMouseEnter(_module?.course_unit.course_unit_code)
+                    handleMouseEnter(_module?.course_unit?.course_unit_code)
                   }
                   onMouseLeave={handleMouseLeave}
                 >
@@ -171,17 +171,17 @@ const ModuleTable = ({ courseUnits }) => {
                     <span>{index + 1}</span>
                   </td>
                   <td>
-                    <span>{_module?.course_unit.course_unit_code}</span>
+                    <span>{_module?.course_unit?.course_unit_code}</span>
                   </td>
                   <td style={tdStyle}>
-                    <span>{_module?.course_unit.course_unit_title}</span>
+                    <span>{_module?.course_unit?.course_unit_title}</span>
                   </td>
                   <td style={tdStyle}>
-                    <span>{_module?.course_unit.credit_units}</span>
+                    <span>{_module?.course_unit?.credit_units}</span>
                   </td>
                   <td style={tdStyle}>
                     <span>
-                      {_module?.course_unit.course_unit_level.toUpperCase()}
+                      {_module?.course_unit?.course_unit_level.toUpperCase()}
                     </span>
                   </td>
                   <td style={tdStyle}>

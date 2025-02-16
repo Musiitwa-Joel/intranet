@@ -8,7 +8,7 @@ const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
   const token = useSelector(selectToken);
 
-  //   console.log("state", token);
+  // console.log("state", token);
 
   // Check if the token exists; if not, redirect to SignInPage
   if (!token) {

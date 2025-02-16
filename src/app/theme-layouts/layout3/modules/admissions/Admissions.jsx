@@ -9,16 +9,17 @@ import Reports from "./tabs/reports/Reports";
 import Settings from "./tabs/settings/Settings";
 import { updateActiveTab } from "app/store/admissionsSlice";
 import Admitted from "./tabs/admitted/Admitted";
-import AppNav from "../../components/AppNav";
+import AppNav2 from "../../components/AppNav2";
+import { ConfigProvider, theme } from "antd";
 
 const tabs = [
-  "Applicants",
-  "Admissible PhD Students",
-  "Admitted",
-  "Change of program",
-  "Report",
-  "Settings",
-  "Uneb Results",
+  { label: "Applicants", value: "applicants" },
+  { label: "Admissible PhD Students", value: "admissible_phd_students" },
+  { label: "Admitted", value: "admitted" },
+  { label: "Change of program", value: "change_of_program" },
+  { label: "Report", value: "report" },
+  { label: "Settings", value: "settings" },
+  { label: "Uneb Results", value: "uneb_results" },
 ];
 
 const Admissions = React.memo(function Admissions() {
@@ -66,17 +67,22 @@ const Admissions = React.memo(function Admissions() {
       ) : (
         <Suspense fallback={<FuseLoading logo={activeApp?.logo} />}>
           <Box sx={{ flexGrow: 1 }}>
-            <AppNav
+            <AppNav2
               tabs={tabs}
               activeApp={activeApp}
               activeTab={activeTab}
               handleTabChange={handleTabChange}
             />
-
-            {activeTab === 0 && <Applicants />}
-            {activeTab === 2 && <Admitted />}
-            {activeTab === 4 && <Reports />}
-            {activeTab === 5 && <Settings />}
+            <ConfigProvider
+              theme={{
+                algorithm: theme.compactAlgorithm,
+              }}
+            >
+              {activeTab === "applicants" && <Applicants />}
+              {activeTab === "admitted" && <Admitted />}
+              {activeTab === "report" && <Reports />}
+              {activeTab === "settings" && <Settings />}
+            </ConfigProvider>
           </Box>
         </Suspense>
       )}

@@ -18,7 +18,7 @@ function ResultsMgt() {
 
   const tabs = [
     {
-      label: "Results View",
+      label: "Results Display",
       value: "results_view",
       //   visible: can_view_employees ? true : false,
     },

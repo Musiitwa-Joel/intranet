@@ -29,7 +29,7 @@ const PrintableContent = React.forwardRef((props, ref) => {
   const studentFile = useSelector(selectStudentData);
 
   const totalCreditUnits = props.selectedModules.reduce((total, item) => {
-    const creditUnits = parseInt(item.course_unit.credit_units, 10) || 0;
+    const creditUnits = parseInt(item?.course_unit?.credit_units, 10) || 0;
     return total + creditUnits;
   }, 0);
   //   console.log("course units", props.selectedModules);

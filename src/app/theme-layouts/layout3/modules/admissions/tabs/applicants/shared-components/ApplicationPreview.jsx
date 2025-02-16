@@ -22,6 +22,7 @@ import {
 } from "../../../admissionsSlice";
 import "./mystyles.css";
 import formatToShortDate from "app/theme-layouts/layout3/utils/formatToShortDate";
+import { url2 } from "app/configs/apiConfig";
 // import checkSchemeStatus from "../../utils/checkSchemeStatus";
 // import formatApplicationDate from "../../utils/formatApplicationDate";
 // import formatToShortDate from "../../utils/formatToShortDate";
@@ -120,7 +121,7 @@ function ApplicationPreview() {
       >
         <img
           width={150}
-          src="src/app/theme-layouts/layout3/assets/nkumba-logo.png"
+          src={`${url2}/university/nkumba-logo.png`}
           style={{
             marginRight: 20,
           }}
@@ -711,9 +712,7 @@ function ApplicationPreview() {
               </div>
             ) : (
               <div>
-                <Alert>
-                  YOU SELECTED THAT YOU DIDN'T DO O LEVEL EXAMINATIONS
-                </Alert>
+                <Alert>APPLICANT DIDN'T DO O LEVEL EXAMINATIONS</Alert>
               </div>
             )}
           </Card>
@@ -792,9 +791,7 @@ function ApplicationPreview() {
               </div>
             ) : (
               <div>
-                <Alert>
-                  YOU SELECTED THAT YOU DIDN'T DO A LEVEL EXAMINATIONS
-                </Alert>
+                <Alert>APPLICANT DIDN'T DO A LEVEL EXAMINATIONS</Alert>
               </div>
             )}
           </Card>

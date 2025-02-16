@@ -175,6 +175,11 @@ const LOAD_APPLICANT_REQS = gql`
       id
       intake_title
     }
+    schools {
+      id
+      school_code
+      school_title
+    }
   }
 `;
 
@@ -183,11 +188,15 @@ const LOAD_APPLICANTS_SUMMARY = gql`
     $accYrId: String!
     $schemeId: String!
     $intakeId: String!
+    $completed: Boolean
+    $schoolId: String!
   ) {
     applicantsSammary(
       acc_yr_id: $accYrId
       scheme_id: $schemeId
       intake_id: $intakeId
+      completed: $completed
+      school_id: $schoolId
     ) {
       admissions_id
       campus_id
@@ -205,16 +214,20 @@ const LOAD_APPLICATIONS = gql`
     $admissionsId: String
     $courseId: String
     $campusId: String
+    $isCompleted: Boolean
   ) {
     applications(
       admissions_id: $admissionsId
       course_id: $courseId
       campus_id: $campusId
+      is_completed: $isCompleted
     ) {
       id
       form_no
       is_admitted
+      is_completed
       running_admissions {
+        id
         scheme {
           scheme_title
         }
@@ -225,6 +238,7 @@ const LOAD_APPLICATIONS = gql`
           acc_yr_title
         }
         admission_level {
+          id
           admission_level_title
         }
         start_date
@@ -257,25 +271,41 @@ const LOAD_APPLICATIONS = gql`
 
 const LOAD_APPLICATION_DETAILS = gql`
   query loadApplicationDetails(
-    $applicantId: String!
     $admissionsId: String
+    $applicantId: String!
     $formNo: String
+    $admissionLevelId: String!
   ) {
     application(
-      applicant_id: $applicantId
       admissions_id: $admissionsId
+      applicant_id: $applicantId
       form_no: $formNo
     ) {
       id
       form_no
+      admissions_id
+      applicant_id
+      creation_date
+      is_completed
+      is_paid
+      is_verified
+      is_admitted
+      status
+      has_other_qualifications
+      has_attachments
+      completed_section_ids
       running_admissions {
-        scheme {
-          scheme_title
-        }
+        id
         intake {
+          id
           intake_title
         }
+        scheme {
+          id
+          scheme_title
+        }
         acc_yr {
+          id
           acc_yr_title
         }
         admission_level {
@@ -284,17 +314,6 @@ const LOAD_APPLICATION_DETAILS = gql`
         start_date
         end_date
       }
-      admissions_id
-      applicant_id
-      creation_date
-      is_completed
-      is_paid
-      is_verified
-      status
-      is_admitted
-      has_other_qualifications
-      has_attachments
-      completed_section_ids
       applicant {
         id
         salutation_id
@@ -307,16 +326,18 @@ const LOAD_APPLICATION_DETAILS = gql`
         district_of_origin
         place_of_residence
         religion
-        is_complete
+
         created_at
         email
         gender
         nationality {
           nationality_title
         }
+
         phone_no
         is_verified
         marital_status
+        is_complete
       }
       program_choices {
         id
@@ -405,6 +426,13 @@ const LOAD_APPLICATION_DETAILS = gql`
         relation
       }
       application_fee
+      application_fee
+      submission_date
+      is_completed
+    }
+    applicant_form_sections(admission_level_id: $admissionLevelId) {
+      section_id
+      section_title
     }
   }
 `;
@@ -471,6 +499,25 @@ const LOAD_ADMITTED_STUDENTS = gql`
   }
 `;
 
+const LOAD_ADMISSION_LETTERS = gql`
+  query loadAdmissionLetters {
+    admission_letters {
+      id
+      intake_id
+      intake_title
+      name
+      scheme_id
+      scheme_title
+      template_id
+      file_name
+      created_on
+      last_modified_by
+      last_modified_on
+      last_modified_by_user
+    }
+  }
+`;
+
 export {
   GET_SCHEMES,
   GET_ADMISSION_LEVELS,
@@ -484,4 +531,5 @@ export {
   LOAD_APPLICATION_DETAILS,
   LOAD_ADMITTED_STDS_SUMMARY,
   LOAD_ADMITTED_STUDENTS,
+  LOAD_ADMISSION_LETTERS,
 };
