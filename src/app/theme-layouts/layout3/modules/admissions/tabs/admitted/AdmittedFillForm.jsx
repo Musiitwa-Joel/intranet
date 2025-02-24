@@ -59,16 +59,17 @@ const AdmittedFillForm = () => {
     // backgroundColor: "red",
   };
   const onFinish = async (values) => {
-    // console.log("Received values of form: ", values);
+    console.log("Received values of form: ", values);
     const payload = {
       accYrId: values.acc_yr,
       schemeId: values.scheme,
       intakeId: values.intake,
+      schoolId: values.school,
     };
 
-    dispatch(setAdmittedFillForm(values));
+    // dispatch(setAdmittedFillForm(values));
 
-    console.log("payload", payload);
+    // // console.log("payload", payload);
 
     const res = await loadAdmittedStdsSummary({
       variables: payload,
@@ -91,7 +92,7 @@ const AdmittedFillForm = () => {
       >
         <Row gutter={24} align="middle">
           <Col
-            span={6}
+            span={5}
             style={{
               //   backgroundColor: "green",
               paddingBottom: 0,
@@ -119,7 +120,7 @@ const AdmittedFillForm = () => {
             </Form.Item>
           </Col>
 
-          <Col span={6}>
+          <Col span={5}>
             <Form.Item
               name={`scheme`}
               label={`Scheme`}
@@ -142,7 +143,7 @@ const AdmittedFillForm = () => {
             </Form.Item>
           </Col>
 
-          <Col span={6}>
+          <Col span={5}>
             <Form.Item
               name={`intake`}
               label={`Intake`}
@@ -160,6 +161,36 @@ const AdmittedFillForm = () => {
               <Select loading={loading} placeholder="Intake">
                 {applicantReqs.intakes.map((intake) => (
                   <Option value={intake.id}>{intake.intake_title}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={7}>
+            <Form.Item
+              name="school"
+              label="School/Faculty"
+              rules={[
+                {
+                  required: true,
+                  message: "Select a school",
+                },
+              ]}
+              style={{
+                paddingBottom: 0,
+                marginBottom: 0,
+              }}
+            >
+              <Select
+                loading={loading}
+                placeholder="School/Faculty"
+                // size="small"
+              >
+                <Option value={"all"}>{`ALL SCHOOLS`}</Option>
+                {applicantReqs.schools.map((school) => (
+                  <Option
+                    value={school.id}
+                  >{`(${school.school_code}) ${school.school_title}`}</Option>
                 ))}
               </Select>
             </Form.Item>

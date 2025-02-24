@@ -50,6 +50,7 @@ export default defineConfig({
       "app/configs": "/src/app/configs",
       "app/theme-layouts": "/src/app/theme-layouts",
       "app/AppContext": "/src/app/AppContext",
+      "react/jsx-runtime.js": "react/jsx-runtime",
     },
   },
   optimizeDeps: {

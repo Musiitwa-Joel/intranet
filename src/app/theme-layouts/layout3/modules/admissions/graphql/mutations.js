@@ -178,6 +178,15 @@ const SAVE_ADMISSION_LETTER = gql`
   }
 `;
 
+const SAVE_ADMISSION_TEMPLATE = gql`
+  mutation saveAdmissionTemplate($payload: AdmissionTemplateInput) {
+    saveAdmissionTemplate(payload: $payload) {
+      message
+      success
+    }
+  }
+`;
+
 export {
   SAVE_SCHEME,
   DELETE_SCHEME,
@@ -190,4 +199,5 @@ export {
   ADMIT_STDS,
   PUSH_TO_STD_INFO_CENTER,
   SAVE_ADMISSION_LETTER,
+  SAVE_ADMISSION_TEMPLATE,
 };

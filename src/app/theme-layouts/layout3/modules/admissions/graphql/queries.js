@@ -442,11 +442,13 @@ const LOAD_ADMITTED_STDS_SUMMARY = gql`
     $accYrId: String!
     $schemeId: String!
     $intakeId: String!
+    $schoolId: String!
   ) {
     admitted_students_summary(
       acc_yr_id: $accYrId
       scheme_id: $schemeId
       intake_id: $intakeId
+      school_id: $schoolId
     ) {
       admissions_id
       campus_id
@@ -509,11 +511,26 @@ const LOAD_ADMISSION_LETTERS = gql`
       scheme_id
       scheme_title
       template_id
+      layout_width
+      layout_height
+      reporting_dates
+      registration_dates
+      lecture_dates
       file_name
+      content
       created_on
       last_modified_by
       last_modified_on
       last_modified_by_user
+    }
+  }
+`;
+
+const PRINT_ADMISSION_LETTERS = gql`
+  query printAdmissionLetters($students: [LetterPreviewInput]) {
+    print_admission_letters(students: $students) {
+      admission_letter
+      background_image
     }
   }
 `;
@@ -532,4 +549,5 @@ export {
   LOAD_ADMITTED_STDS_SUMMARY,
   LOAD_ADMITTED_STUDENTS,
   LOAD_ADMISSION_LETTERS,
+  PRINT_ADMISSION_LETTERS,
 };

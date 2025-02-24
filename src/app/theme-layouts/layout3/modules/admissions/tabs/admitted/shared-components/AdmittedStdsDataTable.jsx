@@ -28,32 +28,31 @@ import {
   selectApplicationPreviewModalOpen,
   selectApplications,
   selectLoadingAdmittedStds,
-  selectLoadingApplications,
   selectSelectedAdmittedStds,
   selectSelectedAdmittedStdsRowKeys,
   selectSelectedAdmittedStdsSummary,
-  selectSelectedApplicantSummary,
-  selectSelectedApplications,
-  selectSelectedRowKeys,
-  setAdmitStdsModalVisible,
+  setAdmissionLetterModalVisible,
+  setAdmissionLetters,
   setApplicationForm,
   setApplicationPreviewModalOpen,
   setSelectedAdmittedStds,
   setSelectedAdmittedStdsRowKeys,
-  setSelectedApplications,
   setSelectedRowKeys,
 } from "../../../admissionsSlice";
 import { useLazyQuery, useMutation } from "@apollo/client";
-import { LOAD_APPLICATION_DETAILS } from "../../../graphql/queries";
+import {
+  LOAD_APPLICATION_DETAILS,
+  PRINT_ADMISSION_LETTERS,
+} from "../../../graphql/queries";
 import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";
-import ApplicationPreview from "./ApplicationPreview";
-import AdmitStudentsModal from "./AdmitStudentsModal";
 import {
   ADMIT_STDS,
   PUSH_TO_STD_INFO_CENTER,
 } from "../../../graphql/mutations";
 import { selectUser } from "app/store/userSlice";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
+import AdmissionLetterPreview from "./AdmissionLetterPreview";
+import { useEffect } from "react";
 
 const { Search } = Input;
 
@@ -257,11 +256,10 @@ function AdmittedStdsDataTable() {
   const selectedCourseGroup = useSelector(selectSelectedAdmittedStdsSummary);
   const loadingApplications = useSelector(selectLoadingAdmittedStds);
   const applications = useSelector(selectAdmittedStds);
-  const selectedApplications = useSelector(selectSelectedAdmittedStds);
+  const selectedAdmittedStds = useSelector(selectSelectedAdmittedStds);
   const applicationPreviewModalOpen = useSelector(
     selectApplicationPreviewModalOpen
   );
-  const admitStdsModalVisible = useSelector(selectAdmitStdsModalVisible);
   const selectedRowKeys = useSelector(selectSelectedAdmittedStdsRowKeys);
 
   const [
@@ -281,19 +279,42 @@ function AdmittedStdsDataTable() {
     },
   ] = useLazyQuery(LOAD_APPLICATION_DETAILS);
 
-  if (loadErr) {
-    dispatch({
-      message: loadErr.message,
-      variant: "error",
+  const [printAdmissionLetters, { error: printErr, loading: printingLetters }] =
+    useLazyQuery(PRINT_ADMISSION_LETTERS, {
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: "network-only",
     });
-  }
 
-  if (pushErr) {
-    dispatch({
-      message: pushErr.message,
-      variant: "error",
-    });
-  }
+  // console.log("print error", printErr?.message);
+
+  useEffect(() => {
+    if (loadErr) {
+      dispatch(
+        showMessage({
+          message: loadErr.message,
+          variant: "error",
+        })
+      );
+    }
+
+    if (pushErr) {
+      dispatch(
+        showMessage({
+          message: pushErr.message,
+          variant: "error",
+        })
+      );
+    }
+
+    if (printErr) {
+      dispatch(
+        showMessage({
+          message: printErr.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [printErr, pushErr, loadErr]);
 
   const handleMenuClick = async (e) => {
     // message.info("Click on menu item.");
@@ -301,14 +322,14 @@ function AdmittedStdsDataTable() {
     if (e.key == "1") {
       // Push to student information center
 
-      if (selectedApplications.length == 0)
+      if (selectedAdmittedStds.length == 0)
         return dispatch(
           showMessage({
             message: "Please select at least one student",
             variant: "info",
           })
         );
-      const std_ids = selectedApplications.map((std) => std.std_id);
+      const std_ids = selectedAdmittedStds.map((std) => std.std_id);
 
       // console.log("the ids", std_ids);
 
@@ -346,22 +367,26 @@ function AdmittedStdsDataTable() {
   };
 
   const handleOpenPreview = async () => {
-    // console.log("selected app", selectedApplication);
-    if (selectedApplications.length > 0) {
-      let latestAppSelected =
-        selectedApplications[selectedApplications.length - 1];
-      const res = await loadApplicationDetails({
-        variables: {
-          formNo: latestAppSelected.form_no,
-          applicantId: latestAppSelected.applicant.id,
-        },
-      });
+    const stds = selectedAdmittedStds.map((std) => ({
+      applicant_id: std.biodata.id,
+      form_no: std.form_no,
+    }));
 
-      // console.log("response", res.data);
-      dispatch(setApplicationForm(res.data.application));
-      dispatch(setApplicationPreviewModalOpen(true));
+    const payload = {
+      students: stds,
+    };
+
+    console.log("selected applications", selectedAdmittedStds);
+    const res = await printAdmissionLetters({
+      variables: payload,
+    });
+
+    console.log("responsse", res.data);
+    if (res.data?.print_admission_letters) {
+      dispatch(setAdmissionLetters(res.data.print_admission_letters));
+
+      dispatch(setAdmissionLetterModalVisible(true));
     }
-    // setIsOpen(true);
   };
 
   return (
@@ -491,10 +516,8 @@ function AdmittedStdsDataTable() {
           </Space>
 
           <Button
-            disabled={
-              selectedApplications.length == 0 || loadingApplicationDetails
-            }
-            loading={loadingApplicationDetails}
+            disabled={selectedAdmittedStds.length == 0 || printingLetters}
+            loading={printingLetters}
             onClick={handleOpenPreview}
             size="small"
           >
@@ -507,11 +530,22 @@ function AdmittedStdsDataTable() {
               Table: {
                 // headerBg: "rgba(0, 0, 0, 0.04)",
                 borderColor: "lightgray",
+                // borderWidth: 10,
+                // headerColor: "dodgerblue",
                 borderRadius: 0,
                 headerBorderRadius: 0,
-                cellFontSize: 10,
-                fontSize: 13,
+                // colorBorderBg: "black",
+                // cellFontSize: 10,
+                // fontSize: 13,
+                // controlHeight: 12
                 lineHeight: 0.8,
+
+                // backgroundColor: "red",
+
+                // headerColor: "red",
+                // headerSplitColor: "red",
+                // borderColor: "red",
+                // padding: 0,
               },
             },
           }}
@@ -544,27 +578,7 @@ function AdmittedStdsDataTable() {
         </ConfigProvider>
       </div>
 
-      <Modal
-        title="APPLICATION FORM PREVIEW"
-        // centered
-        open={applicationPreviewModalOpen}
-        style={{
-          top: 0,
-          //   overflow: "auto",
-        }}
-        onOk={() => dispatch(setApplicationPreviewModalOpen(false))}
-        onCancel={() => dispatch(setApplicationPreviewModalOpen(false))}
-        okButtonProps={{
-          style: {
-            color: "#000",
-            borderColor: "lightgray",
-          },
-        }}
-        width={1000}
-        zIndex={10000}
-      >
-        <ApplicationPreview />
-      </Modal>
+      <AdmissionLetterPreview />
     </div>
   );
 }

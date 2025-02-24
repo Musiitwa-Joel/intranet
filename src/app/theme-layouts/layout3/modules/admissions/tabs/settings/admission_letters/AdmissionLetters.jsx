@@ -1,4 +1,4 @@
-import { Close, Delete, Edit, ListAlt } from "@mui/icons-material";
+import { Close, Delete, Edit, ListAlt, Preview } from "@mui/icons-material";
 import {
   ConfigProvider,
   Table,
@@ -13,7 +13,7 @@ import {
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import clsx from "clsx";
-import { Download, List, ListCheck, Upload } from "lucide-react";
+import { Download, List, ListCheck, RefreshCcw, Upload } from "lucide-react";
 import { Add } from "@mui/icons-material";
 import { useMutation, useQuery } from "@apollo/client";
 import { LOAD_ADMISSION_LETTERS } from "../../../graphql/queries";
@@ -22,9 +22,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import {
   selectAdmissionLetters,
+  selectSelectedAdmissionLetter,
+  selectSelectedAdmissionTemplate,
   setAdmissionLetterModalVisible,
   setAdmissionLetters,
+  setAdmissionTemplatePreview,
   setManageProgramsModalVisible,
+  setSelectedAdmissionLetter,
+  setSelectedAdmissionTemplate,
   setStartAdmissionsModalVisible,
 } from "../../../admissionsSlice";
 import { darken, useTheme } from "@mui/material/styles";
@@ -34,6 +39,9 @@ import { DELETE_RUNNING_ADMISSION } from "../../../graphql/mutations";
 import styled from "styled-components";
 import CreateAdmissionLetterModal from "./CreateAdmissionLetterModal";
 import convertTimestampToDate from "app/theme-layouts/layout3/utils/convertTimestampToDate";
+import { url2 } from "app/configs/apiConfig";
+import toast from "react-hot-toast";
+import AdmissionTemplatePreview from "./AdmissionTemplatePreview";
 // import ManageProgramsModal from "./ManageProgramsModal";
 
 const StyledTable = styled.table`
@@ -117,6 +125,7 @@ function AdmissionLetters() {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const admissionLetters = useSelector(selectAdmissionLetters);
+  const selectedTemplate = useSelector(selectSelectedAdmissionTemplate);
   const [
     deleteRunningAdmission,
     { error: deleteErr, loading: deletingAdmission, data: deleteResponse },
@@ -128,9 +137,28 @@ function AdmissionLetters() {
     error,
     loading: loadingAdmissionLetters,
     data,
+    refetch,
   } = useQuery(LOAD_ADMISSION_LETTERS, {
     notifyOnNetworkStatusChange: true,
   });
+
+  const handleDownload = (record) => {
+    const fileUrl = `${url2}/templates/admission_letters/${record.template_id}`;
+
+    // Create an invisible anchor element
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.setAttribute("download", "admission_template.docx"); // Suggested filename
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePreview = (record) => {
+    // console.log("record", record);
+    dispatch(setAdmissionTemplatePreview(true));
+    dispatch(setSelectedAdmissionTemplate(record));
+  };
 
   const columns = [
     {
@@ -138,6 +166,7 @@ function AdmissionLetters() {
       dataIndex: "name",
       // width: "20%",
       key: "name",
+      ellipsis: true,
       //   render: (text, record, index) => record.intake.intake_title,
     },
     {
@@ -176,38 +205,39 @@ function AdmissionLetters() {
       render: (text, record, index) => convertTimestampToDate(parseInt(text)),
       key: "last_modified_on",
     },
-    {
-      title: "Template",
-      dataIndex: "template",
-      width: "20%",
-      render: (text, record, index) => {
-        return (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              //   justifyContent: "center",
-            }}
-          >
-            <FileWordFilled
-              style={{
-                fontSize: 40,
-                color: "dodgerblue",
-              }}
-            />
-            <Typography.Link
-              style={{
-                textDecoration: "none",
-              }}
-            >
-              {record.file_name}
-            </Typography.Link>
-          </div>
-        );
-      },
-      key: "template",
-      ellipsis: true,
-    },
+    // {
+    //   title: "Template",
+    //   dataIndex: "template",
+    //   width: "20%",
+    //   render: (text, record, index) => {
+    //     return (
+    //       <div
+    //         style={{
+    //           display: "flex",
+    //           alignItems: "center",
+    //           //   justifyContent: "center",
+    //         }}
+    //       >
+    //         <FileWordFilled
+    //           style={{
+    //             fontSize: 40,
+    //             color: "dodgerblue",
+    //           }}
+    //         />
+    //         <Typography.Link
+    //           style={{
+    //             textDecoration: "none",
+    //           }}
+    //           onClick={() => handleDownload(record)}
+    //         >
+    //           {record.file_name}
+    //         </Typography.Link>
+    //       </div>
+    //     );
+    //   },
+    //   key: "template",
+    //   ellipsis: true,
+    // },
     {
       title: "Action",
       key: "operation",
@@ -218,28 +248,25 @@ function AdmissionLetters() {
             type="primary"
             ghost
             onClick={() => {
-              //   dispatch(setSelectedRunningAdmission(record));
-              dispatch(setStartAdmissionsModalVisible(true));
+              dispatch(setSelectedAdmissionLetter(record));
+              dispatch(setAdmissionLetterModalVisible(true));
             }}
             icon={<Edit />}
           />
 
-          <Tooltip title="Download Template">
+          <Tooltip title="Preview Template">
             <Button
               //   size="small"
               type="primary"
               ghost
-              icon={<Download size={18} />}
-              onClick={() => {
-                // dispatch(setSelectedRunningAdmission(record));
-                dispatch(setManageProgramsModalVisible(true));
-              }}
+              icon={<Preview size={18} />}
+              onClick={() => handlePreview(record)}
             />
           </Tooltip>
 
           <Popconfirm
-            title="Delete Admission"
-            description="Are you sure to delete this admission?"
+            title="Delete Template"
+            description="Are you sure to delete this template?"
             onConfirm={(e) => confirmDelete(e, record)}
             // onCancel={cancel}
             okText="Yes"
@@ -299,7 +326,6 @@ function AdmissionLetters() {
   }, [error, deleteErr]);
 
   if (data) {
-    console.log("data...", data);
     dispatch(setAdmissionLetters(data.admission_letters));
   }
 
@@ -326,18 +352,37 @@ function AdmissionLetters() {
       >
         <Table
           title={() => (
-            <>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <Button
                 type="primary"
                 icon={<Add />}
                 onClick={() => {
-                  //   dispatch(setSelectedRunningAdmission(null));
+                  dispatch(setSelectedAdmissionLetter(null));
                   dispatch(setAdmissionLetterModalVisible(true));
                 }}
               >
                 Add New Admission Letter
               </Button>
-            </>
+
+              <Button
+                type="primary"
+                ghost
+                icon={<RefreshCcw size={13} />}
+                loading={loadingAdmissionLetters}
+                disabled={loadingAdmissionLetters}
+                onClick={() => {
+                  refetch();
+                }}
+              >
+                Refresh
+              </Button>
+            </div>
           )}
           bordered
           size="small"
@@ -490,6 +535,9 @@ function AdmissionLetters() {
       </Modal>
 
       <CreateAdmissionLetterModal />
+      <AdmissionTemplatePreview
+        content={selectedTemplate ? selectedTemplate?.content : ""}
+      />
     </div>
   );
 }

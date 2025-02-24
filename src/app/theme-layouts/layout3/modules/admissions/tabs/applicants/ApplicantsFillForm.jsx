@@ -134,7 +134,7 @@ const ApplicantsFillForm = () => {
               <Select
                 loading={loading}
                 placeholder="Accademic Year"
-                size="small"
+                // size="small"
               >
                 {applicantReqs.acc_yrs.map((acc_yr) => (
                   <Option value={acc_yr.id}>{acc_yr.acc_yr_title}</Option>
@@ -158,7 +158,7 @@ const ApplicantsFillForm = () => {
                 marginBottom: 0,
               }}
             >
-              <Select loading={loading} placeholder="Scheme" size="small">
+              <Select loading={loading} placeholder="Scheme">
                 {applicantReqs.schemes.map((scheme) => (
                   <Option value={scheme.id}>{scheme.scheme_title}</Option>
                 ))}
@@ -181,7 +181,7 @@ const ApplicantsFillForm = () => {
                 marginBottom: 0,
               }}
             >
-              <Select loading={loading} placeholder="Intake" size="small">
+              <Select loading={loading} placeholder="Intake">
                 {applicantReqs.intakes.map((intake) => (
                   <Option value={intake.id}>{intake.intake_title}</Option>
                 ))}
@@ -208,7 +208,7 @@ const ApplicantsFillForm = () => {
               <Select
                 loading={loading}
                 placeholder="School/Faculty"
-                size="small"
+                // size="small"
               >
                 <Option value={"all"}>{`ALL SCHOOLS`}</Option>
                 {applicantReqs.schools.map((school) => (

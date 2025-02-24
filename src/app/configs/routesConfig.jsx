@@ -26,6 +26,7 @@ import TredPay from "app/theme-layouts/layout3/modules/tredpay/TredPay";
 import SystemAccess from "app/theme-layouts/layout3/modules/system_access/SystemAccess";
 import HR from "app/theme-layouts/layout3/modules/hr/HR";
 import ResultsMgt from "app/theme-layouts/layout3/modules/results_mgt/ResultsMgt";
+import Alumni from "app/theme-layouts/layout3/modules/alumini/Alumni";
 
 // const ProgramsAndCourses = lazy(
 //   () =>
@@ -169,6 +170,14 @@ const routes = [
     element: (
       <ProtectedRoute>
         <ResultsMgt />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "alumni",
+    element: (
+      <ProtectedRoute>
+        <Alumni />
       </ProtectedRoute>
     ),
   },

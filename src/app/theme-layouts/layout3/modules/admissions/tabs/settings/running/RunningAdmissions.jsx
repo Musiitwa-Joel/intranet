@@ -249,7 +249,6 @@ function RunningAdmissions() {
   }, [error, deleteErr]);
 
   if (data) {
-    console.log("data...", data);
     dispatch(setRunningAdmissions(data.running_admissions));
   }
 

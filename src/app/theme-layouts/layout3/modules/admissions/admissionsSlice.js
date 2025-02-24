@@ -84,11 +84,17 @@ const initialState = {
   selectedAdmittedStds: [],
   selectedAdmittedStdsRowKeys: [],
   applicantSelectedRowKey: null,
+  admittedStdsSelectedRowKey: null,
   addStdToAdmissionModalVisible: false,
   applicantsAdmissionList: [],
   applicantsAdmissionListModal: false,
   admissionLetterModalVisible: false,
   admissionLetters: [],
+  selectedAdmissionLetter: null,
+  admissionTemplatePreview: false,
+  selectedAdmissionTemplate: null,
+  admissionQuillValue: "",
+  admissionLettersModalVisible: false,
 };
 /**
  * The File Manager App slice.
@@ -239,6 +245,24 @@ export const admissionsAppSlice = createSlice({
     setAdmissionLetters: (state, action) => {
       state.admissionLetters = action.payload;
     },
+    setSelectedAdmissionLetter: (state, action) => {
+      state.selectedAdmissionLetter = action.payload;
+    },
+    setAdmissionTemplatePreview: (state, action) => {
+      state.admissionTemplatePreview = action.payload;
+    },
+    setSelectedAdmissionTemplate: (state, action) => {
+      state.selectedAdmissionTemplate = action.payload;
+    },
+    setAdmissionQuillValue: (state, action) => {
+      state.admissionQuillValue = action.payload;
+    },
+    setAdmittedStdsSelectedRowKey: (state, action) => {
+      state.admittedStdsSelectedRowKey = action.payload;
+    },
+    setAdmissionLettersVisible: (state, action) => {
+      state.admissionLetterModalVisible = action.payload;
+    },
   },
   selectors: {
     selectSchemes: (state) => state.schemes,
@@ -298,6 +322,15 @@ export const admissionsAppSlice = createSlice({
     selectAdmissionLetterModalVisible: (state) =>
       state.admissionLetterModalVisible,
     selectAdmissionLetters: (state) => state.admissionLetters,
+    selectSelectedAdmissionLetter: (state) => state.selectedAdmissionLetter,
+    selectAdmissionTemplatePreview: (state) => state.admissionTemplatePreview,
+    selectSelectedAdmissionTemplate: (state) => state.selectedAdmissionTemplate,
+    selectAdmissionQuillValue: (state) => state.admissionQuillValue,
+    selectAdmittedStdsSelectedRowKey: (state) =>
+      state.admittedStdsSelectedRowKey,
+    selectAdmissionLetters: (state) => state.admissionLetters,
+    selectAdmissionLettersModalVisible: (state) =>
+      state.admissionLetterModalVisible,
   },
 });
 /**
@@ -351,6 +384,12 @@ export const {
   setApplicanntsAdmissionListModal,
   setAdmissionLetterModalVisible,
   setAdmissionLetters,
+  setSelectedAdmissionLetter,
+  setAdmissionTemplatePreview,
+  setSelectedAdmissionTemplate,
+  setAdmissionQuillValue,
+  setAdmittedStdsSelectedRowKey,
+  setAdmissionLettersVisible,
 } = admissionsAppSlice.actions;
 export const {
   selectSchemes,
@@ -398,5 +437,11 @@ export const {
   selectApplicantsAdmissionListModal,
   selectAdmissionLetterModalVisible,
   selectAdmissionLetters,
+  selectSelectedAdmissionLetter,
+  selectAdmissionTemplatePreview,
+  selectSelectedAdmissionTemplate,
+  selectAdmissionQuillValue,
+  selectAdmittedStdsSelectedRowKey,
+  selectAdmissionLettersModalVisible,
 } = injectedSlice.selectors;
 export default admissionsAppSlice.reducer;
