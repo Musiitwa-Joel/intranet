@@ -326,7 +326,6 @@ const LOAD_APPLICATION_DETAILS = gql`
         district_of_origin
         place_of_residence
         religion
-
         created_at
         email
         gender
@@ -496,6 +495,7 @@ const LOAD_ADMITTED_STUDENTS = gql`
       }
       entry_study_yr
       admitted_on
+      admitted_by_user
       is_std_verified
     }
   }

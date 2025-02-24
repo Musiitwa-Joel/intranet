@@ -95,6 +95,7 @@ const initialState = {
   selectedAdmissionTemplate: null,
   admissionQuillValue: "",
   admissionLettersModalVisible: false,
+  editStudentsRecordModalVisible: false,
 };
 /**
  * The File Manager App slice.
@@ -263,6 +264,9 @@ export const admissionsAppSlice = createSlice({
     setAdmissionLettersVisible: (state, action) => {
       state.admissionLetterModalVisible = action.payload;
     },
+    setEditStudentRecordsModalVisible: (state, action) => {
+      state.editStudentsRecordModalVisible = action.payload;
+    },
   },
   selectors: {
     selectSchemes: (state) => state.schemes,
@@ -331,6 +335,8 @@ export const admissionsAppSlice = createSlice({
     selectAdmissionLetters: (state) => state.admissionLetters,
     selectAdmissionLettersModalVisible: (state) =>
       state.admissionLetterModalVisible,
+    selectEditStudentsRecordsModalVisible: (state) =>
+      state.editStudentsRecordModalVisible,
   },
 });
 /**
@@ -390,6 +396,7 @@ export const {
   setAdmissionQuillValue,
   setAdmittedStdsSelectedRowKey,
   setAdmissionLettersVisible,
+  setEditStudentRecordsModalVisible,
 } = admissionsAppSlice.actions;
 export const {
   selectSchemes,
@@ -443,5 +450,6 @@ export const {
   selectAdmissionQuillValue,
   selectAdmittedStdsSelectedRowKey,
   selectAdmissionLettersModalVisible,
+  selectEditStudentsRecordsModalVisible,
 } = injectedSlice.selectors;
 export default admissionsAppSlice.reducer;

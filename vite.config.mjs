@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import svgrPlugin from "vite-plugin-svgr";
 import jsconfigPaths from "vite-jsconfig-paths";
 import fixReactVirtualized from "esbuild-plugin-react-virtualized";
+import linaria from "@linaria/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,6 +15,7 @@ export default defineConfig({
       parseNative: false,
     }),
     svgrPlugin(),
+    linaria(),
     {
       name: "custom-hmr-control",
       handleHotUpdate({ file, server }) {

@@ -5,8 +5,8 @@ Basic Table Styles
     display: block;
     width: 100%;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    -ms-overflow-style: -ms-autohiding-scrollbar;
+    /* -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: -ms-autohiding-scrollbar; */
 }
 
 table.simple {
@@ -60,10 +60,10 @@ table.simple.borderless {
     border: none;
 }
 
-table.simple.borderless tbody tr td{
+table.simple.borderless tbody tr td {
     border: none;
 }
 
-table.simple.borderless thead tr th{
+table.simple.borderless thead tr th {
     border: none;
 }

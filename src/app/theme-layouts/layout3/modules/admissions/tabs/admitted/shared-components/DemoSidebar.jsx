@@ -15,6 +15,7 @@ import {
   setAdmittedStdsSelectedRowKey,
   setLoadingAdmittedStds,
   setSelectedAdmittedStdsRowKeys,
+  setSelectedAdmittedStdsSummary,
 } from "../../../admissionsSlice";
 
 import {
@@ -144,6 +145,7 @@ const DemoSidebar = React.memo(({ refetch, isRefetching }) => {
     // console.log("applications", res.data);
 
     if (res.data) {
+      dispatch(setSelectedAdmittedStdsSummary(row));
       dispatch(setAdmittedStds(res.data.admitted_students));
     }
   };

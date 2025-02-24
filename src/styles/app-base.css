@@ -103,7 +103,7 @@ a[role=button] {
 }
 
 /* Medium Devices, Desktops Only */
-@media only screen and (min-width: 992px) {
+/* @media only screen and (min-width: 992px) {
     ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
@@ -124,7 +124,7 @@ a[role=button] {
     ::-webkit-scrollbar-thumb:active {
         border-radius: 20px;
     }
-}
+} */
 
 form label {
     z-index: 99;
@@ -155,9 +155,9 @@ input:-webkit-autofill:active {
 }
 
 /*fullcalendar Fix*/
-.fc-scrollgrid-section-liquid {
+/* .fc-scrollgrid-section-liquid {
     height: 1px !important;
-}
+} */
 
 
 .muiltr-erbjll-MuiFormLabel-root-MuiInputLabel-root {

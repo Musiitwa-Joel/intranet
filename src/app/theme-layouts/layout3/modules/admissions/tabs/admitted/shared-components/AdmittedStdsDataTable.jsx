@@ -17,7 +17,7 @@ import {
   Dropdown,
   Button,
   ConfigProvider,
-  Modal,
+  Typography as AntTypography,
 } from "antd";
 import { DownOutlined, UserOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -35,6 +35,7 @@ import {
   setAdmissionLetters,
   setApplicationForm,
   setApplicationPreviewModalOpen,
+  setEditStudentRecordsModalVisible,
   setSelectedAdmittedStds,
   setSelectedAdmittedStdsRowKeys,
   setSelectedRowKeys,
@@ -53,6 +54,7 @@ import { selectUser } from "app/store/userSlice";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import AdmissionLetterPreview from "./AdmissionLetterPreview";
 import { useEffect } from "react";
+import EditStudentRecordsModal from "./EditStudentRecordsModal";
 
 const { Search } = Input;
 
@@ -61,6 +63,7 @@ const renderRow = (record, text) => {
 
   return <span style={{ color }}>{text}</span>;
 };
+
 const columns = [
   {
     title: "#",
@@ -95,34 +98,25 @@ const columns = [
     width: 110,
   },
   {
-    title: "Reg no",
-    dataIndex: "registration_no",
-    ellipsis: true,
-    width: 150,
-    // rener: (text, record, index) => <>{`${record.applicant.gender}`}</>,
-    render: (text, record, index) => renderRow(record, text),
-    // sorter: (a, b) => a.age - b.age,
-  },
-  {
     title: "Name",
-    // dataIndex: "name",
     width: 210,
+    dataIndex: "full_name",
     ellipsis: true,
     sorter: (a, b) => {
-      const nameA = `${a.biodata.surname} ${a.biodata.other_names}`;
-      const nameB = `${b.biodata.surname} ${b.biodata.other_names}`;
-      return nameA.localeCompare(nameB); // Sort names alphabetically
+      const nameA = a.biodata
+        ? `${a.biodata.surname || ""} ${a.biodata.other_names || ""}`
+        : "";
+      const nameB = b.biodata
+        ? `${b.biodata.surname || ""} ${b.biodata.other_names || ""}`
+        : "";
+      return nameA.localeCompare(nameB);
     },
-    // render: (text, record, index) => {
-    //   const name = `${record.applicant.surname} ${record.applicant.other_names}`;
-    //   const color = record ? "blue" : "red"; // Conditional color based on `paid` field
-
-    //   return <span style={{ color }}>{name}</span>;
-    // },
-    render: (text, record, index) =>
+    render: (text, record) =>
       renderRow(
         record,
-        `${record.biodata.surname} ${record.biodata.other_names}`
+        record.biodata
+          ? `${record.biodata.surname} ${record.biodata.other_names}`
+          : ""
       ),
   },
   {
@@ -240,7 +234,80 @@ const items = [
 ];
 
 const defaultExpandable = {
-  expandedRowRender: (record) => <p>{record.address}</p>,
+  expandedRowRender: (record) => (
+    <>
+      <Row
+        gutter={24}
+        style={{
+          padding: 5,
+        }}
+      >
+        <Col>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Space
+              style={{
+                padding: "5px 0px",
+              }}
+            >
+              <AntTypography.Text strong>ADMITTED BY:</AntTypography.Text>
+              <AntTypography.Text>{record.admitted_by_user}</AntTypography.Text>
+            </Space>
+
+            <Space>
+              <AntTypography.Text strong>ADMITTED ON:</AntTypography.Text>
+              <AntTypography.Text>
+                {formatDateString(parseInt(record.admitted_on))}
+              </AntTypography.Text>
+            </Space>
+          </div>
+        </Col>
+        {/* <Col>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Space
+              style={{
+                padding: "5px 0px",
+              }}
+            >
+              <AntTypography.Text strong>REGISTERED BY:</AntTypography.Text>
+              <AntTypography.Text></AntTypography.Text>
+            </Space>
+
+            <Space>
+              <AntTypography.Text strong>RESGISTERED ON:</AntTypography.Text>
+              <AntTypography.Text>""</AntTypography.Text>
+            </Space>
+          </div>
+        </Col> */}
+        <Col>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Space
+              style={{
+                padding: "5px 0px",
+              }}
+            >
+              <AntTypography.Text strong>REGISTRATION NO:</AntTypography.Text>
+              <AntTypography.Text>{record.registration_no}</AntTypography.Text>
+            </Space>
+          </div>
+        </Col>
+      </Row>
+    </>
+  ),
 };
 
 function AdmittedStdsDataTable() {
@@ -376,7 +443,7 @@ function AdmittedStdsDataTable() {
       students: stds,
     };
 
-    console.log("selected applications", selectedAdmittedStds);
+    // console.log("selected applications", selectedAdmittedStds);
     const res = await printAdmissionLetters({
       variables: payload,
     });
@@ -414,21 +481,11 @@ function AdmittedStdsDataTable() {
           marginBottom: 7,
         }}
       >
-        <Typography
-          variant="h6"
-          color="inherit"
-          component="div"
-          style={{
-            //   opacity: 0.7,
-            // color: "white",
-            fontSize: "1.7rem",
-            // fontWeight: "bold",
-          }}
-        >
+        <AntTypography.Text strong>
           {selectedCourseGroup
             ? `${selectedCourseGroup.course_title} - (${selectedCourseGroup.course_code})`
             : null}
-        </Typography>
+        </AntTypography.Text>
 
         <div>
           <Space>
@@ -436,10 +493,6 @@ function AdmittedStdsDataTable() {
               <Refresh
                 onClick={async () => {
                   await refetch();
-                  console.log("refetch...");
-                  // if (networkStatus === NetworkStatus.refetch) {
-                  //   console.log("Refetching...");
-                  // }
                 }}
                 fontSize=""
                 color="#000"
@@ -528,24 +581,10 @@ function AdmittedStdsDataTable() {
           theme={{
             components: {
               Table: {
-                // headerBg: "rgba(0, 0, 0, 0.04)",
                 borderColor: "lightgray",
-                // borderWidth: 10,
-                // headerColor: "dodgerblue",
                 borderRadius: 0,
                 headerBorderRadius: 0,
-                // colorBorderBg: "black",
-                // cellFontSize: 10,
-                // fontSize: 13,
-                // controlHeight: 12
-                lineHeight: 0.8,
-
-                // backgroundColor: "red",
-
-                // headerColor: "red",
-                // headerSplitColor: "red",
-                // borderColor: "red",
-                // padding: 0,
+                // lineHeight: 0.8,
               },
             },
           }}
@@ -558,27 +597,27 @@ function AdmittedStdsDataTable() {
             bordered
             sticky
             rowSelection={rowSelection}
+            onRow={(record, index) => ({
+              onDoubleClick: () => {
+                console.log("record", record);
+                dispatch(setEditStudentRecordsModalVisible(true));
+              },
+            })}
             expandable={defaultExpandable}
             showHeader={true}
             tableLayout="fixed"
             size="small"
-            pagination={{
-              position: ["bottomRight"],
-            }}
+            // pagination={false}
             scroll={{
               y: "calc(100vh - 200px)", // Set the same height as in the style to ensure content scrolls
               // x: "100vw",
             }}
-
-            // scroll={{
-            //   y: "calc(100vh - 370px)",
-            //   x: "100vw",
-            // }}
           />
         </ConfigProvider>
       </div>
 
       <AdmissionLetterPreview />
+      <EditStudentRecordsModal />
     </div>
   );
 }
