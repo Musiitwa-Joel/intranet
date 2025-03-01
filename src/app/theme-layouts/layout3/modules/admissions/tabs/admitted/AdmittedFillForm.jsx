@@ -13,6 +13,7 @@ import {
   setAdmittedFillForm,
   setAdmittedStdsSummary,
 } from "../../admissionsSlice";
+import { selectUserDetails } from "app/store/userSlice";
 const { Option } = Select;
 
 const AdmittedFillForm = () => {
@@ -22,6 +23,7 @@ const AdmittedFillForm = () => {
   const { error, loading, data } = useQuery(LOAD_APPLICANT_REQS);
   const applicantReqs = useSelector(selectApplicantRequirements);
   const _admittedFillForm = useSelector(selectAdmittedFillForm);
+  const userDetails = useSelector(selectUserDetails);
 
   const [
     loadAdmittedStdsSummary,
@@ -64,7 +66,7 @@ const AdmittedFillForm = () => {
       accYrId: values.acc_yr,
       schemeId: values.scheme,
       intakeId: values.intake,
-      schoolId: values.school,
+      schoolId: userDetails.school_id ? userDetails.school_id : values.school,
     };
 
     // dispatch(setAdmittedFillForm(values));
@@ -166,35 +168,37 @@ const AdmittedFillForm = () => {
             </Form.Item>
           </Col>
 
-          <Col span={7}>
-            <Form.Item
-              name="school"
-              label="School/Faculty"
-              rules={[
-                {
-                  required: true,
-                  message: "Select a school",
-                },
-              ]}
-              style={{
-                paddingBottom: 0,
-                marginBottom: 0,
-              }}
-            >
-              <Select
-                loading={loading}
-                placeholder="School/Faculty"
-                // size="small"
+          {!userDetails.school_id && (
+            <Col span={7}>
+              <Form.Item
+                name="school"
+                label="School/Faculty"
+                rules={[
+                  {
+                    required: true,
+                    message: "Select a school",
+                  },
+                ]}
+                style={{
+                  paddingBottom: 0,
+                  marginBottom: 0,
+                }}
               >
-                <Option value={"all"}>{`ALL SCHOOLS`}</Option>
-                {applicantReqs.schools.map((school) => (
-                  <Option
-                    value={school.id}
-                  >{`(${school.school_code}) ${school.school_title}`}</Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
+                <Select
+                  loading={loading}
+                  placeholder="School/Faculty"
+                  // size="small"
+                >
+                  <Option value={"all"}>{`ALL SCHOOLS`}</Option>
+                  {applicantReqs.schools.map((school) => (
+                    <Option
+                      value={school.id}
+                    >{`(${school.school_code}) ${school.school_title}`}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          )}
 
           <Col span={2}>
             <Button

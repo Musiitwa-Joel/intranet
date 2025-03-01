@@ -36,8 +36,10 @@ import {
   setApplicationForm,
   setApplicationPreviewModalOpen,
   setEditStudentRecordsModalVisible,
+  setRefetchAdmittedStudents,
   setSelectedAdmittedStds,
   setSelectedAdmittedStdsRowKeys,
+  setSelectedAdmittedStudent,
   setSelectedRowKeys,
 } from "../../../admissionsSlice";
 import { useLazyQuery, useMutation } from "@apollo/client";
@@ -53,7 +55,7 @@ import {
 import { selectUser } from "app/store/userSlice";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import AdmissionLetterPreview from "./AdmissionLetterPreview";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import EditStudentRecordsModal from "./EditStudentRecordsModal";
 
 const { Search } = Input;
@@ -140,17 +142,16 @@ const columns = [
     title: "Campus",
     dataIndex: "campus_title",
     width: 80,
-    // rener: (text, record, index) => <>{`${record.applicant.gender}`}</>,
     render: (text, record, index) => renderRow(record, text),
-    // sorter: (a, b) => a.age - b.age,
   },
   {
     title: "Study Time",
     dataIndex: "study_time_title",
     width: 100,
-    // rener: (text, record, index) => <>{`${record.applicant.gender}`}</>,
     render: (text, record, index) => renderRow(record, text),
-    // sorter: (a, b) => a.age - b.age,
+    sorter: (a, b) => {
+      return a.study_time_title.localeCompare(b.study_time_title);
+    },
   },
   {
     title: "Intake",
@@ -163,10 +164,11 @@ const columns = [
   {
     title: "Nationality",
     dataIndex: "nationality",
-    width: 100,
+    width: 120,
     // rener: (text, record, index) => <>{`${record.applicant.gender}`}</>,
     render: (text, record, index) =>
       renderRow(record, record.biodata.nationality.nationality_title),
+    ellipsis: true,
     // sorter: (a, b) => a.age - b.age,
   },
 
@@ -188,7 +190,7 @@ const handleButtonClick = (e) => {
 const items = [
   {
     label: "Push to Student Information Center",
-    key: "1",
+    key: "push_std_to_sic",
     icon: (
       <Send
         style={{
@@ -199,7 +201,7 @@ const items = [
   },
   {
     label: "Edit Student Details",
-    key: "2",
+    key: "edit_student_details",
     icon: (
       <EditNoteSharp
         style={{
@@ -312,29 +314,54 @@ const defaultExpandable = {
 
 function AdmittedStdsDataTable() {
   // const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [pageSize, setPageSize] = useState(20);
+  const [current, setCurrent] = useState(1);
   const dispatch = useDispatch();
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
-  const onSearch = (value) => {
-    console.log("search:", value);
-  };
   const userObj = useSelector(selectUser);
   const selectedCourseGroup = useSelector(selectSelectedAdmittedStdsSummary);
   const loadingApplications = useSelector(selectLoadingAdmittedStds);
   const applications = useSelector(selectAdmittedStds);
   const selectedAdmittedStds = useSelector(selectSelectedAdmittedStds);
-  const applicationPreviewModalOpen = useSelector(
-    selectApplicationPreviewModalOpen
-  );
   const selectedRowKeys = useSelector(selectSelectedAdmittedStdsRowKeys);
-
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedCriteria, setSelectedCriteria] = useState("name");
   const [
     pushToStdInfoCenter,
     { error: pushErr, loading: pushingStds, data: pushRes },
   ] = useMutation(PUSH_TO_STD_INFO_CENTER, {
     refetchQueries: ["loadAdmittedStudents"],
   });
+
+  const onChange = (value) => {
+    // console.log(`selected ${value}`);
+    setSelectedCriteria(value);
+  };
+
+  const onSearch = (value) => {
+    if (!value) {
+      setSearchResults([]);
+      return;
+    }
+
+    let filteredResults = [];
+
+    if (selectedCriteria === "name") {
+      filteredResults = applications.filter((app) => {
+        const fullName = `${app.biodata.surname} ${app.biodata.other_names}`;
+        return fullName.toLowerCase().includes(value.toLowerCase());
+      });
+    } else if (selectedCriteria === "program_code") {
+      filteredResults = applications.filter((app) =>
+        app.program_choices.some((choice) =>
+          choice.course.course_code.toLowerCase().includes(value.toLowerCase())
+        )
+      );
+    }
+
+    console.log("filteredResults", filteredResults);
+
+    setSearchResults(filteredResults);
+  };
 
   // console.log("applications----", applications);
   const [
@@ -385,8 +412,8 @@ function AdmittedStdsDataTable() {
 
   const handleMenuClick = async (e) => {
     // message.info("Click on menu item.");
-    console.log("click", e);
-    if (e.key == "1") {
+
+    if (e.key == "push_std_to_sic") {
       // Push to student information center
 
       if (selectedAdmittedStds.length == 0)
@@ -414,6 +441,23 @@ function AdmittedStdsDataTable() {
         })
       );
     }
+
+    if (e.key == "edit_student_details") {
+      if (selectedAdmittedStds.length > 0) {
+        let latestStudentSelected =
+          selectedAdmittedStds[selectedAdmittedStds.length - 1];
+
+        dispatch(setSelectedAdmittedStudent(latestStudentSelected));
+        dispatch(setEditStudentRecordsModalVisible(true));
+      } else {
+        dispatch(
+          showMessage({
+            message: "Please select a student!",
+            variant: "info",
+          })
+        );
+      }
+    }
   };
 
   const menuProps = {
@@ -422,7 +466,7 @@ function AdmittedStdsDataTable() {
   };
 
   const onSelectChange = (newSelectedRowKeys, selectedRows) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys, selectedRows);
+    // console.log("selectedRowKeys changed: ", newSelectedRowKeys, selectedRows);
     // setSelectedRowKeys(newSelectedRowKeys);
     dispatch(setSelectedAdmittedStdsRowKeys(newSelectedRowKeys));
     dispatch(setSelectedAdmittedStds(selectedRows));
@@ -492,7 +536,7 @@ function AdmittedStdsDataTable() {
             <Tooltip title="Reload">
               <Refresh
                 onClick={async () => {
-                  await refetch();
+                  dispatch(setRefetchAdmittedStudents(true));
                 }}
                 fontSize=""
                 color="#000"
@@ -538,6 +582,7 @@ function AdmittedStdsDataTable() {
               }}
               onChange={onChange}
               onSearch={onSearch}
+              value={selectedCriteria}
               options={[
                 {
                   value: "name",
@@ -591,7 +636,7 @@ function AdmittedStdsDataTable() {
         >
           <Table
             columns={columns}
-            dataSource={applications}
+            dataSource={searchResults.length > 0 ? searchResults : applications}
             loading={loadingApplications || pushingStds}
             rowKey="std_id"
             bordered
@@ -599,7 +644,7 @@ function AdmittedStdsDataTable() {
             rowSelection={rowSelection}
             onRow={(record, index) => ({
               onDoubleClick: () => {
-                console.log("record", record);
+                dispatch(setSelectedAdmittedStudent(record));
                 dispatch(setEditStudentRecordsModalVisible(true));
               },
             })}
@@ -607,9 +652,17 @@ function AdmittedStdsDataTable() {
             showHeader={true}
             tableLayout="fixed"
             size="small"
-            // pagination={false}
+            pagination={{
+              position: ["bottomLeft"],
+              pageSize: pageSize,
+              // current: current,
+              onShowSizeChange: (current, pageSize) => {
+                setCurrent(current);
+                setPageSize(pageSize);
+              },
+            }}
             scroll={{
-              y: "calc(100vh - 200px)", // Set the same height as in the style to ensure content scrolls
+              y: "calc(100vh - 305px)", // Set the same height as in the style to ensure content scrolls
               // x: "100vw",
             }}
           />

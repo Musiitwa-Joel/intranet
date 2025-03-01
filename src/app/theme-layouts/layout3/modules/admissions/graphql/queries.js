@@ -475,8 +475,11 @@ const LOAD_ADMITTED_STUDENTS = gql`
       student_no
       registration_no
       form_no
+      campus_id
       campus_title
+      study_time_id
       study_time_title
+      intake_id
       intake_title
       biodata {
         id
@@ -491,12 +494,14 @@ const LOAD_ADMITTED_STUDENTS = gql`
         gender
       }
       course {
+        id
         course_code
       }
       entry_study_yr
       admitted_on
       admitted_by_user
       is_std_verified
+      is_resident
     }
   }
 `;

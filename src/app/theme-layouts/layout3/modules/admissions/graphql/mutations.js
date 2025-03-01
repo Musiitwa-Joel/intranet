@@ -187,6 +187,24 @@ const SAVE_ADMISSION_TEMPLATE = gql`
   }
 `;
 
+const SAVE_STUDENT_DETAILS = gql`
+  mutation saveStudentDetails($payload: studentDetailsInput!) {
+    saveStudentDetails(payload: $payload) {
+      message
+      success
+    }
+  }
+`;
+
+const UPLOAD_APPLICANTS = gql`
+  mutation uploadApplicants($payload: ApplicantInput!) {
+    uploadApplicants(payload: $payload) {
+      success
+      message
+    }
+  }
+`;
+
 export {
   SAVE_SCHEME,
   DELETE_SCHEME,
@@ -200,4 +218,6 @@ export {
   PUSH_TO_STD_INFO_CENTER,
   SAVE_ADMISSION_LETTER,
   SAVE_ADMISSION_TEMPLATE,
+  SAVE_STUDENT_DETAILS,
+  UPLOAD_APPLICANTS,
 };

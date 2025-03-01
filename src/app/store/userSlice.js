@@ -86,6 +86,7 @@ export const updateUserData = (user) => async (dispatch, getState) => {
 const initialState = {
   user: null,
   userPermissions: null,
+  userDetails: null,
 };
 
 export const userSlice = createSlice({
@@ -99,15 +100,20 @@ export const userSlice = createSlice({
     setUserPermissions: (state, action) => {
       state.userPermissions = action.payload;
     },
+    setUserDetails: (state, action) => {
+      state.userDetails = action.payload;
+    },
   },
 });
 
-export const { userLoggedOut, userLogin, setUserPermissions } =
+export const { userLoggedOut, userLogin, setUserPermissions, setUserDetails } =
   userSlice.actions;
 
 export const selectUser = ({ user }) => user;
 
 export const selectUserPermissions = (state) => state.user.userPermissions;
+
+export const selectUserDetails = (state) => state.user.userDetails;
 
 export const selectUserShortcuts = (state) =>
   state.user.user?.data?.shortcuts ?? [];

@@ -39,6 +39,7 @@ import {
   setApplicanntsAdmissionListModal,
   setApplicationForm,
   setApplicationPreviewModalOpen,
+  setImportApplicantsModalVisible,
   setSelectedApplications,
   setSelectedRowKeys,
 } from "../../../admissionsSlice";
@@ -49,7 +50,6 @@ import {
 } from "../../../graphql/queries";
 import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";
 import { useEffect, useState } from "react";
-import ApplicationPreview from "./ApplicationPreview";
 import Add from "@mui/icons-material/Add";
 import AdmitStudentsModal from "./AdmitStudentsModal";
 import { ADMIT_STDS } from "../../../graphql/mutations";
@@ -59,6 +59,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import FormPreview from "./FormPreview";
 import AddStdToAdmissionModal from "./AddStdToAdmissionModal";
 import ApplicantAdmissionList from "../ApplicantsAdmissionList";
+import ImportApplicants from "../ImportApplicants";
 
 const { Search } = Input;
 
@@ -99,20 +100,18 @@ const columns = [
   },
   {
     title: "Name",
-    // dataIndex: "name",
     width: 210,
+    dataIndex: "full_name",
     ellipsis: true,
     sorter: (a, b) => {
-      const nameA = `${a.applicant.surname} ${a.applicant.other_names}`;
-      const nameB = `${b.applicant.surname} ${b.applicant.other_names}`;
-      return nameA.localeCompare(nameB); // Sort names alphabetically
+      const nameA = a.biodata
+        ? `${a.biodata.surname || ""} ${a.biodata.other_names || ""}`
+        : "";
+      const nameB = b.biodata
+        ? `${b.biodata.surname || ""} ${b.biodata.other_names || ""}`
+        : "";
+      return nameA.localeCompare(nameB);
     },
-    // render: (text, record, index) => {
-    //   const name = `${record.applicant.surname} ${record.applicant.other_names}`;
-    //   const color = record ? "blue" : "red"; // Conditional color based on `paid` field
-
-    //   return <span style={{ color }}>{name}</span>;
-    // },
     render: (text, record, index) =>
       renderRow(
         record,
@@ -183,7 +182,7 @@ const columns = [
     title: "1st Choice",
     // dataIndex: "",
     ellipsis: true,
-    width: 200,
+    width: 100,
     children: [
       {
         title: "Progcode",
@@ -195,7 +194,7 @@ const columns = [
         // ),
         render: (text, record, index) =>
           renderRow(record, record.program_choices[0].course.course_code),
-        width: 150,
+        width: 100,
       },
       {
         title: "Alias",
@@ -207,7 +206,7 @@ const columns = [
         // ),
         render: (text, record, index) =>
           renderRow(record, record.program_choices[0].course.course_code),
-        width: 150,
+        width: 100,
       },
     ],
   },
@@ -276,7 +275,7 @@ const items = [
   // },
   {
     label: "Import Applicants",
-    key: "5",
+    key: "import_applicants",
     icon: (
       <PublishSharp
         style={{
@@ -316,12 +315,9 @@ const defaultExpandable = {
 function AdmissionsDataTable() {
   // const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const dispatch = useDispatch();
-  const onChange = (value) => {
-    console.log(`selected ${value}`);
-  };
-  const onSearch = (value) => {
-    console.log("search:", value);
-  };
+  const [pageSize, setPageSize] = useState(20);
+  const [current, setCurrent] = useState(1);
+  const [selectedCriteria, setSelectedCriteria] = useState("name");
   const userObj = useSelector(selectUser);
   const selectedCourseGroup = useSelector(selectSelectedApplicantSummary);
   const loadingApplications = useSelector(selectLoadingApplications);
@@ -330,6 +326,36 @@ function AdmissionsDataTable() {
   const applicantsAdmissionList = useSelector(selectApplicantsAdmissionList);
   const admitStdsModalVisible = useSelector(selectAdmitStdsModalVisible);
   const selectedRowKeys = useSelector(selectSelectedRowKeys);
+  const [searchResults, setSearchResults] = useState([]);
+
+  const onChange = (value) => {
+    // console.log(`selected ${value}`);
+    setSelectedCriteria(value);
+  };
+
+  const onSearch = (value) => {
+    if (!value) {
+      setSearchResults([]);
+      return;
+    }
+
+    let filteredResults = [];
+
+    if (selectedCriteria === "name") {
+      filteredResults = applications.filter((app) => {
+        const fullName = `${app.applicant.surname} ${app.applicant.other_names}`;
+        return fullName.toLowerCase().includes(value.toLowerCase());
+      });
+    } else if (selectedCriteria === "program_code") {
+      filteredResults = applications.filter((app) =>
+        app.program_choices.some((choice) =>
+          choice.course.course_code.toLowerCase().includes(value.toLowerCase())
+        )
+      );
+    }
+
+    setSearchResults(filteredResults);
+  };
 
   const [admitStudents, { error, loading, data }] = useMutation(ADMIT_STDS, {
     refetchQueries: ["loadApplications"],
@@ -342,6 +368,7 @@ function AdmissionsDataTable() {
   const inCompletedApplications = applications.filter(
     (form) => !form.is_completed
   );
+
   const [
     loadApplicationDetails,
     {
@@ -371,6 +398,10 @@ function AdmissionsDataTable() {
     if (e.key == "7") {
       // admiministrative admit
       dispatch(setAdmitStdsModalVisible(true));
+    }
+
+    if (e.key == "import_applicants") {
+      dispatch(setImportApplicantsModalVisible(true));
     }
   };
 
@@ -423,19 +454,22 @@ function AdmissionsDataTable() {
   };
 
   const handleOpenPreview = async () => {
-    // console.log("selected app", selectedApplication);
+    // console.log("selected app", selectedApplications);
     if (selectedApplications.length > 0) {
       let latestAppSelected =
         selectedApplications[selectedApplications.length - 1];
       // console.log("application", latestAppSelected);
+      const payload = {
+        admissionsId: latestAppSelected.running_admissions.id,
+        applicantId: latestAppSelected.applicant.id,
+        formNo: latestAppSelected.form_no,
+        admissionLevelId:
+          latestAppSelected.running_admissions.admission_level.id,
+      };
+
+      // console.log("application", payload);
       const res = await loadApplicationDetails({
-        variables: {
-          admissionsId: latestAppSelected.admissions_id,
-          applicantId: latestAppSelected.applicant.id,
-          formNo: latestAppSelected.form_no,
-          admissionLevelId:
-            latestAppSelected.running_admissions.admission_level.id,
-        },
+        variables: payload,
       });
 
       // console.log("response", res.data);
@@ -521,10 +555,10 @@ function AdmissionsDataTable() {
             marginBottom: 8,
           }}
         >
-          <Space>
+          <Space size="large">
             <Select
               showSearch
-              placeholder="Select a person"
+              placeholder="Select Criteria"
               optionFilterProp="label"
               size="small"
               style={{
@@ -532,6 +566,7 @@ function AdmissionsDataTable() {
               }}
               onChange={onChange}
               onSearch={onSearch}
+              value={selectedCriteria}
               options={[
                 {
                   value: "name",
@@ -607,7 +642,9 @@ function AdmissionsDataTable() {
         >
           <Table
             columns={columns}
-            dataSource={completedApplications}
+            dataSource={
+              searchResults.length > 0 ? searchResults : completedApplications
+            }
             loading={loadingApplications}
             rowKey="id"
             bordered
@@ -618,10 +655,17 @@ function AdmissionsDataTable() {
             tableLayout="fixed"
             size="small"
             pagination={{
-              position: ["bottomRight"],
+              position: ["bottomLeft"],
+              pageSize: pageSize,
+              // current: current,
+
+              onShowSizeChange: (current, pageSize) => {
+                setCurrent(current);
+                setPageSize(pageSize);
+              },
             }}
             scroll={{
-              y: "calc(100vh - 200px)", // Set the same height as in the style to ensure content scrolls
+              y: "calc(100vh - 302px)", // Set the same height as in the style to ensure content scrolls
               // x: "100vw",
             }}
 
@@ -636,6 +680,7 @@ function AdmissionsDataTable() {
       <FormPreview />
       <AddStdToAdmissionModal />
       <ApplicantAdmissionList />
+      <ImportApplicants />
       <Modal
         title="ADMIT STUDENTS"
         // centered

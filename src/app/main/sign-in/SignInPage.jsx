@@ -22,7 +22,11 @@ import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { LOGIN_USER } from "app/theme-layouts/layout3/graphql/mutations";
 import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
-import { setUserPermissions, userLogin } from "app/store/userSlice";
+import {
+  setUserDetails,
+  setUserPermissions,
+  userLogin,
+} from "app/store/userSlice";
 import { updateApps } from "app/store/appSlice";
 import { setToken } from "app/store/tokenSlice";
 import UseJwtAuth from "src/app/auth/services/jwt/useJwtAuth";
@@ -116,6 +120,7 @@ function SignInPage() {
 
     // console.log(decoded);
     dispatch(setUserPermissions(decoded.permissions));
+    dispatch(setUserDetails(decoded));
 
     if (res.data?.login) {
       //make another query for the user profile

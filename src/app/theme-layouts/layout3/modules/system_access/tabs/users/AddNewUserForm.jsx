@@ -40,6 +40,11 @@ const LOAD_REQS = gql`
       role_id
       role_name
     }
+    schools {
+      id
+      school_code
+      school_title
+    }
   }
 `;
 
@@ -113,13 +118,12 @@ function AddNewUserForm() {
   // }, [selectedRow]);
 
   const onFinish = async (values) => {
-    console.log("the values", values);
-
     const payload = {
       payload: {
         role_id: values.role,
         user_id: values.user_id,
         employee_id: values.staff,
+        school_id: values.school,
       },
     };
 
@@ -269,6 +273,36 @@ function AddNewUserForm() {
                           label: `${role.role_name}`,
                           value: role.role_id,
                         }))
+                      : []
+                  }
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Faculty/Schools"
+                name="school"
+                initialValue={null}
+              >
+                <Select
+                  showSearch
+                  // loading={loading}
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  options={
+                    data
+                      ? [
+                          {
+                            label: "ALL SCHOOLS",
+                            value: null,
+                          },
+                          ...data?.schools?.map((school) => ({
+                            label: `(${school.school_code}) ${school.school_title}`,
+                            value: school.id,
+                          })),
+                        ]
                       : []
                   }
                 />

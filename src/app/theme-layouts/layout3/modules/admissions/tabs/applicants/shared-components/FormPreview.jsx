@@ -494,9 +494,11 @@ const FormPreview = () => {
 
                             <Th>DATE OF BIRTH</Th>
                             <Td>
-                              {convertTimestampToDate(
-                                applicationDetails.applicant.date_of_birth
-                              )}
+                              {applicationDetails?.applicant?.date_of_birth
+                                ? convertTimestampToDate(
+                                    applicationDetails.applicant.date_of_birth
+                                  )
+                                : null}
                             </Td>
                           </Tr>
                           <Tr>
@@ -642,32 +644,6 @@ const FormPreview = () => {
                               </div>
                             </div>
                           </div>
-
-                          {/* <Descriptions
-                          size="small"
-                          style={{ marginTop: 10 }}
-                          column={2}
-                          items={applicationDetails.olevel_info.uneb_results.map(
-                            (result: any, index: number) => ({
-                              key: `${index}`,
-                              label: result.subject.uneb_subject_title,
-                              children: result.grade,
-                              span: 1,
-                            })
-                          )}
-                          labelStyle={{
-                            fontWeight: "bold",
-                            width: 300,
-                            color: "black",
-                            textAlign: "right",
-                            // fontSize: "14px",
-                          }}
-                          contentStyle={{
-                            // textAlign: "center",
-                            textAlign: "right",
-                            // fontSize: "14px",
-                          }}
-                        /> */}
                         </>
                       ) : (
                         <Alert message="APPLICANT DIDN'T SIT FOR UNEB O-LEVEL EXAMINATION" />

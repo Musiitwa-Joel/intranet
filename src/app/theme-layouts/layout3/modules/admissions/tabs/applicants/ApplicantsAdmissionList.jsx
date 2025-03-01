@@ -17,7 +17,6 @@ import {
 import { Close, Thunderstorm } from "@mui/icons-material";
 
 import { Space, Table, Tag } from "antd";
-import { Bolt, Check, CheckIcon, UploadCloud } from "lucide-react";
 import { useMutation, useSubscription } from "@apollo/client";
 import { ADMIT_STUDENTS } from "app/theme-layouts/layout3/graphql/mutations";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";

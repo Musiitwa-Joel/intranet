@@ -8,4 +8,12 @@ const UPLOAD_PROGRESS_SUBSCRIPTION = gql`
   }
 `;
 
-export { UPLOAD_PROGRESS_SUBSCRIPTION };
+const UPLOAD_APPLICANTS_PROGRESS = gql`
+  subscription uploadApplicantsProgress {
+    uploadApplicantsProgress {
+      progress
+    }
+  }
+`;
+
+export { UPLOAD_PROGRESS_SUBSCRIPTION, UPLOAD_APPLICANTS_PROGRESS };

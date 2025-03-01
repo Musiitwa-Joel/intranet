@@ -9,11 +9,14 @@ import { Input, Typography, Table as AntTable, ConfigProvider } from "antd";
 import "./rowStyles.css";
 
 import {
+  selectAdmittedStds,
   selectAdmittedStdsSelectedRowKey,
   selectAdmittedStdsSummary,
+  selectRefetchAdmittedStudents,
   setAdmittedStds,
   setAdmittedStdsSelectedRowKey,
   setLoadingAdmittedStds,
+  setRefetchAdmittedStudents,
   setSelectedAdmittedStdsRowKeys,
   setSelectedAdmittedStdsSummary,
 } from "../../../admissionsSlice";
@@ -97,27 +100,48 @@ const DemoSidebar = React.memo(({ refetch, isRefetching }) => {
   const dispatch = useDispatch();
   const uniqueCampuses = getUniqueCampuses(admittedStdsSummary);
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
-
+  const refetchAdmittedStudents = useSelector(selectRefetchAdmittedStudents);
+  const admittedStds = useSelector(selectAdmittedStds);
   useEffect(() => {
     setExpandedRowKeys(uniqueCampuses.map((c) => c.campus_id));
   }, [admittedStdsSummary]);
 
   const [
     loadAdmittedStudents,
-    { error: loadErr, loading: loadingAdmittedStds, data },
+    {
+      error: loadErr,
+      loading: loadingAdmittedStds,
+      data,
+      refetch: refetchAdmittedStds,
+    },
   ] = useLazyQuery(LOAD_ADMITTED_STUDENTS, {
     notifyOnNetworkStatusChange: true, // Essential for accurate loading state
   });
 
-  if (loadErr) {
-    // alert("error getting forms!");
-    dispatch(
-      showMessage({
-        message: loadErr.message,
-        variant: "error",
-      })
-    );
-  }
+  useEffect(() => {
+    if (loadErr) {
+      // alert("error getting forms!");
+      dispatch(
+        showMessage({
+          message: loadErr.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [loadErr]);
+
+  const handleRefetch = async () => {
+    if (refetchAdmittedStudents && admittedStds.length > 0) {
+      await refetchAdmittedStds();
+    }
+
+    dispatch(setRefetchAdmittedStudents(false));
+  };
+
+  // for refetching
+  useEffect(() => {
+    handleRefetch();
+  }, [refetchAdmittedStudents]);
 
   useEffect(() => {
     dispatch(setLoadingAdmittedStds(loadingAdmittedStds));
