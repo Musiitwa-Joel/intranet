@@ -1,44 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { Spin } from "antd"; // Ant Design spinner (optional)
 import { useSelector } from "react-redux";
 import FuseLoading from "@fuse/core/FuseLoading";
 
-function EducationMonitoring() {
-  const [loading, setLoading] = useState(false);
-  const appExistsInTaskBar = useSelector((state) => state.apps.exists);
+const EducationMonitoring = () => {
+  const [loading, setLoading] = useState(true);
   const activeApp = useSelector((state) => state.apps.activeApp);
-
-  // console.log("apps in taskbar", taskBarApps);
-  useEffect(() => {
-    // const exists = checkAppExistence(taskBarApps, "route", "admissions");
-
-    if (!appExistsInTaskBar) {
-      setLoading(true);
-    }
-
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  }, []);
 
   return (
     <>
-      {loading ? (
-        <FuseLoading logo={activeApp?.logo} />
-      ) : (
-        <div
+      {/* Show loader while iframe is loading */}
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        {loading && <FuseLoading logo={activeApp?.logo} />}
+      </div>
+
+      <div style={{ position: "relative", width: "100%", height: "100vh" }}>
+        {/* iframe with onLoad event to hide loader when loaded */}
+        <iframe
+          src="http://localhost:8003"
           style={{
-            height: "calc(100vh - 200px)",
+            width: "100%",
+            height: "100%",
+            border: "none",
+            display: loading ? "none" : "block", // Hide until loaded
           }}
-        >
-          <iframe
-            src="http://localhost:5174/"
-            style={{ width: "100%", height: "100vh", border: "none" }}
-            title="Embedded App"
-          />
-        </div>
-      )}
+          onLoad={() => setLoading(false)}
+        />
+      </div>
     </>
   );
-}
+};
 
 export default EducationMonitoring;

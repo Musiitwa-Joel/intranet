@@ -186,6 +186,7 @@ const LOAD_COURSE_VERSION_DETAILS = gql`
     course_version_details(course_version_id: $courseVersionId) {
       id
       version_title
+      total_credit_units
       course {
         id
         course_code

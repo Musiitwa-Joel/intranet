@@ -7,6 +7,7 @@ import useThemeMediaQuery from "@fuse/hooks/useThemeMediaQuery";
 import StudentRecords from "./tabs/student_records/StudentRecords";
 import { selectActiveTab, setActiveTab } from "./store/infoCenterSlice";
 import AppNav from "../../components/AppNav";
+import { ConfigProvider, theme } from "antd";
 
 const tabs = ["Student Records", "Settings"];
 
@@ -62,8 +63,13 @@ const StudentInformationCenter = React.memo(function Admissions() {
               activeTab={activeTab}
               handleTabChange={handleTabChange}
             />
-
-            {activeTab === 0 && <StudentRecords />}
+            <ConfigProvider
+              theme={{
+                algorithm: theme.compactAlgorithm,
+              }}
+            >
+              {activeTab === 0 && <StudentRecords />}
+            </ConfigProvider>
           </Box>
         </Suspense>
       )}

@@ -36,7 +36,10 @@ import {
 import "../styles.css";
 import AddPastEnrollmentModel from "./AddPastEnrollmentModel";
 import { useMutation } from "@apollo/client";
-import { DELETE_ENROLLMENT } from "../../../../gql/mutations";
+import {
+  ACTIVATE_SEMESTER,
+  DELETE_ENROLLMENT,
+} from "../../../../gql/mutations";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import EditEnrollmentModel from "./EditEnrollmentModel";
 
@@ -55,12 +58,17 @@ const EnrollmentTrack = () => {
     hideInconsistences ? arr : studentFile?.enrollment_history
   );
   const dispatch = useDispatch();
-  const [deleteEnrollment, { error: deleteErr, loading, data }] = useMutation(
+  const [deleteEnrollment, { error: deleteErr, loading }] = useMutation(
     DELETE_ENROLLMENT,
     {
       refetchQueries: ["loadStudentFile"],
     }
   );
+
+  const [activateSem, { error: activateErr, loading: activatingSem }] =
+    useMutation(ACTIVATE_SEMESTER, {
+      refetchQueries: ["loadStudentFile"],
+    });
 
   useEffect(() => {
     if (deleteErr) {
@@ -71,7 +79,16 @@ const EnrollmentTrack = () => {
         })
       );
     }
-  }, [deleteErr]);
+
+    if (activateErr) {
+      dispatch(
+        showMessage({
+          message: activateErr.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [deleteErr, activateErr]);
 
   const handleDelete = (enrollment) => {
     modal.confirm({
@@ -100,6 +117,26 @@ const EnrollmentTrack = () => {
     dispatch(
       showMessage({
         message: res.data.deleteEnrollment.message,
+        variant: "success",
+      })
+    );
+  };
+
+  const handleActivate = async (enrollment) => {
+    // console.log("enrollment", enrollment);
+    if (!enrollment) return;
+
+    const payload = {
+      activateSemesterId: enrollment.id,
+    };
+
+    const res = await activateSem({
+      variables: payload,
+    });
+
+    dispatch(
+      showMessage({
+        message: res.data.activateSemester.message,
         variant: "success",
       })
     );
@@ -235,6 +272,39 @@ const EnrollmentTrack = () => {
                           color: "red",
                         }}
                       >
+                        {!enrollment.active && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "100%",
+                              backgroundColor: "rgba(0, 0, 0, 0.5)", // Transparent black overlay
+                              zIndex: 1,
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            <span
+                              style={{
+                                color: "white",
+                                textAlign: "center",
+                                fontSize: "1.5rem", // Scaled for smaller screens
+                                fontWeight: "bold",
+                              }}
+                            >
+                              <Button
+                                onClick={() => handleActivate(enrollment)}
+                                loading={activatingSem}
+                                disabled={activatingSem}
+                              >
+                                Activate Enrollment
+                              </Button>
+                            </span>
+                          </div>
+                        )}
                         <Row gutter={[16, 16]}>
                           <Col xs={24} sm={12} md={12} lg={14} xl={16}>
                             {enrollment.enrollment_status.id === "6" && (
@@ -273,7 +343,10 @@ const EnrollmentTrack = () => {
                                 {
                                   key: "1",
                                   label: "Enrolled By",
-                                  children: enrollment.enrolled_by,
+                                  children:
+                                    enrollment.enrolled_by_type == "student"
+                                      ? "SELF"
+                                      : enrollment.enrolled_by,
                                   span: 2,
                                 },
                                 {

@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 
 import {
   Form,
@@ -12,6 +12,7 @@ import {
   Dropdown,
   Button,
   Tooltip,
+  Typography,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUser } from "app/store/userSlice";
@@ -58,7 +59,6 @@ function StudentDetails({ panelWidth }) {
     console.log("search:", value);
   };
   const [tableLayout, setTableLayout] = useState();
-  const userObj = useSelector(selectUser);
 
   // console.log("selected course version", selectedCourseVersion);
 
@@ -103,20 +103,18 @@ function StudentDetails({ panelWidth }) {
           // height: 32,
         }}
       >
-        <Typography
-          variant="h6"
-          color="inherit"
-          component="div"
+        <Typography.Text
+          strong
           style={{
             //   opacity: 0.7,
             // color: "white",
-            fontSize: "1.7rem",
+            // fontSize: "1.7rem",
             visibility: selectedItem ? "visible" : "hidden",
-            // fontWeight: "bold",
+            fontWeight: "500",
           }}
         >
           {`(${selectedItem?.course.course_code}) - ${selectedItem?.course.course_title} - ${selectedItem?.label}, ${campus_title} CAMPUS, ${intake_title} INTAKE ${acc_yr_title}`}
-        </Typography>
+        </Typography.Text>
 
         {/* <div>
           <Space>

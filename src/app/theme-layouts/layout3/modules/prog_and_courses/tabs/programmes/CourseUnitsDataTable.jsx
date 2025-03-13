@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import * as XLSX from "xlsx";
 import {
   Add,
@@ -8,7 +8,7 @@ import {
   Send,
   Upload,
 } from "@mui/icons-material";
-import { Input, Space, Button, Tooltip, Modal } from "antd";
+import { Input, Space, Button, Tooltip, Modal, Typography } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import TestTable2 from "./TestTable2";
 import {
@@ -256,19 +256,17 @@ function CourseUnitsDatable({ panelWidth }) {
         }}
       >
         {selectedCourseVersion ? (
-          <Typography
-            variant="h6"
-            color="inherit"
-            component="div"
+          <Typography.Text
+            strong
             style={{
               //   opacity: 0.7,
               // color: "white",
-              fontSize: "1.7rem",
-              // fontWeight: "bold",
+              // fontSize: "1.7rem",
+              fontWeight: "500",
             }}
           >
             {`(${selectedCourseVersion?.parent?.code}) ${selectedCourseVersion?.parent?.label} - ${selectedCourseVersion?.selected?.label}`}
-          </Typography>
+          </Typography.Text>
         ) : (
           <div></div>
         )}
@@ -298,10 +296,10 @@ function CourseUnitsDatable({ panelWidth }) {
                         courseVersionDetails.course.course_head_id,
                       campuses: JSON.parse(
                         courseVersionDetails.course.campuses
-                      ),
+                      )?.map((campus) => campus.value),
                       entry_yrs: JSON.parse(
                         courseVersionDetails.course.entry_yrs
-                      ),
+                      )?.map((yr) => yr.value),
                       college_id: courseVersionDetails.course.college_id,
                       school_id: courseVersionDetails.course.school_id,
                       department_id: courseVersionDetails.course.department_id,
@@ -310,12 +308,15 @@ function CourseUnitsDatable({ panelWidth }) {
                       grading_id: courseVersionDetails.course.grading_id,
                       study_times: JSON.parse(
                         courseVersionDetails.course.study_times
-                      ),
+                      )?.map((study_time) => study_time.value),
                       course_version_id: courseVersionDetails.id,
-                      isShortCourse: Boolean(
-                        courseVersionDetails.course.is_short_course
-                      ),
+                      isShortCourse:
+                        courseVersionDetails.course.is_short_course,
+                      total_credit_units:
+                        courseVersionDetails.total_credit_units,
                     };
+
+                    // console.log("extractedData", extractedData);
 
                     dispatch(updateProgrammeFormDetails(extractedData));
                   }

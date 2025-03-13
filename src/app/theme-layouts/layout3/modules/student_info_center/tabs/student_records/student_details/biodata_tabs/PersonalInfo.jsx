@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
-import { Button, Form, Input, Select, Space, Row, Col } from "antd";
+import { Button, Form, Input, Select, Space, Row, Col, DatePicker } from "antd";
 import { useSelector } from "react-redux";
 import { selectSelectedStudent } from "../../../../store/infoCenterSlice";
+import dayjs from "dayjs";
 const { Option } = Select;
 const layout = {
   labelCol: {
@@ -20,26 +21,7 @@ const layout = {
 const PersonalInfo = () => {
   const selectedStudent = useSelector(selectSelectedStudent);
   const [form] = Form.useForm();
-  const onGenderChange = (value) => {
-    switch (value) {
-      case "male":
-        form.setFieldsValue({
-          note: "Hi, man!",
-        });
-        break;
-      case "female":
-        form.setFieldsValue({
-          note: "Hi, lady!",
-        });
-        break;
-      case "other":
-        form.setFieldsValue({
-          note: "Hi there!",
-        });
-        break;
-      default:
-    }
-  };
+
   const onFinish = (values) => {
     console.log(values);
   };
@@ -67,7 +49,7 @@ const PersonalInfo = () => {
       national_id: selectedStudent.biodata.nin?.toUpperCase(),
       gender: selectedStudent.biodata.gender?.toUpperCase(),
       marital_status: selectedStudent.biodata.marital_status?.toUpperCase(),
-      date_of_birth: selectedStudent.biodata.date_of_birth?.toUpperCase(),
+      date_of_birth: dayjs(parseInt(selectedStudent.biodata.date_of_birth)),
       nationality:
         selectedStudent.biodata.nationality.nationality_title?.toUpperCase(),
       billing_nationality:
@@ -75,7 +57,7 @@ const PersonalInfo = () => {
     });
   }
 
-  console.log("selected std", selectedStudent);
+  // console.log("selected std", selectedStudent);
 
   if (!selectedStudent) return;
   return (
@@ -232,7 +214,9 @@ const PersonalInfo = () => {
                   },
                 ]}
               >
-                <Input />
+                <DatePicker  style={{
+                  width: "100%"
+                }}/>
               </Form.Item>
 
               <Form.Item

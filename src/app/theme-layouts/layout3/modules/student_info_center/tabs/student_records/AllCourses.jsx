@@ -410,7 +410,7 @@ const AllCourses = ({ panelWidth }) => {
       intake: stdInfoReqs.intake,
       accYr: stdInfoReqs.acc_yr,
       courseVersion: courseVersionId,
-      sic: 1,
+      sic: true,
     };
 
     // console.log("payload", payload);

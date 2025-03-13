@@ -75,9 +75,16 @@ function StudentRecords() {
             <Tooltip title="Search Student">
               <Button
                 size="small"
-                // danger
-                // type="primary"
-                icon={<SearchSharp />}
+                danger
+                type="primary"
+                ghost
+                icon={
+                  <SearchSharp
+                    style={{
+                      fontSize: 13,
+                    }}
+                  />
+                }
                 onClick={handleSearchStudent}
               >
                 Search Student

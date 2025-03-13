@@ -3,13 +3,12 @@ import { Spin } from "antd"; // Ant Design spinner (optional)
 import { useSelector } from "react-redux";
 import FuseLoading from "@fuse/core/FuseLoading";
 
-const Alumni = () => {
+const Voting = () => {
   const [loading, setLoading] = useState(true);
   const activeApp = useSelector((state) => state.apps.activeApp);
 
   return (
     <>
-      {/* Show loader while iframe is loading */}
       <div
         style={{
           position: "absolute",
@@ -24,7 +23,7 @@ const Alumni = () => {
       <div style={{ position: "relative", width: "100%", height: "100vh" }}>
         {/* iframe with onLoad event to hide loader when loaded */}
         <iframe
-          src="http://tredumo.com/alumni"
+          src="http://localhost:8000"
           style={{
             width: "100%",
             height: "100%",
@@ -38,4 +37,4 @@ const Alumni = () => {
   );
 };
 
-export default Alumni;
+export default Voting;

@@ -142,41 +142,6 @@ const titleRender = (nodeData, panelWidth) => {
   );
 };
 
-const treeData = [
-  {
-    title: "SBA - SCHOOL OF BUSINESS ADMINISTRATION",
-    key: "0-0",
-    children: [
-      {
-        title: "BBA - BACHELOR OF BUSINESS ADMINISTRATION",
-        key: "0-0-0",
-        isLeaf: true,
-      },
-      {
-        title: "BBA - BACHELOR OF BUSINESS ADMINISTRATION",
-        key: "0-0-1",
-        isLeaf: true,
-      },
-    ],
-  },
-  {
-    title: "SCI - SCHOOL OF COMPUTING AND INFORMATICS",
-    key: "0-1",
-    children: [
-      {
-        title: "BIST - BACHELOR OF SCIENCE IN INFORMATION SYSTEMS",
-        key: "0-1-0",
-        isLeaf: true,
-      },
-      {
-        title: "BCS - BACHELOR OF SCIENCE IN COMPUTER SCIENCE",
-        key: "0-1-1",
-        isLeaf: true,
-      },
-    ],
-  },
-];
-
 function AllCourses({ panelWidth }) {
   const {
     error: loadErr,

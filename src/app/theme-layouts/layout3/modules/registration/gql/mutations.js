@@ -4,7 +4,7 @@ const ENROLL_STUDENT = gql`
   mutation enrollStudent(
     $studentId: String!
     $studentNo: String!
-    $activeSemId: String!
+    $semester: Int!
     $enrollmentStatus: String!
     $enrolledBy: String!
     $studyYr: Int!
@@ -12,7 +12,7 @@ const ENROLL_STUDENT = gql`
     enrollStudent(
       student_id: $studentId
       student_no: $studentNo
-      active_sem_id: $activeSemId
+      semester: $semester
       enrollment_status: $enrollmentStatus
       enrolled_by: $enrolledBy
       study_yr: $studyYr
@@ -133,6 +133,24 @@ const REGISTER_STUDENT = gql`
   }
 `;
 
+const DE_REGISTER = gql`
+  mutation deRegister($registrationId: String!) {
+    deRegister(registration_id: $registrationId) {
+      message
+      success
+    }
+  }
+`;
+
+const ACTIVATE_SEMESTER = gql`
+  mutation activateSemester($activateSemesterId: ID!) {
+    activateSemester(id: $activateSemesterId) {
+      message
+      success
+    }
+  }
+`;
+
 export {
   ENROLL_STUDENT,
   SAVE_PAST_ENROLLMENT,
@@ -142,4 +160,6 @@ export {
   REGISTER_MODULE,
   REMOVE_MODULE,
   REGISTER_STUDENT,
+  DE_REGISTER,
+  ACTIVATE_SEMESTER,
 };

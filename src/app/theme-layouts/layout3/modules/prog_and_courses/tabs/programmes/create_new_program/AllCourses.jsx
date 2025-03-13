@@ -6,7 +6,14 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Tree, Input, Spin, ConfigProvider } from "antd";
+import { Tree, Input, Spin, ConfigProvider, Modal } from "antd";
+import {
+  Menu,
+  Item,
+  Separator,
+  Submenu,
+  useContextMenu,
+} from "react-contexify";
 import {
   GET_ALL_PROGRAMMES,
   GET_COURSE_UNITS,
@@ -14,7 +21,12 @@ import {
 } from "../../../gql/queries";
 import { useDispatch, useSelector } from "react-redux";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
-import { NetworkStatus, useLazyQuery, useQuery } from "@apollo/client";
+import {
+  NetworkStatus,
+  useLazyQuery,
+  useMutation,
+  useQuery,
+} from "@apollo/client";
 import "../myStyles.css";
 import extractIds from "../../../utilities/extractIDs";
 import {
@@ -36,6 +48,9 @@ import {
   updateAllProgrammes,
   updateExpandedItems,
 } from "../../../store/progAndCoursesSlice";
+import "react-contexify/ReactContexify.css";
+import { Delete, Trash2 } from "lucide-react";
+import { DELETE_COURSE, DELETE_COURSE_VERSION } from "../../../gql/mutations";
 const { DirectoryTree } = Tree;
 const { Search } = Input;
 
@@ -206,7 +221,141 @@ const filterTreeData = (treeData, searchValue, bottomMostLevel) => {
 
   return filterNodes(treeData, 1); // Starting level can be set here
 };
+
+const MENU_ID = "blahblah";
+const MENU_ID2 = "course";
+
 const AllCourses = memo(({ panelWidth }) => {
+  const [courseToDelete, setCourseToDelete] = useState(null);
+  const [versionToDelete, setVersionToDelete] = useState(null);
+  const [deleteTheCourse, { error: deleteErr, loading: deletingCourse }] =
+    useMutation(DELETE_COURSE, {
+      refetchQueries: ["getAllProgrammesCategorisedBySchools"],
+    });
+
+  const [
+    deleteTheCourseVersion,
+    { error: deleteVersionErr, loading: deletingCourseVersion },
+  ] = useMutation(DELETE_COURSE_VERSION, {
+    refetchQueries: ["getAllProgrammesCategorisedBySchools"],
+  });
+  const { show } = useContextMenu({
+    id: MENU_ID,
+  });
+
+  const { show: showCourseMenu } = useContextMenu({
+    id: MENU_ID2,
+  });
+
+  function handleContextMenu(event) {
+    show({
+      event,
+      props: {
+        key: "value",
+      },
+    });
+  }
+
+  function handleContextMenu2(event) {
+    showCourseMenu({
+      event,
+      props: {
+        key: "value",
+      },
+    });
+  }
+
+  const handleDeleteCourse = () => {
+    if (!courseToDelete) return;
+
+    Modal.confirm({
+      title: "Do you want to delete this course?",
+      content:
+        "This action is only allowed if no students have enrolled in this course yet! Do you want to delete?",
+      onOk() {
+        deleteCourse();
+      },
+      okText: "Delete",
+      okButtonProps: {
+        danger: true,
+        loading: deletingCourse,
+        disabled: deletingCourse,
+      },
+      centered: true,
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
+  };
+
+  const handleDeleteCourseVersion = () => {
+    if (!versionToDelete) return;
+
+    Modal.confirm({
+      title: "Do you want to delete this course version?",
+      content:
+        "This action is only allowed if no students have enrolled in this course version yet! Do you want to delete?",
+      onOk() {
+        deleteCourseVersion();
+      },
+      okText: "Delete",
+      okButtonProps: {
+        danger: true,
+        loading: deletingCourse,
+        disabled: deletingCourse,
+      },
+      centered: true,
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
+  };
+
+  const deleteCourse = async () => {
+    console.log("course", courseToDelete);
+    const res = await deleteTheCourse({
+      variables: {
+        courseId: courseToDelete.key,
+      },
+    });
+
+    dispatch(
+      showMessage({
+        message: res.data.deleteCourse.message,
+        varaint: "Success",
+      })
+    );
+  };
+
+  const deleteCourseVersion = async () => {
+    // console.log("course", courseToDelete);
+    const res = await deleteTheCourseVersion({
+      variables: {
+        courseVersionId: versionToDelete.key,
+      },
+    });
+
+    // console.log("res", res.data);
+    dispatch(
+      showMessage({
+        message: res.data.deleteCourseVersion.message,
+        varaint: "Success",
+      })
+    );
+  };
+
+  const handleItemClick = ({ id, event, props }) => {
+    switch (id) {
+      case "delete_course":
+        handleDeleteCourse();
+        break;
+      case "delete_course_version":
+        console.log("delete course version...");
+        handleDeleteCourseVersion();
+        break;
+      //etc...
+    }
+  };
   const [dynamicHeight, setDynamicHeight] = useState(window.innerHeight - 215);
   // const [searchValue, setSearchValue] = useState("");
   const searchValue = useSelector(selectSearchValue);
@@ -227,13 +376,16 @@ const AllCourses = memo(({ panelWidth }) => {
     { error: loadErr, loading: loadingCourseUnits, data: cuRes },
   ] = useLazyQuery(GET_COURSE_UNITS, {
     notifyOnNetworkStatusChange: true, // Essential for accurate loading state
-    // fetchPolicy: "network-only",
+    fetchPolicy: "network-only",
   });
 
   const [
     loadCourseVersionDetails,
     { error: versionErr, loading: loadingVersionDetails, data: versionRes },
-  ] = useLazyQuery(LOAD_COURSE_VERSION_DETAILS);
+  ] = useLazyQuery(LOAD_COURSE_VERSION_DETAILS, {
+    notifyOnNetworkStatusChange: true, // Essential for accurate loading state
+    fetchPolicy: "network-only",
+  });
 
   const transformData = useCallback((nodes) => {
     // console.log("nodes", nodes);
@@ -269,7 +421,17 @@ const AllCourses = memo(({ panelWidth }) => {
         })
       );
     }
-  }, [loadErr, versionErr]);
+
+    if (deleteVersionErr) {
+      // alert("error getting forms!");
+      dispatch(
+        showMessage({
+          message: deleteVersionErr.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [loadErr, versionErr, deleteVersionErr]);
 
   // console.log("dynamic height", dynamicHeight);
 
@@ -298,14 +460,25 @@ const AllCourses = memo(({ panelWidth }) => {
     }
   );
 
-  if (error) {
-    dispatch(
-      showMessage({
-        message: error.message,
-        variant: "error",
-      })
-    );
-  }
+  useEffect(() => {
+    if (error) {
+      dispatch(
+        showMessage({
+          message: error.message,
+          variant: "error",
+        })
+      );
+    }
+
+    if (deleteErr) {
+      dispatch(
+        showMessage({
+          message: deleteErr.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [deleteErr, error]);
 
   const _reloadCourses = async () => {
     if (reloadCourses) {
@@ -369,6 +542,7 @@ const AllCourses = memo(({ panelWidth }) => {
 
     if (info.selectedNodes[0].typename == "CourseVersion") {
       // dispatch(setSelectedCourseVersion(info.selectedNodes[0].item));
+
       dispatch(
         setSelectedCourseVersion({
           parent: parentNode,
@@ -459,7 +633,7 @@ const AllCourses = memo(({ panelWidth }) => {
     >
       <Spin
         tip="Loading Courses..."
-        spinning={loading}
+        spinning={loading || deletingCourse || deletingCourseVersion}
         style={{
           height: "calc(100vh)",
           // backgroundColor: "red",
@@ -485,13 +659,21 @@ const AllCourses = memo(({ panelWidth }) => {
             <DirectoryTree
               //   multiple
               // defaultExpandAll
-
               showLine={true}
               height={dynamicHeight}
               onSelect={onSelect}
               onExpand={onExpand}
               expandedKeys={expandedItems}
-              // treeData={memoizedTreeData ? memoizedTreeData : []}
+              onRightClick={({ event, node }) => {
+                if (node.isLeaf) {
+                  setVersionToDelete(node);
+                  handleContextMenu(event);
+                } else if (node.item.__typename == "Course") {
+                  // delete course
+                  setCourseToDelete(node);
+                  handleContextMenu2(event);
+                }
+              }}
               autoExpandParent={false}
               // defaultExpandedKeys={expandedItems}
               treeData={memoizedTreeData}
@@ -510,6 +692,30 @@ const AllCourses = memo(({ panelWidth }) => {
           </ConfigProvider>
         </div>
       </Spin>
+
+      <Menu id={MENU_ID}>
+        <Item id="delete_course_version" onClick={handleItemClick}>
+          <Trash2
+            size={18}
+            style={{
+              marginRight: 5,
+            }}
+          />
+          Delete Course Version
+        </Item>
+      </Menu>
+
+      <Menu id={MENU_ID2}>
+        <Item id="delete_course" onClick={handleItemClick}>
+          <Trash2
+            size={18}
+            style={{
+              marginRight: 5,
+            }}
+          />
+          Delete Course
+        </Item>
+      </Menu>
     </div>
   );
 });

@@ -27,6 +27,9 @@ import SystemAccess from "app/theme-layouts/layout3/modules/system_access/System
 import HR from "app/theme-layouts/layout3/modules/hr/HR";
 import ResultsMgt from "app/theme-layouts/layout3/modules/results_mgt/ResultsMgt";
 import Alumni from "app/theme-layouts/layout3/modules/alumini/Alumni";
+import Voting from "app/theme-layouts/layout3/modules/voting/Voting";
+import Counselling from "app/theme-layouts/layout3/modules/counselling/Counselling";
+import Graduation from "app/theme-layouts/layout3/modules/graduation/Graduation";
 
 // const ProgramsAndCourses = lazy(
 //   () =>
@@ -189,7 +192,30 @@ const routes = [
       </ProtectedRoute>
     ),
   },
-
+  {
+    path: "elections",
+    element: (
+      <ProtectedRoute>
+        <Voting />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "counselling",
+    element: (
+      <ProtectedRoute>
+        <Counselling />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "graduation",
+    element: (
+      <ProtectedRoute>
+        <Graduation />
+      </ProtectedRoute>
+    ),
+  },
   {
     path: "404",
     element: <Error404Page />,

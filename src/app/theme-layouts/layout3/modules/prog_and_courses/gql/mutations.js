@@ -241,13 +241,13 @@ const SAVE_COURSE = gql`
     $level: String!
     $award: String!
     $gradingId: String!
-    $isShortCourse: Int!
+    $isShortCourse: Boolean!
     $courseVersion: String!
-    $addedBy: String!
     $courseHeadId: String
     $saveCourseId: ID
     $courseVersionId: String
     $studyTimes: String!
+    $totalCreditUnits: Int!
   ) {
     saveCourse(
       course_code: $courseCode
@@ -264,14 +264,15 @@ const SAVE_COURSE = gql`
       grading_id: $gradingId
       is_short_course: $isShortCourse
       course_version: $courseVersion
-      added_by: $addedBy
       course_head_id: $courseHeadId
       id: $saveCourseId
       course_version_id: $courseVersionId
       study_times: $studyTimes
+      total_credit_units: $totalCreditUnits
     ) {
       id
       version_title
+      total_credit_units
       course_id
       course {
         id
@@ -300,6 +301,15 @@ const UPLOAD_COURSES = gql`
     uploadCourses(courses: $courses, uploaded_by: $uploadedBy) {
       success
       message
+    }
+  }
+`;
+
+const DELETE_COURSE = gql`
+  mutation deleteCourse($courseId: ID!) {
+    deleteCourse(course_id: $courseId) {
+      message
+      success
     }
   }
 `;
@@ -393,6 +403,15 @@ const DELETE_COURSE_UNIT = gql`
   }
 `;
 
+const DELETE_COURSE_VERSION = gql`
+  mutation deleteCourseVersion($courseVersionId: ID!) {
+    deleteCourseVersion(course_version_id: $courseVersionId) {
+      message
+      success
+    }
+  }
+`;
+
 export {
   SAVE_COLLEGE,
   SAVE_SCHOOL,
@@ -411,4 +430,6 @@ export {
   DELETE_COURSE_ALIAS,
   UPLOAD_COURSE_UNITS,
   DELETE_COURSE_UNIT,
+  DELETE_COURSE,
+  DELETE_COURSE_VERSION,
 };

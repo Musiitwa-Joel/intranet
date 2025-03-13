@@ -113,8 +113,8 @@ const AcademicInfo = ({ form }) => {
         status: selectedStudent.status == 1 ? "Active" : "Inactive",
         sponsorhip: selectedStudent.sponsorhip,
         study_time: selectedStudent.study_time_id,
-        current_yr: 1,
-        sem: 1,
+        current_yr: selectedStudent.study_yr,
+        sem: selectedStudent.current_sem,
         college: selectedStudent.course.school.college.id,
         school: selectedStudent.course.school.id,
       });
@@ -264,7 +264,7 @@ const AcademicInfo = ({ form }) => {
                 },
               ]}
             >
-              <Input />
+              <Input readOnly />
             </Form.Item>
 
             <Form.Item

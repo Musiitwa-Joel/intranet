@@ -56,7 +56,7 @@ const BioData = () => {
     },
     {
       key: "8",
-      label: "Entry Accademic Year",
+      label: "Entry Academic Year",
       children:
         studentFile?.entry_acc_yr_title && studentFile?.entry_acc_yr_title,
       span: 1,

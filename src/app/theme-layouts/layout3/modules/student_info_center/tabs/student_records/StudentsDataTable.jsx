@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Table } from "antd";
-import { useSelector } from "react-redux";
+import { ConfigProvider, Table, theme } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectLoadingStudents,
+  selectStudents,
+  setSelectedStudent,
+  setShowInfoModal,
+} from "../../store/infoCenterSlice";
 
 const getParentKey = (key, tree) => {
   let parentKey;
@@ -17,50 +23,62 @@ const getParentKey = (key, tree) => {
   return parentKey;
 };
 
-const StudentDataTable = ({ panelWidth }) => {
-  const [groupedData, setGroupedData] = useState([]);
+const getUniqueStudyYears = (students) => {
+  const uniqueStudyYears = Array.from(
+    new Set(students.map((student) => student.study_yr))
+  )
+    .sort((a, b) => a - b) // Sorting numerically
+    .map((study_yr) => ({ study_yr }));
 
-  const [defaultExpandedRowKeys, setDefaultExpandedRowKeys] = useState([]);
-  const { courseUnits, loadingCourseUnits } = useSelector(
-    (state) => state.progAndCourses
+  return uniqueStudyYears;
+};
+
+const StudentDataTable = ({ panelWidth }) => {
+  const dispatch = useDispatch();
+  const students = useSelector(selectStudents);
+  const uniqueStudyYears = getUniqueStudyYears(students);
+  const loadingStudents = useSelector(selectLoadingStudents);
+
+  const [defaultExpandedRowKeys, setDefaultExpandedRowKeys] = useState(
+    uniqueStudyYears.map((year) => year.study_yr)
   );
 
-  useEffect(() => {
-    const grouped = {};
+  // useEffect(() => {
+  //   const grouped = {};
 
-    courseUnits.forEach((course) => {
-      const yearSemKey = `${course.course_unit_year}-${course.course_unit_sem}`;
+  //   courseUnits.forEach((course) => {
+  //     const yearSemKey = `${course.course_unit_year}-${course.course_unit_sem}`;
 
-      if (!grouped[yearSemKey]) {
-        grouped[yearSemKey] = {
-          course_unit_year: course.course_unit_year,
-          course_unit_sem: course.course_unit_sem,
-          courses: [],
-        };
-      }
+  //     if (!grouped[yearSemKey]) {
+  //       grouped[yearSemKey] = {
+  //         course_unit_year: course.course_unit_year,
+  //         course_unit_sem: course.course_unit_sem,
+  //         courses: [],
+  //       };
+  //     }
 
-      grouped[yearSemKey].courses.push(course);
-    });
+  //     grouped[yearSemKey].courses.push(course);
+  //   });
 
-    // Convert the grouped data to an array
-    let data = Object.values(grouped);
+  //   // Convert the grouped data to an array
+  //   let data = Object.values(grouped);
 
-    // Sort the data based on course_unit_year and course_unit_sem
-    data.sort((a, b) => {
-      if (a.course_unit_year === b.course_unit_year) {
-        return a.course_unit_sem - b.course_unit_sem; // Compare by semester if years are the same
-      }
-      return a.course_unit_year - b.course_unit_year; // Compare by year
-    });
+  //   // Sort the data based on course_unit_year and course_unit_sem
+  //   data.sort((a, b) => {
+  //     if (a.course_unit_year === b.course_unit_year) {
+  //       return a.course_unit_sem - b.course_unit_sem; // Compare by semester if years are the same
+  //     }
+  //     return a.course_unit_year - b.course_unit_year; // Compare by year
+  //   });
 
-    setGroupedData(data);
+  //   setGroupedData(data);
 
-    // Set default expanded row keys based on the available data
-    const expandedKeys = data.map(
-      (group) => `${group.course_unit_year}-${group.course_unit_sem}`
-    );
-    setDefaultExpandedRowKeys(expandedKeys);
-  }, [courseUnits]);
+  //   // Set default expanded row keys based on the available data
+  //   const expandedKeys = data.map(
+  //     (group) => `${group.course_unit_year}-${group.course_unit_sem}`
+  //   );
+  //   setDefaultExpandedRowKeys(expandedKeys);
+  // }, [courseUnits]);
 
   // console.log("defaultExpandedRowKeys", defaultExpandedRowKeys);
 
@@ -107,63 +125,62 @@ const StudentDataTable = ({ panelWidth }) => {
 
   const innerColumns = [
     {
-      title: "Course Code",
-      dataIndex: "course_unit_code",
-      key: "course_unit_code",
-      width: 120,
+      title: "#",
+      dataIndex: "#",
+      key: "#",
+      render: (text, record, index) => index + 1,
+      width: 50,
       ellipsis: true,
     },
     {
-      title: "Course Title",
-      dataIndex: "course_unit_title",
-      key: "course_unit_title",
+      title: "Student Name",
+      dataIndex: "student_name",
+      key: "student_name",
+      render: (text, record) =>
+        `${record.biodata.surname} ${record.biodata.other_names}`,
       width: 300,
       ellipsis: true,
     },
     {
-      title: "Credit Units",
-      dataIndex: "credit_units",
-      key: "credit_units",
-      width: 80,
+      title: "Student No",
+      dataIndex: "student_no",
+      key: "student_no",
+      width: 200,
+      ellipsis: true,
     },
     {
-      title: "Study Yr",
-      dataIndex: "course_unit_year",
-      width: 70,
+      title: "Registration No",
+      dataIndex: "registration_no",
+      key: "registration_no",
+      width: 200,
+      ellipsis: true,
     },
     {
-      title: "Sem",
-      dataIndex: "course_unit_sem",
-      key: "sem",
-      width: 50,
-    },
-    {
-      title: "Level",
-      dataIndex: "course_unit_level",
-      key: "course_unit_level",
-      width: 70,
+      title: "Study Time",
+      dataIndex: "study_time_title",
+      width: 100,
+      ellipsis: true,
     },
   ];
 
   // Expanded row render function: reuses the same columns for inner table
   const expandedRowRender = (record) => {
-    const data = [];
-    // for (let i = 0; i < 3; ++i) {
-    //   data.push({
-    //     key: i.toString(),
-    //     course_code: "BIT203939",
-    //     course_title: "DATA COMMUNICATION AND NETWORKS",
-    //     credit_units: "3",
-    //     study_yr: "1",
-    //     sem: "1",
-    //     level: "elective",
-    //   });
-    // }
+    const _students = students.filter((std) => std.study_yr == record.study_yr);
+
     return (
       <Table
         columns={innerColumns} // Use the same columns as outer table
-        dataSource={record.courses}
+        dataSource={_students}
+        rowKey={"student_no"}
         pagination={false}
+        size="small"
+        onRow={(record, index) => ({
+          onDoubleClick: () => {
+            // console.log("record", record);
+            dispatch(setSelectedStudent(record));
+            dispatch(setShowInfoModal(true));
+          },
+        })}
         // loading={loadingCourseUnits}
         bordered
         style={{
@@ -197,8 +214,8 @@ const StudentDataTable = ({ panelWidth }) => {
             fontWeight: "600",
           }}
         >
-          {" "}
-          {`Year ${record.course_unit_year}, Semester ${record.course_unit_sem}`}
+          {`Study Year ${record.study_yr}`}
+          {/* {`Year ${record.course_unit_year}, Semester ${record.course_unit_sem}`} */}
         </span>
       ),
     },
@@ -211,53 +228,44 @@ const StudentDataTable = ({ panelWidth }) => {
   ];
 
   return (
-    <div
-      style={{
-        borderWidth: 0.5,
-        borderColor: "lightgray",
-        marginTop: 7,
+    <ConfigProvider
+      theme={{
+        algorithm: theme.compactAlgorithm,
       }}
     >
       <Table
         columns={outerColumns} // Outer table has only one column with colSpan
-        dataSource={groupedData}
+        dataSource={uniqueStudyYears}
         bordered
         showHeader={false}
-        loading={loadingCourseUnits}
+        loading={loadingStudents}
         size="small"
         expandable={{
           expandedRowRender, // Inner table will appear when expanded
           // defaultExpandedRowKeys, // Expand rows by default
           expandedRowKeys: defaultExpandedRowKeys,
           onExpand: (expanded, record) => {
-            console.log("key", record);
             setDefaultExpandedRowKeys(
               expanded
-                ? [
-                    ...defaultExpandedRowKeys,
-                    `${record.course_unit_year}-${record.course_unit_sem}`,
-                  ]
+                ? [...defaultExpandedRowKeys, `${record.study_yr}`]
                 : defaultExpandedRowKeys.filter(
-                    (key) =>
-                      key !==
-                      `${record.course_unit_year}-${record.course_unit_sem}`
+                    (key) => key !== `${record.study_yr}`
                   )
             );
           },
         }}
-        rowKey={(record) =>
-          `${record.course_unit_year}-${record.course_unit_sem}`
-        }
+        rowKey={`study_yr`}
         style={{
           width: "100%",
           borderColor: "lightgray",
           // borderWidth: 1,
         }}
+        pagination={false}
         scroll={{
-          y: "calc(100vh - 290px)",
+          y: "calc(100vh - 245px)",
         }}
       />
-    </div>
+    </ConfigProvider>
   );
 };
 

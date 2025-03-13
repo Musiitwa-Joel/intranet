@@ -2,20 +2,7 @@ import React, { useState } from "react";
 import { Card } from "antd";
 import Summary from "./_reports/Summary";
 import ApplicationsReport from "./_reports/ApplicationsReport";
-const tabList = [
-  {
-    key: "tab1",
-    tab: "tab1",
-  },
-  {
-    key: "tab2",
-    tab: "tab2",
-  },
-];
-const contentList = {
-  tab1: <p>content1</p>,
-  tab2: <p>content2</p>,
-};
+
 const tabListNoTitle = [
   {
     key: "summary",

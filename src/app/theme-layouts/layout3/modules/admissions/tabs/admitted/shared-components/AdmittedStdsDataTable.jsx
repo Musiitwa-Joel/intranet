@@ -2,6 +2,7 @@ import { Box, Typography, Tooltip } from "@mui/material";
 import {
   Cancel,
   ChangeCircle,
+  Close,
   EditNoteSharp,
   Refresh,
   Send,
@@ -19,6 +20,8 @@ import {
   ConfigProvider,
   Typography as AntTypography,
 } from "antd";
+import Papa from "papaparse";
+import { saveAs } from "file-saver";
 import { DownOutlined, UserOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -33,6 +36,7 @@ import {
   selectSelectedAdmittedStdsSummary,
   setAdmissionLetterModalVisible,
   setAdmissionLetters,
+  setAdmittedStds,
   setApplicationForm,
   setApplicationPreviewModalOpen,
   setEditStudentRecordsModalVisible,
@@ -44,6 +48,7 @@ import {
 } from "../../../admissionsSlice";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import {
+  GLOBAL_SEARCH_APPLICATIONS,
   LOAD_APPLICATION_DETAILS,
   PRINT_ADMISSION_LETTERS,
 } from "../../../graphql/queries";
@@ -57,6 +62,7 @@ import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import AdmissionLetterPreview from "./AdmissionLetterPreview";
 import { useEffect, useState } from "react";
 import EditStudentRecordsModal from "./EditStudentRecordsModal";
+import { Check, CircleCheck } from "lucide-react";
 
 const { Search } = Input;
 
@@ -235,6 +241,25 @@ const items = [
   },
 ];
 
+const filterItems = [
+  {
+    label: "Students Pushed to Hub",
+    key: "stds_pushed_to_hub",
+    icon: <CircleCheck size={18} />,
+  },
+  {
+    label: "Students Not in Hub",
+    key: "stds_not_in_hub",
+    icon: (
+      <Cancel
+        style={{
+          fontSize: 18,
+        }}
+      />
+    ),
+  },
+];
+
 const defaultExpandable = {
   expandedRowRender: (record) => (
     <>
@@ -321,6 +346,7 @@ function AdmittedStdsDataTable() {
   const selectedCourseGroup = useSelector(selectSelectedAdmittedStdsSummary);
   const loadingApplications = useSelector(selectLoadingAdmittedStds);
   const applications = useSelector(selectAdmittedStds);
+  const [admittedStudents, setAdmittedStudents] = useState([]);
   const selectedAdmittedStds = useSelector(selectSelectedAdmittedStds);
   const selectedRowKeys = useSelector(selectSelectedAdmittedStdsRowKeys);
   const [searchResults, setSearchResults] = useState([]);
@@ -332,35 +358,39 @@ function AdmittedStdsDataTable() {
     refetchQueries: ["loadAdmittedStudents"],
   });
 
+  const [
+    globalSearchApplications,
+    { error: globalErr, loading: searchingGlobally },
+  ] = useLazyQuery(GLOBAL_SEARCH_APPLICATIONS, {
+    fetchPolicy: "network-only",
+  });
+
+  useEffect(() => {
+    if (applications.length > 0) {
+      setAdmittedStudents(applications);
+    }
+  }, [applications]);
+
   const onChange = (value) => {
     // console.log(`selected ${value}`);
     setSelectedCriteria(value);
   };
 
-  const onSearch = (value) => {
+  const onSearch = async (value) => {
     if (!value) {
-      setSearchResults([]);
       return;
     }
 
-    let filteredResults = [];
+    const response = await globalSearchApplications({
+      variables: {
+        searchCriteria: selectedCriteria,
+        searchValue: value,
+        admissionsId: null,
+      },
+    });
 
-    if (selectedCriteria === "name") {
-      filteredResults = applications.filter((app) => {
-        const fullName = `${app.biodata.surname} ${app.biodata.other_names}`;
-        return fullName.toLowerCase().includes(value.toLowerCase());
-      });
-    } else if (selectedCriteria === "program_code") {
-      filteredResults = applications.filter((app) =>
-        app.program_choices.some((choice) =>
-          choice.course.course_code.toLowerCase().includes(value.toLowerCase())
-        )
-      );
-    }
-
-    console.log("filteredResults", filteredResults);
-
-    setSearchResults(filteredResults);
+    // console.log("response", response.data);
+    dispatch(setAdmittedStds(response.data.global_search_applications));
   };
 
   // console.log("applications----", applications);
@@ -408,7 +438,16 @@ function AdmittedStdsDataTable() {
         })
       );
     }
-  }, [printErr, pushErr, loadErr]);
+
+    if (globalErr) {
+      dispatch(
+        showMessage({
+          message: globalErr.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [printErr, pushErr, loadErr, globalErr]);
 
   const handleMenuClick = async (e) => {
     // message.info("Click on menu item.");
@@ -460,9 +499,34 @@ function AdmittedStdsDataTable() {
     }
   };
 
+  const handleFilterMenuClick = async (e) => {
+    // message.info("Click on menu item.");
+    // console.log("applications", applications);
+    if (e.key == "stds_pushed_to_hub") {
+      // View pushed students only
+      const newArr = applications.filter(
+        (application) => application.is_std_verified == true
+      );
+
+      setAdmittedStudents(newArr);
+    } else if (e.key == "stds_not_in_hub") {
+      // View pushed students only
+      const newArr = applications.filter(
+        (application) => application.is_std_verified == false
+      );
+
+      setAdmittedStudents(newArr);
+    }
+  };
+
   const menuProps = {
     items,
     onClick: handleMenuClick,
+  };
+
+  const filterMenuProps = {
+    items: filterItems,
+    onClick: handleFilterMenuClick,
   };
 
   const onSelectChange = (newSelectedRowKeys, selectedRows) => {
@@ -498,6 +562,32 @@ function AdmittedStdsDataTable() {
 
       dispatch(setAdmissionLetterModalVisible(true));
     }
+  };
+
+  const handleExport = () => {
+    console.log("applications", applications);
+
+    if (applications.length == 0) {
+      dispatch(
+        showMessage({
+          message: "Please first load admitted students",
+          variant: "info",
+        })
+      );
+    }
+
+    const data = applications.map((application) => ({
+      name: `${application.biodata.surname} ${application.biodata.other_names}`,
+      student_number: application.student_no,
+      regno: application.registration_no,
+      email: application.biodata.email,
+      gender: application.biodata.gender,
+      nationality: application.biodata.nationality.nationality_title,
+    }));
+
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    saveAs(blob, "admitted-student.csv");
   };
 
   return (
@@ -571,7 +661,7 @@ function AdmittedStdsDataTable() {
             marginBottom: 8,
           }}
         >
-          <Space>
+          <Space size="middle">
             <Select
               showSearch
               placeholder="Select"
@@ -596,7 +686,7 @@ function AdmittedStdsDataTable() {
             />
 
             <Search
-              placeholder="input search text"
+              placeholder="Global Search"
               onSearch={onSearch}
               size="small"
             />
@@ -610,7 +700,18 @@ function AdmittedStdsDataTable() {
               </Button>
             </Dropdown>
 
-            <Button size="small">Export to Excel</Button>
+            <Button size="small" onClick={handleExport}>
+              Export to Excel
+            </Button>
+
+            <Dropdown menu={filterMenuProps}>
+              <Button size="small">
+                <Space>
+                  Filters
+                  <DownOutlined />
+                </Space>
+              </Button>
+            </Dropdown>
           </Space>
 
           <Button
@@ -636,8 +737,10 @@ function AdmittedStdsDataTable() {
         >
           <Table
             columns={columns}
-            dataSource={searchResults.length > 0 ? searchResults : applications}
-            loading={loadingApplications || pushingStds}
+            dataSource={
+              searchResults.length > 0 ? searchResults : admittedStudents
+            }
+            loading={loadingApplications || pushingStds || searchingGlobally}
             rowKey="std_id"
             bordered
             sticky

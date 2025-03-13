@@ -319,6 +319,7 @@ const AllCourses = ({ panelWidth }) => {
     { error: loadErr, loading: loadingTuitionFees, data: loadRes },
   ] = useLazyQuery(LOAD_TUITION_FEES, {
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: "no-cache",
   });
 
   const {

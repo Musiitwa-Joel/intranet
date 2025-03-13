@@ -34,7 +34,7 @@ const initialState = {
     campuses: [],
     colleges: [],
     levels: [],
-    staff_members: [],
+    employees: [],
     grading: [],
     study_times: [],
   },

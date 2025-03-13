@@ -9,7 +9,7 @@ import {
   setUploadModulesModalOpen,
   updateCreateModuleModalOpen,
 } from "../../../store/progAndCoursesSlice";
-import { Table, Space, Input, Button } from "antd";
+import { Table, Space, Input, Button, ConfigProvider, theme } from "antd";
 
 import TestTable from "../TestTable";
 import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";
@@ -213,22 +213,22 @@ function CourseUnits() {
   return (
     <div
       style={{
-        backgroundColor: "#324462",
+        backgroundColor: "#ededed",
       }}
     >
       <Space
         style={{
-          marginBottom: 5,
-          paddingLeft: 10,
+          // paddingLeft: 10,
+          padding: "5px 10px",
         }}
         size={15}
       >
         <Button
           size="small"
           type="text"
-          style={{
-            color: "#fff",
-          }}
+          // style={{
+          //   color: "#fff",
+          // }}
           onClick={handleCreateNewModule}
         >
           Create New Module
@@ -237,9 +237,9 @@ function CourseUnits() {
         <Button
           size="small"
           type="text"
-          style={{
-            color: "#fff",
-          }}
+          // style={{
+          //   color: "#fff",
+          // }}
           onClick={handleUploadModule}
         >
           Upload Modules
@@ -249,15 +249,20 @@ function CourseUnits() {
           size="small"
           type="text"
           onClick={() => exportToCSV(courseUnits)}
-          style={{
-            color: "#fff",
-          }}
+          // style={{
+          //   color: "#fff",
+          // }}
         >
           Download Modules
         </Button>
       </Space>
-
-      {!createNewCourse ? <TestTable /> : <Table dataSource={[]} />}
+      <ConfigProvider
+        theme={{
+          algorithm: theme.compactAlgorithm,
+        }}
+      >
+        {!createNewCourse ? <TestTable /> : <Table dataSource={[]} />}
+      </ConfigProvider>
     </div>
   );
 }

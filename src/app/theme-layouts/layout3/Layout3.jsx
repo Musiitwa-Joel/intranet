@@ -149,41 +149,41 @@ function Layout3(props) {
 
   const { routes } = appContext;
 
-  let inactivityTimer;
+  // let inactivityTimer;
 
-  // Reset the inactivity timer on any user activity
-  const resetTimer = () => {
-    if (isLocked) {
-      dispatch(setIsLocked(false));
-    }
-    clearTimeout(inactivityTimer);
-    inactivityTimer = setTimeout(() => {
-      dispatch(setIsLocked(true));
-      navigate("/unlock_session");
-    }, 300000); // 5 minutes
-  };
+  // // Reset the inactivity timer on any user activity
+  // const resetTimer = () => {
+  //   if (isLocked) {
+  //     dispatch(setIsLocked(false));
+  //   }
+  //   clearTimeout(inactivityTimer);
+  //   inactivityTimer = setTimeout(() => {
+  //     dispatch(setIsLocked(true));
+  //     navigate("/unlock_session");
+  //   }, 300000); // 5 minutes
+  // };
 
-  // Set up event listeners for activity
-  useEffect(() => {
-    if (!token || currentRoute.pathname == "/") return;
-    // Set up event listeners for user activity
-    window.addEventListener("mousemove", resetTimer);
-    window.addEventListener("keypress", resetTimer);
-    window.addEventListener("click", resetTimer);
-    window.addEventListener("scroll", resetTimer);
+  // // Set up event listeners for activity
+  // useEffect(() => {
+  //   if (!token || currentRoute.pathname == "/") return;
+  //   // Set up event listeners for user activity
+  //   window.addEventListener("mousemove", resetTimer);
+  //   window.addEventListener("keypress", resetTimer);
+  //   window.addEventListener("click", resetTimer);
+  //   window.addEventListener("scroll", resetTimer);
 
-    // Start the timer
-    resetTimer();
+  //   // Start the timer
+  //   resetTimer();
 
-    // Clean up event listeners on component unmount
-    return () => {
-      clearTimeout(inactivityTimer);
-      window.removeEventListener("mousemove", resetTimer);
-      window.removeEventListener("keypress", resetTimer);
-      window.removeEventListener("click", resetTimer);
-      window.removeEventListener("scroll", resetTimer);
-    };
-  }, []);
+  //   // Clean up event listeners on component unmount
+  //   return () => {
+  //     clearTimeout(inactivityTimer);
+  //     window.removeEventListener("mousemove", resetTimer);
+  //     window.removeEventListener("keypress", resetTimer);
+  //     window.removeEventListener("click", resetTimer);
+  //     window.removeEventListener("scroll", resetTimer);
+  //   };
+  // }, []);
 
   return (
     <>

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { SmileOutlined } from "@ant-design/icons";
+import { SmileOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import {
   Timeline,
   Badge,
@@ -10,6 +10,7 @@ import {
   Col,
   Button,
   ConfigProvider,
+  Modal,
 } from "antd";
 import PerfectScrollbar from "perfect-scrollbar";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,9 +21,10 @@ import {
 import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";
 import { Delete, Edit, Print, RemoveRedEye } from "@mui/icons-material";
 import ExaminationPermit from "./ExaminationPermit";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { GET_STUDENT_REGISTERED_COURSEUNITS } from "../../../../gql/queries";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
+import { DE_REGISTER } from "../../../../gql/mutations";
 
 function formatCustomDate(dateString) {
   const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -64,13 +66,18 @@ const RegistrationTrack = () => {
   const studentFile = useSelector(selectStudentData);
   const [selectedReg, setSelectedReg] = React.useState(null);
   const [selectedModules, setSelectedModules] = useState([]);
-
+  const [modal, contextHolder] = Modal.useModal();
   const [
     getStudentRegisteredCourseUnits,
     { error, loading, data: studentRegisteredCourseUnitsRes },
   ] = useLazyQuery(GET_STUDENT_REGISTERED_COURSEUNITS, {
     notifyOnNetworkStatusChange: true,
   });
+
+  const [deRegister, { error: deleteErr, loading: deRegistering, data }] =
+    useMutation(DE_REGISTER, {
+      refetchQueries: ["loadStudentFile"],
+    });
 
   useEffect(() => {
     if (error) {
@@ -81,7 +88,16 @@ const RegistrationTrack = () => {
         })
       );
     }
-  }, [error]);
+
+    if (deleteErr) {
+      dispatch(
+        showMessage({
+          message: deleteErr.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [deleteErr]);
 
   const handlePreviewExamPermit = async (reg) => {
     const res = await getStudentRegisteredCourseUnits({
@@ -99,6 +115,38 @@ const RegistrationTrack = () => {
 
     setSelectedReg(reg);
     dispatch(setRegistrationPermitModalVisible(true));
+  };
+
+  const handleDeRegister = (registration) => {
+    modal.confirm({
+      title: "De Register",
+      icon: <ExclamationCircleOutlined />,
+      content: "Are you sure you want to cancel this registration",
+      okText: "Yes",
+      cancelText: "No",
+      onOk: () => onConfirmDelete(registration),
+      style: {
+        top: "30%",
+      },
+    });
+  };
+
+  const onConfirmDelete = async (registration) => {
+    // console.log("delete", enrollment);
+    const payload = {
+      registrationId: registration.id,
+    };
+
+    const res = await deRegister({
+      variables: payload,
+    });
+
+    dispatch(
+      showMessage({
+        message: res.data.deRegister.message,
+        variant: "success",
+      })
+    );
   };
 
   // console.log("student file", studentFile);
@@ -312,7 +360,7 @@ const RegistrationTrack = () => {
                               danger
                               icon={<Delete />}
                               style={{ width: "100%" }}
-                              // onClick={() => handleDelete(enrollment)}
+                              onClick={() => handleDeRegister(reg)}
                             >
                               De Register
                             </Button>
@@ -326,6 +374,7 @@ const RegistrationTrack = () => {
             />
           </ConfigProvider>
         ) : null}
+        {contextHolder}
       </div>
       <ExaminationPermit
         study_yr={selectedReg?.study_yr}

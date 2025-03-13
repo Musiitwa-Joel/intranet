@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useState } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardActions from "@mui/material/CardActions";
@@ -195,12 +194,19 @@ function Register() {
           newArr.push(enrollmentTypes[1]); // continuing
           newArr.push(enrollmentTypes[2]); // Finalist
           newArr.push(enrollmentTypes[3]); // completed with retakes
+          newArr.push(enrollmentTypes[4]);
         } else {
           newArr.push(enrollmentTypes[1]); // continuing
         }
       }
 
-      dispatch(setSpecificEnrollmentStatuses(newArr));
+      // console.log("enrollment types", res.data.loadStudentFile);
+
+      dispatch(
+        setSpecificEnrollmentStatuses(
+          res.data.loadStudentFile.current_info.enrollment_types
+        )
+      );
     }
   };
 
@@ -223,7 +229,7 @@ function Register() {
       studentId: studentFile?.id,
       studentNo: studentFile?.student_no,
       studyYr: parseInt(values.study_yr),
-      activeSemId: studentFile?.current_info.active_sem_id,
+      semester: parseInt(studentFile?.current_info.true_sem),
       enrollmentStatus: values.enrollment_status,
       enrolledBy: `${userObj.user.biodata.title} ${userObj.user.biodata.staff_name}`,
     };
@@ -473,7 +479,7 @@ function Register() {
                             },
                             {
                               key: "4",
-                              label: "Accademic Year",
+                              label: "Academic Year",
                               children:
                                 studentFile?.current_info.recent_enrollment &&
                                 `${studentFile?.current_info.recent_enrollment?.acc_yr_title}`,
@@ -566,7 +572,9 @@ function Register() {
                       "Enrolled" ? (
                         <>
                           {studentFile?.current_info.registration_status ==
-                          "Not Registered" ? (
+                            "Not Registered" ||
+                          studentFile?.current_info.registration_status ==
+                            "Provisionally Registered" ? (
                             <Button2
                               type="primary"
                               // disabled={!studentFile}

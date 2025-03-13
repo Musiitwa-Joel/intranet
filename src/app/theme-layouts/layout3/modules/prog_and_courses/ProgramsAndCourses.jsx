@@ -11,6 +11,7 @@ import GradingSystems from "./tabs/grading/GradingSystems";
 import { selectActiveTab, updateActiveTab } from "./store/progAndCoursesSlice";
 import "./programs.css";
 import AppNav from "../../components/AppNav";
+import { ConfigProvider, theme } from "antd";
 
 const tabs = [
   "Courses",
@@ -55,12 +56,17 @@ function ProgramsAndCourses() {
               activeTab={activeTab}
               handleTabChange={handleTabChange}
             />
-
-            {activeTab === 0 && <Programmes />}
-            {activeTab === 1 && <College />}
-            {activeTab === 2 && <Schools />}
-            {activeTab === 3 && <Departments />}
-            {activeTab === 4 && <GradingSystems />}
+            <ConfigProvider
+              theme={{
+                algorithm: theme.compactAlgorithm,
+              }}
+            >
+              {activeTab === 0 && <Programmes />}
+              {activeTab === 1 && <College />}
+              {activeTab === 2 && <Schools />}
+              {activeTab === 3 && <Departments />}
+              {activeTab === 4 && <GradingSystems />}
+            </ConfigProvider>
           </Box>
         </Suspense>
       )}

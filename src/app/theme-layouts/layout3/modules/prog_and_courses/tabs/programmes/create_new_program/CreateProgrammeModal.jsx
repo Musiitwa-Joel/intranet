@@ -12,7 +12,7 @@ import Slide from "@mui/material/Slide";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import { useDispatch, useSelector } from "react-redux";
-import { ConfigProvider, Tabs } from "antd";
+import { Card, ConfigProvider, Tabs, theme } from "antd";
 import "./courseStyles.css";
 
 import CreateNewProgrammeForm from "./CreateNewProgrammeForm";
@@ -28,6 +28,7 @@ import {
 import ProgrammeDescription from "./ProgrammeDescription";
 import TestTable2 from "../TestTable2";
 import CourseUnits from "./CourseUnits";
+import CreateNewCourseForm from "./CreateNewCourseForm";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -76,14 +77,45 @@ function a11yProps(index) {
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
+
+const tabListNoTitle = [
+  {
+    key: "course_details",
+    label: "Course Details",
+  },
+  {
+    key: "course_aliases",
+    label: "Course Aliases",
+  },
+  {
+    key: "course_desc",
+    label: "Course Description",
+  },
+  {
+    key: "course_units",
+    label: "Course Units",
+  },
+];
+
+const contentListNoTitle = {
+  course_details: <CreateNewCourseForm />,
+  course_aliases: <ProgrammeAliases />,
+  course_desc: <ProgrammeDescription />,
+  course_units: <CourseUnits />,
+};
+
 export default function CreateProgrammeModal() {
   // const { createProgrammeModalOpen } = useSelector(
   //   (state) => state.progAndCourses
   // );
+  const [activeTabKey2, setActiveTabKey2] = React.useState("course_details");
   const createProgrammeModalOpen = useSelector(selectCreateProgrammeModalOpen);
   const selectedCourseVersion = useSelector(selectSelectedCourseVersion);
   const createNew = useSelector(selectCreateNewCourse);
   const programFormDetails = useSelector(selectProgrammeFormDetails);
+  const onTab2Change = (key) => {
+    setActiveTabKey2(key);
+  };
 
   // console.log("selected Couse version", selectedCourseVersion);
 
@@ -129,6 +161,35 @@ export default function CreateProgrammeModal() {
 
       <ConfigProvider
         theme={{
+          components: {
+            Card: {
+              borderRadius: 0,
+              borderRadiusLG: 0,
+            },
+          },
+          algorithm: theme.defaultAlgorithm,
+        }}
+      >
+        <Card
+          style={{
+            width: "100%",
+            borderColor: "lightgray",
+          }}
+          size="small"
+          tabList={tabListNoTitle}
+          activeTabKey={activeTabKey2}
+          bordered
+          onTabChange={onTab2Change}
+          tabProps={{
+            size: "small",
+          }}
+        >
+          {contentListNoTitle[activeTabKey2]}
+        </Card>
+      </ConfigProvider>
+
+      {/* <ConfigProvider
+        theme={{
           token: {
             colorBorder: "lightgray",
           },
@@ -150,13 +211,13 @@ export default function CreateProgrammeModal() {
       >
         <Tabs
           defaultActiveKey="1"
-          tabPosition="left"
+          // tabPosition="left"
           tabBarStyle={{
             // backgroundColor: "#384c6e",
             paddingTop: 10,
             paddingLeft: 5,
           }}
-          centered
+          // centered
           type="card"
           style={{
             height: "100%",
@@ -173,7 +234,7 @@ export default function CreateProgrammeModal() {
                     marginRight: 20,
                   }}
                 >
-                  <CreateNewProgrammeForm />
+                  <CreateNewCourseForm />
                 </div>
               ),
             },
@@ -224,7 +285,7 @@ export default function CreateProgrammeModal() {
             },
           ]}
         />
-      </ConfigProvider>
+      </ConfigProvider> */}
     </Dialog>
   );
 }

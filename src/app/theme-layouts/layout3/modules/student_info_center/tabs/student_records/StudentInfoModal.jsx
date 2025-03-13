@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Modal, Space, Typography } from "antd";
+import { Button, ConfigProvider, Form, Modal, Space, Typography } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -175,7 +175,7 @@ const StudentInfoModal = () => {
     <>
       <Modal
         // title="Vertically centered modal dialog"
-        width={1150}
+        width={1000}
         // height={100}
         open={showInfoModal}
         footer={false}
@@ -197,7 +197,7 @@ const StudentInfoModal = () => {
         closeIcon={
           <Close
             style={{
-              marginTop: -10,
+              // marginTop: -10,
               fontSize: 25,
             }}
           />
@@ -214,7 +214,7 @@ const StudentInfoModal = () => {
         <Layout
           style={{
             // backgroundColor: "red",
-            height: 550,
+            height: 500,
             overflow: "hidden",
           }}
         >
@@ -324,17 +324,23 @@ const StudentInfoModal = () => {
                 style={{
                   padding: 10,
                   minHeight: 400,
-                  height: 450,
+                  height: 400,
                   background: colorBgContainer,
                   borderRadius: borderRadiusLG,
                   // overflow: "scroll",
                 }}
               >
-                {activeMenuItem == "1" && <BioData form={form} />}
-                {activeMenuItem == "2" && <Enrollment />}
-                {activeMenuItem == "3" && <Registration />}
-                {activeMenuItem == "4" && <Finance />}
-                {activeMenuItem == "5" && <StudentLogs />}
+                <ConfigProvider
+                  theme={{
+                    algorithm: theme.compactAlgorithm,
+                  }}
+                >
+                  {activeMenuItem == "1" && <BioData form={form} />}
+                  {activeMenuItem == "2" && <Enrollment />}
+                  {activeMenuItem == "3" && <Registration />}
+                  {activeMenuItem == "4" && <Finance />}
+                  {activeMenuItem == "5" && <StudentLogs />}
+                </ConfigProvider>
               </div>
             </Content>
             <Footer

@@ -64,9 +64,11 @@ const LOAD_STUDENT_FILE = gql`
           title
           color_code
         }
+        active
         enrolled_by
         acc_yr_title
         invoiced
+        enrolled_by_type
       }
       registration_history {
         id
@@ -161,6 +163,10 @@ const LOAD_STUDENT_FILE = gql`
         progress
         active_sem_id
         registration_status
+        enrollment_types {
+          id
+          title
+        }
       }
       status
       is_on_sponsorship

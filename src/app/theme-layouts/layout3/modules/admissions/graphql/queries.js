@@ -540,6 +540,54 @@ const PRINT_ADMISSION_LETTERS = gql`
   }
 `;
 
+const GLOBAL_SEARCH_APPLICATIONS = gql`
+  query global_search_applications(
+    $searchCriteria: String!
+    $searchValue: String!
+    $admissionsId: String
+    $admitted: String
+  ) {
+    global_search_applications(
+      search_criteria: $searchCriteria
+      search_value: $searchValue
+      admissions_id: $admissionsId
+      admitted: $admitted
+    ) {
+      std_id
+      student_no
+      registration_no
+      form_no
+      campus_id
+      campus_title
+      study_time_id
+      study_time_title
+      intake_id
+      intake_title
+      biodata {
+        id
+        surname
+        other_names
+        email
+        nationality {
+          id
+          nationality_title
+          nationality_category
+        }
+        gender
+      }
+      course {
+        id
+        course_code
+      }
+      entry_study_yr
+      admitted_on
+      admitted_by_user
+      is_std_verified
+      is_resident
+    }
+  }
+`;
+
 export {
   GET_SCHEMES,
   GET_ADMISSION_LEVELS,
@@ -555,4 +603,5 @@ export {
   LOAD_ADMITTED_STUDENTS,
   LOAD_ADMISSION_LETTERS,
   PRINT_ADMISSION_LETTERS,
+  GLOBAL_SEARCH_APPLICATIONS,
 };

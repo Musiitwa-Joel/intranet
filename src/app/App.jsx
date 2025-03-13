@@ -45,27 +45,27 @@ function App() {
    */
   const mainTheme = useSelector(selectMainTheme);
   return (
-    <MockAdapterProvider>
-      <CacheProvider value={createCache(emotionCacheOptions[langDirection])}>
-        <FuseTheme theme={mainTheme} root>
-          <AuthenticationProvider>
-            <SnackbarProvider
-              maxSnack={5}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              classes={{
-                containerRoot:
-                  "bottom-0 right-0 mb-52 md:mb-68 mr-8 lg:mr-80 z-99",
-              }}
-            >
-              <FuseLayout layouts={themeLayouts} />
-            </SnackbarProvider>
-          </AuthenticationProvider>
-        </FuseTheme>
-      </CacheProvider>
-    </MockAdapterProvider>
+    // <MockAdapterProvider>
+    <CacheProvider value={createCache(emotionCacheOptions[langDirection])}>
+      <FuseTheme theme={mainTheme} root>
+        <AuthenticationProvider>
+          <SnackbarProvider
+            maxSnack={5}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            classes={{
+              containerRoot:
+                "bottom-0 right-0 mb-52 md:mb-68 mr-8 lg:mr-80 z-99",
+            }}
+          >
+            <FuseLayout layouts={themeLayouts} />
+          </SnackbarProvider>
+        </AuthenticationProvider>
+      </FuseTheme>
+    </CacheProvider>
+    // </MockAdapterProvider>
   );
 }
 

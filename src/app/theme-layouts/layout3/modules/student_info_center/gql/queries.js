@@ -40,7 +40,9 @@ const GET_STUDENTS = gql`
     $intake: String
     $accYr: String
     $courseVersion: String
-    $sic: Int
+    $sic: Boolean
+    $searchCreteria: String
+    $searchValue: String
   ) {
     students(
       campus: $campus
@@ -48,6 +50,8 @@ const GET_STUDENTS = gql`
       acc_yr: $accYr
       course_version: $courseVersion
       sic: $sic
+      search_creteria: $searchCreteria
+      search_value: $searchValue
     ) {
       id
       student_no
@@ -102,6 +106,8 @@ const GET_STUDENTS = gql`
       sponsorship
       study_time_id
       study_time_title
+      study_yr
+      current_sem
     }
   }
 `;

@@ -19,7 +19,6 @@ import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 import createUploadLink from "apollo-upload-client/createUploadLink.mjs";
-import { useEffect } from "react";
 import store from "app/store/store";
 import { setToken } from "app/store/tokenSlice";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";

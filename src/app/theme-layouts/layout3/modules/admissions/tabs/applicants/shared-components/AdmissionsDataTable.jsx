@@ -580,7 +580,7 @@ function AdmissionsDataTable() {
             />
 
             <Search
-              placeholder="input search text"
+              placeholder="Global Search"
               onSearch={onSearch}
               size="small"
               style={{
