@@ -30,6 +30,7 @@ import Alumni from "app/theme-layouts/layout3/modules/alumini/Alumni";
 import Voting from "app/theme-layouts/layout3/modules/voting/Voting";
 import Counselling from "app/theme-layouts/layout3/modules/counselling/Counselling";
 import Graduation from "app/theme-layouts/layout3/modules/graduation/Graduation";
+import Library from "app/theme-layouts/layout3/modules/library/Library";
 
 // const ProgramsAndCourses = lazy(
 //   () =>
@@ -213,6 +214,14 @@ const routes = [
     element: (
       <ProtectedRoute>
         <Graduation />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "library",
+    element: (
+      <ProtectedRoute>
+        <Library />
       </ProtectedRoute>
     ),
   },
