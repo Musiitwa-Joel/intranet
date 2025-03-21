@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { rootReducer } from "app/store/lazyLoadedSlices";
 
 const initialState = {
-  activeTab: "employees",
+  activeTab: "dashboard",
   employeesViewLayout: "table",
   viewEmployeeDetails: false,
   addNewEmpModalVisible: false,
