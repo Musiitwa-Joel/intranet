@@ -8,6 +8,8 @@ import AppNav2 from "../../components/AppNav2";
 import ResultsView from "./tabs/ResultsView";
 import Testimonials from "./tabs/testimonials/Testimonials";
 import Migration from "./tabs/migration/Migration";
+import ResultsSubmission from "./tabs/results_submission/ResultsSubmission";
+import { ConfigProvider, theme } from "antd";
 
 function ResultsMgt() {
   const dispatch = useDispatch();
@@ -56,9 +58,16 @@ function ResultsMgt() {
             handleTabChange={handleTabChange}
           />
 
-          {activeTab === "results_view" && <ResultsView />}
           {activeTab === "testimonials" && <Testimonials />}
-          {activeTab === "migration" && <Migration />}
+          <ConfigProvider
+            theme={{
+              algorithm: theme.compactAlgorithm,
+            }}
+          >
+            {activeTab === "results_view" && <ResultsView />}
+            {activeTab === "migration" && <Migration />}
+            {activeTab === "results_submission" && <ResultsSubmission />}
+          </ConfigProvider>
         </Box>
       </Suspense>
     </>
