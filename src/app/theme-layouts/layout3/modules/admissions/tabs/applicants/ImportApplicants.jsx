@@ -28,11 +28,7 @@ import {
 } from "../../admissionsSlice";
 import { Close, Download } from "@mui/icons-material";
 import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
-import {
-  CarryOutOutlined,
-  CheckOutlined,
-  FormOutlined,
-} from "@ant-design/icons";
+import { CarryOutOutlined } from "@ant-design/icons";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import { url2 } from "app/configs/apiConfig";
 import { UPLOAD_APPLICANTS } from "../../graphql/mutations";

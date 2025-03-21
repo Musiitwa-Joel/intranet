@@ -30,6 +30,7 @@ const LOAD_EMPLOYEE_DETAILS = gql`
     employee(id: $employeeId) {
       id
       salutation_id
+      salutation
       surname
       other_names
       staff_id
