@@ -25,7 +25,7 @@ import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import { addAppToTaskBar } from "app/store/appSlice";
 import { userLoggedOut } from "app/store/userSlice";
 import { mainUrl } from "app/configs/apiConfig";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, theme } from "antd";
 
 // HTTP link for queries, mutations, and file uploads
 const httpLink = createUploadLink({

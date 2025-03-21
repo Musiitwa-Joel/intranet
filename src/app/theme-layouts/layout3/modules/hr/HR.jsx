@@ -4,12 +4,15 @@ import { useDispatch, useSelector } from "react-redux";
 import FuseLoading from "@fuse/core/FuseLoading";
 import Box from "@mui/material/Box";
 import { selectActiveTab, setActiveTab } from "./store/hrSlice";
-import Employees from "./tabs/Employees";
+import Employee from "./tabs/employee/Employee";
 import Designations from "./tabs/designations/Designations";
 import Appraisals from "./tabs/appraisals/Appraisals";
-import { selectUserPermissions } from "app/store/userSlice";
-import hasPermission from "src/utils/hasPermission";
+import Dashboard from "./tabs/dashboard/Dashboard";
+import Travel from "./tabs/travel/Travel";
+import Payroll from "./tabs/payroll/Payroll";
+import ComplianceLegal from "./tabs/compliance_legal/ComplianceLegal";
 import AppNav2 from "../../components/AppNav2";
+import { ConfigProvider, theme } from "antd";
 
 function HR() {
   const dispatch = useDispatch();
@@ -17,32 +20,17 @@ function HR() {
   const [loading, setLoading] = useState(!appExistsInTaskBar ? true : false);
   const activeApp = useSelector((state) => state.apps.activeApp);
   const activeTab = useSelector(selectActiveTab);
-  const userPermissions = useSelector(selectUserPermissions);
-
-  const can_view_employees = hasPermission(
-    userPermissions,
-    "can_view_employees"
-  );
 
   const tabs = [
-    {
-      label: "Employees",
-      value: "employees",
-      visible: can_view_employees ? true : false,
-    },
+    { label: "Dashboard", value: "dashboard" },
+    { label: "Employees", value: "employees" }, // Employees tab always visible
     { label: "Appraisals", value: "appraisals" },
     { label: "Travel", value: "travel" },
-    { label: "Loans", value: "loans" },
+    { label: "Payroll", value: "payroll" },
     { label: "Leave", value: "leave" },
-    { label: "Advances", value: "advances" },
+    { label: "Compliance & Legal", value: "compliance_legal" },
     { label: "Designations", value: "designations" },
   ];
-
-  useEffect(() => {
-    if (!can_view_employees && activeTab === "employees") {
-      dispatch(setActiveTab("appraisals"));
-    }
-  }, [can_view_employees, activeTab]);
 
   useEffect(() => {
     if (!appExistsInTaskBar) {
@@ -55,8 +43,6 @@ function HR() {
   }, []);
 
   function handleTabChange(event, value) {
-    // setSelectedTab(value);
-    // console.log("value", value);
     dispatch(setActiveTab(value));
   }
 
@@ -64,20 +50,30 @@ function HR() {
     <FuseLoading logo={activeApp?.logo} />
   ) : (
     <>
-      <Suspense fallback={<FuseLoading logo={activeApp?.logo} />}>
-        <Box sx={{ flexGrow: 1 }}>
-          <AppNav2
-            tabs={tabs}
-            activeApp={activeApp}
-            activeTab={activeTab}
-            handleTabChange={handleTabChange}
-          />
-
-          {can_view_employees && activeTab === "employees" && <Employees />}
-          {activeTab === "appraisals" && <Appraisals />}
-          {activeTab === "designations" && <Designations />}
-        </Box>
-      </Suspense>
+      <ConfigProvider
+        theme={{
+          algorithm: [theme.compactAlgorithm],
+        }}
+      >
+        <Suspense fallback={<FuseLoading logo={activeApp?.logo} />}>
+          <Box sx={{ flexGrow: 1 }}>
+            <AppNav2
+              tabs={tabs}
+              activeApp={activeApp}
+              activeTab={activeTab}
+              handleTabChange={handleTabChange}
+            />
+            {activeTab === "dashboard" && <Dashboard />}
+            {activeTab === "employees" && <Employee />}{" "}
+            {/* Always renders Employee */}
+            {activeTab === "appraisals" && <Appraisals />}
+            {activeTab === "designations" && <Designations />}
+            {activeTab === "travel" && <Travel />}
+            {activeTab === "payroll" && <Payroll />}
+            {activeTab === "compliance_legal" && <ComplianceLegal />}
+          </Box>
+        </Suspense>
+      </ConfigProvider>
     </>
   );
 }
