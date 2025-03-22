@@ -37,8 +37,9 @@ const GET_REQUIREMENTS = gql`
   query add_school_requirements {
     staff_members {
       id
-      staff_name
-      title
+      salutation
+      surname
+      other_names
     }
 
     colleges {
@@ -118,7 +119,7 @@ function SchoolForm() {
       }));
 
       const _staff_members = requirements.staff_members.map((staff_member) => ({
-        label: `${staff_member.title} ${staff_member.staff_name}`,
+        label: `${staff_member.salutation} ${staff_member.surname} ${staff_member.other_names}`,
         value: staff_member.id,
       }));
 
