@@ -34,6 +34,7 @@ import config from "../../auth/services/jwt/jwtAuthConfig";
 import { GET_MY_PROFILE } from "app/theme-layouts/layout3/graphql/queries";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import jwtDecode from "jwt-decode";
+import { url2 } from "app/configs/apiConfig";
 
 /**
  * Form Validation Schema
@@ -160,7 +161,7 @@ function SignInPage() {
         <div className="w-full max-w-320 sm:w-320 mx-auto sm:mx-0">
           <img
             className="w-50"
-            src="assets/images/logo/nkumba-uninersity.png"
+            src={`${url2}/university/nkumba-university.png`}
             alt="logo"
           />
 

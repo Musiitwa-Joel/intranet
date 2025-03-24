@@ -4,7 +4,8 @@ import PropTypes from "prop-types";
 import { useState } from "react";
 import clsx from "clsx";
 import Box from "@mui/material/Box";
-import tredumoLogo from "/assets/images/logo/tred-logo.png";
+import { url2 } from "app/configs/apiConfig";
+// import tredumoLogo from "/assets/images/logo/tred-logo.png";
 
 function FuseLoading(props) {
   const [showLoading, setShowLoading] = useState(!props.delay);
@@ -29,7 +30,11 @@ function FuseLoading(props) {
       ) : (
         <div class="logo">
           {/* <img width="128" src="assets/images/logo/logo.svg" alt="logo" /> */}
-          <img width="128" src={tredumoLogo} alt="logo" />
+          <img
+            width="128"
+            src={`${url2}/university/tred-logo.png`}
+            alt="logo"
+          />
         </div>
       )}
       <Box
