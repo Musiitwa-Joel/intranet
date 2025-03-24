@@ -363,7 +363,9 @@ function Layout3(props) {
             <div className="flex flex-col flex-auto min-h-0 relative z-10">
               <FuseDialog />
 
-              <FuseSuspense>{useRoutes(routes)}</FuseSuspense>
+              <FuseSuspense logo={activeApp?.logo}>
+                {useRoutes(routes)}
+              </FuseSuspense>
 
               {props.children}
             </div>
