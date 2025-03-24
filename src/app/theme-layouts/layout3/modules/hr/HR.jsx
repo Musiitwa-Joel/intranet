@@ -23,7 +23,7 @@ function HR() {
 
   const tabs = [
     { label: "Dashboard", value: "dashboard" },
-    { label: "Employees", value: "employees" }, // Employees tab always visible
+    { label: "Employees", value: "employees" },
     { label: "Appraisals", value: "appraisals" },
     { label: "Travel", value: "travel" },
     { label: "Payroll", value: "payroll" },
