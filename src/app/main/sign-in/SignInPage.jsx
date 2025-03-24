@@ -388,10 +388,10 @@ function SignInPage() {
                 },
               }}
             >
-              <Avatar src="assets/images/avatars/finance.png" />
-              <Avatar src="assets/images/avatars/admissions.png" />
-              <Avatar src="assets/images/avatars/assesement.png" />
-              <Avatar src="assets/images/avatars/qualityAssurance.png" />
+              <Avatar src={`${url2}/module_logos/finance.png`} />
+              <Avatar src={`${url2}/module_logos/admissions.png`} />
+              <Avatar src={`${url2}/module_logos/assesement.png`} />
+              <Avatar src={`${url2}/module_logos/qualityAssurance.png`} />
             </AvatarGroup>
 
             <div className="ml-16 font-medium tracking-tight text-gray-400">
