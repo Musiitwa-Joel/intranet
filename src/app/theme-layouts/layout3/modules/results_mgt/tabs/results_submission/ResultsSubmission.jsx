@@ -3,6 +3,7 @@ import { Card } from "antd";
 
 import CourseWorkSubmission from "./CourseWorkSubmission";
 import FinalResultsSubmission from "./FinalResultsSubmission";
+import SubmissionHistory from "./SubmissionHistory";
 
 const tabListNoTitle = [
   {
@@ -13,10 +14,15 @@ const tabListNoTitle = [
     key: "final_results_submission",
     label: "Final Results Submission",
   },
+  {
+    key: "submission_history",
+    label: "Submission History",
+  },
 ];
 const contentListNoTitle = {
   course_work_submission: <CourseWorkSubmission />,
   final_results_submission: <FinalResultsSubmission />,
+  submission_history: <SubmissionHistory />,
 };
 const ResultsSubmission = () => {
   const [activeTabKey1, setActiveTabKey1] = useState("tab1");

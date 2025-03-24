@@ -175,6 +175,8 @@ const setUpSlice = createSlice({
   },
 
   selectors: {
+    selectActiveTab: (state) => state.activeTab,
+    selectUniversityDetails: (state) => state.universityDetails,
     selectAccYrs: (state) => state.acc_yrs,
     selectSelectedEvent: (state) => state.selectedEvent,
   },
@@ -184,6 +186,7 @@ const setUpSlice = createSlice({
  * Lazy load
  * */
 rootReducer.inject(setUpSlice);
+const injectedSlice = setUpSlice.injectInto(rootReducer);
 
 export const {
   updateActiveTab,
@@ -210,7 +213,12 @@ export const {
   setSelectedEvent,
 } = setUpSlice.actions;
 
-export const { selectAccYrs, selectSelectedEvent } = setUpSlice.selectors;
+export const {
+  selectAccYrs,
+  selectSelectedEvent,
+  selectActiveTab,
+  selectUniversityDetails,
+} = injectedSlice.selectors;
 
 // export const selectUserShortcuts = ({ user }) => user.data.shortcuts;
 

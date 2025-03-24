@@ -10,7 +10,7 @@ import Levels from "./tabs/levels/Level";
 import Awards from "./tabs/awards/Awards";
 import Study_Time from "./tabs/study_time/Study_Time";
 import GeneralInformation from "./tabs/general_info/GeneralInformation";
-import { updateActiveTab } from "./store/setUpSlice";
+import { selectActiveTab, updateActiveTab } from "./store/setUpSlice";
 import AcademicYears from "./tabs/academic_yr/AcademicYears";
 import AcademicCalendar from "./tabs/academic_calendar/AcademicCalendar";
 import AppNav from "../../components/AppNav";
@@ -35,7 +35,7 @@ const Setup = React.memo(function Setup() {
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(!isMobile);
 
   const dispatch = useDispatch();
-  const activeTab = useSelector((state) => state.setUp.activeTab);
+  const activeTab = useSelector(selectActiveTab);
 
   useEffect(() => {
     setLeftSidebarOpen(!isMobile);

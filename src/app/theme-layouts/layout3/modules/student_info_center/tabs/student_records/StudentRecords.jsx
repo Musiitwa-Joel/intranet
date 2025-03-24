@@ -33,8 +33,6 @@ function StudentRecords() {
   const [rightContentWidth, setRightContentWidth] = useState(60);
   const dispatch = useDispatch();
 
-  const { selectedItem } = useSelector((state) => state.progAndCourses);
-
   const handleSearchStudent = () => {
     dispatch(setStudentSearchModalVisible(true));
   };

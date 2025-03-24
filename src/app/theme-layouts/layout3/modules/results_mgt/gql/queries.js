@@ -165,10 +165,41 @@ const LOAD_STDS_RESULTS = gql`
   }
 `;
 
+const LOAD_RESULTS_HISTORY = gql`
+  query Load_results_history($payload: ResultsHistoryInput!) {
+    load_results_history(payload: $payload) {
+      student_no
+      student_info {
+        registration_no
+        biodata {
+          surname
+          other_names
+          gender
+        }
+        course_details {
+          version_title
+        }
+      }
+      course_unit_code
+      course_unit_title
+      coursework
+      exam
+      final_mark
+      retake_count
+      credit_units
+      uploaded_by_user
+      cw_uploaded_by_user
+      cw_uploaded_at
+      date_time
+    }
+  }
+`;
+
 export {
   GET_STUDENT_MARKS,
   GET_ALL_COURSES,
   GET_RESULTS_CONFIG,
   LOAD_RESULTS,
   LOAD_STDS_RESULTS,
+  LOAD_RESULTS_HISTORY,
 };

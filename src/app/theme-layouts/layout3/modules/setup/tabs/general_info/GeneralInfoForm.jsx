@@ -18,7 +18,10 @@ import { useMutation, useQuery } from "@apollo/client";
 import { GET_UNIVERSITY_DETAILS } from "../../gql/queries";
 import { useDispatch, useSelector } from "react-redux";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
-import { updateUniversityDetails } from "../../store/setUpSlice";
+import {
+  selectUniversityDetails,
+  updateUniversityDetails,
+} from "../../store/setUpSlice";
 import { SAVE_UNIVERSITY_DETAILS } from "../../gql/mutations";
 
 const ITEM_HEIGHT = 48;
@@ -84,15 +87,12 @@ export default function GeneralInfoForm() {
       defaultValues,
       resolver: yupResolver(schema),
     });
-  const personName = watch("personName", []);
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
   const [logoPreview, setLogoPreview] = React.useState(null);
   const [faviconPreview, setFaviconPreview] = React.useState(null);
 
-  const universityDetails = useSelector(
-    (state) => state.setUp.universityDetails
-  );
+  const universityDetails = useSelector(selectUniversityDetails);
 
   const dispatch = useDispatch();
 

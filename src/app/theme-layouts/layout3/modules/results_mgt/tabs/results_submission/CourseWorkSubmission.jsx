@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   ConfigProvider,
   Divider,
   Flex,
   Input,
+  Modal,
   Splitter,
   Table,
   Tree,
@@ -16,6 +17,14 @@ import { CarryOutOutlined } from "@ant-design/icons";
 import { Box } from "@mui/material";
 import { Download } from "@mui/icons-material";
 import { url2 } from "app/configs/apiConfig";
+import UploadConfirmationModal from "../UploadConfirmationModal";
+import { useMutation } from "@apollo/client";
+import {
+  SEND_RESULTS_UPLOAD_SECURITY_CODE,
+  UPLOAD_COURSE_WORK_MARKS,
+} from "../../gql/mutations";
+import { useDispatch } from "react-redux";
+import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 
 const instructions = [
   {
@@ -165,6 +174,7 @@ const columns = [
 ];
 
 function CourseWorkSubmission() {
+  const dispatch = useDispatch();
   const [workbook, setWorkbook] = useState(null);
   const [sheetData, setSheetData] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -172,6 +182,35 @@ function CourseWorkSubmission() {
   const [loadingData, setLoadingData] = useState(false);
   const [sheetError, setError] = useState(null);
   const [selectedSheet, setSelectedSheet] = useState("");
+  const [verifyCodeModalVisible, setVerifyCodeMoodalVisible] = useState(false);
+  const [securityCode, setSecurityCode] = useState("");
+
+  const [sendResultsUploadSecurityCode, { error, loading }] = useMutation(
+    SEND_RESULTS_UPLOAD_SECURITY_CODE
+  );
+
+  const [uploadCourseWorkMarks, { error: uploadErr, loading: uploadingMarks }] =
+    useMutation(UPLOAD_COURSE_WORK_MARKS);
+
+  useEffect(() => {
+    if (error) {
+      dispatch(
+        showMessage({
+          message: error.message,
+          variant: "error",
+        })
+      );
+    }
+
+    if (uploadErr) {
+      dispatch(
+        showMessage({
+          message: uploadErr.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [error, uploadErr]);
 
   const treeData = [
     {
@@ -267,12 +306,53 @@ function CourseWorkSubmission() {
     document.body.removeChild(link);
   };
 
-  const handleUpload = () => {
-    // logic for uploading the course
+  const handleUpload = async () => {
+    // send code to user's email/sms
+    const res = await sendResultsUploadSecurityCode();
+
+    if (res.data?.sendResultsUploadVerificationCode?.success) {
+      setVerifyCodeMoodalVisible(true);
+    }
+  };
+
+  const handleConfirm = async (securityCode) => {
+    const cw_marks = sheetData
+      .filter((record) => record.error === false)
+      .map((mk) => ({
+        course_unit_code: mk.course_unit_code,
+        marks: mk.cw_marks,
+        registration_no: mk.registration_no,
+        student_no: `${mk.student_no}`,
+      }));
+
+    const payload = {
+      securityCode: parseInt(securityCode),
+      payload: cw_marks,
+    };
+
     console.log(
       "to be upload",
       sheetData.filter((record) => record.error === false)
     );
+
+    const res = await uploadCourseWorkMarks({
+      variables: payload,
+    });
+
+    if (res.data?.uploadCourseWorkMarks?.success) {
+      Modal.success({
+        content: res.data?.uploadCourseWorkMarks?.message,
+        centered: true,
+      });
+    } else {
+      Modal.error({
+        title: "Results Upload Errors",
+        content: res.data?.uploadCourseWorkMarks?.message,
+        centered: true,
+      });
+    }
+    setVerifyCodeMoodalVisible(false);
+    setSecurityCode("");
   };
 
   return (
@@ -383,7 +463,7 @@ function CourseWorkSubmission() {
               <div
                 style={{
                   padding: "5px 5px",
-                  height: "calc(100vh - 500px)",
+                  height: "calc(100vh - 520px)",
                 }}
               >
                 <Tree
@@ -436,83 +516,76 @@ function CourseWorkSubmission() {
           </div>
         </Splitter.Panel>
         <Splitter.Panel>
+          {/* Main Container */}
           <div
             style={{
-              padding: 10,
+              display: "flex",
+              flexDirection: "column",
+              height: "100%", // Ensure it takes full height
             }}
           >
-            <ConfigProvider
-              theme={{
-                components: {
-                  Table: {
-                    borderColor: "lightgray",
-                    borderRadius: 0,
-                    headerBorderRadius: 0,
+            {/* Table Container - Takes available space */}
+            <div style={{ flexGrow: 1, padding: 10, overflow: "auto" }}>
+              <ConfigProvider
+                theme={{
+                  components: {
+                    Table: {
+                      borderColor: "lightgray",
+                      borderRadius: 0,
+                      headerBorderRadius: 0,
+                    },
                   },
-                },
+                }}
+              >
+                <Table
+                  title={() => (
+                    <Typography.Title
+                      level={5}
+                      style={{ padding: 0, margin: 0 }}
+                    >
+                      Course Work Results Preview
+                    </Typography.Title>
+                  )}
+                  columns={columns}
+                  dataSource={sheetData}
+                  showHeader={true}
+                  size="small"
+                  scroll={{ y: 320 }}
+                  bordered
+                />
+              </ConfigProvider>
+            </div>
+
+            {/* Button Container - Sticks to Bottom */}
+            <div
+              style={{
+                paddingTop: 5,
+                paddingLeft: 5,
+                borderTop: "1px solid lightgray",
+                background: "#fff",
+                // textAlign: "right",
               }}
             >
-              <Table
-                // rowSelection={{
-                //   type: selectionType,
-                //   ...rowSelection,
-                // }}
-                title={() => (
-                  <Typography.Title
-                    level={5}
-                    style={{
-                      padding: 0,
-                      margin: 0,
-                    }}
-                  >
-                    Course Work Results Preview
-                  </Typography.Title>
-                )}
-                columns={columns}
-                dataSource={sheetData}
-                // pagination={false}
-                showHeader={true}
-                //  loading={loadingData}
-                // tableLayout="fixed"
-                // sticky
-                size="small"
-                // style={{
-                //   // backgroundColor: "red",
-                //   height: 300,
-                //   overflow: "scroll",
-                // }}
-                scroll={{
-                  y: 320,
-                }}
-                // footer={() => <Typography.Text>100 Records</Typography.Text>}
-                bordered
-                // scroll={{
-                //   // y: "calc(100vh - 200px)", // Set the same height as in the style to ensure content scrolls
-                //   // x: "100vw",
-
-                // }}
-              />
-            </ConfigProvider>
+              <Button
+                onClick={handleUpload}
+                disabled={
+                  sheetData.filter((record) => record.error === false)
+                    .length === 0 || loading
+                }
+                loading={loading}
+              >
+                Upload Course Work Results
+              </Button>
+            </div>
           </div>
-          <div
-            style={{
-              padding: 10,
-              position: "absolute",
-              bottom: 0,
-              borderTopColor: "lightgray",
-              borderTopWidth: 1,
-              width: "100%",
-            }}
-          >
-            <Button
-              onClick={handleUpload}
-              disabled={
-                sheetData.filter((record) => record.error === false).length == 0
-              }
-            >
-              Upload Course Work Results
-            </Button>
-          </div>
+          <UploadConfirmationModal
+            visible={verifyCodeModalVisible}
+            onConfirm={handleConfirm}
+            onCancel={() => setVerifyCodeMoodalVisible(false)}
+            loading={uploadingMarks}
+            securityCode={securityCode}
+            setSecurityCode={setSecurityCode}
+          />
         </Splitter.Panel>
       </Splitter>
     </div>

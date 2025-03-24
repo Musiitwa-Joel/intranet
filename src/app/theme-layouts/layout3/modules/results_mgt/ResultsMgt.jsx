@@ -26,7 +26,7 @@ function ResultsMgt() {
     },
     { label: "Testmonials", value: "testimonials" },
     { label: "Results Submission", value: "results_submission" },
-    { label: "Bulk Upload", value: "migration" },
+    { label: "Migration", value: "migration" },
   ];
 
   useEffect(() => {
