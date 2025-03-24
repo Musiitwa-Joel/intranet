@@ -17,7 +17,7 @@ import {
   Select,
   Collapse,
 } from "antd";
-import BioDataForm from "../add_new_employee/BioDataForm";
+import BioDataForm from "./BioDataForm";
 import { Add, Delete } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -26,11 +26,11 @@ import {
   setAddNewEmpModalVisible,
   setDesignationModalVisible,
   setDesignations,
-} from "../../store/hrSlice";
+} from "../../../store/hrSlice";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
-import { LOAD_DESIGNATIONS } from "../../gql/queries";
-import { SAVE_EMPLOYEE } from "../../gql/mutations";
+import { LOAD_DESIGNATIONS } from "../../../gql/queries";
+import { SAVE_EMPLOYEE } from "../../../gql/mutations";
 import formatDateToYYYYMMDD from "app/theme-layouts/layout3/utils/convertDateToYYMMDD";
 
 const { TextArea } = Input;
@@ -112,7 +112,7 @@ const AddNewEmployee = () => {
     saveEmployee,
     { error: saveErr, loading: savingEmployee, data: saveRes },
   ] = useMutation(SAVE_EMPLOYEE, {
-    refetchQueries: ["loadEmployees"],
+    refetchQueries: ["AllEmployees"],
   });
 
   useEffect(() => {

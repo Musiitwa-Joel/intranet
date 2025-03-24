@@ -25,6 +25,72 @@ const LOAD_EMPLOYEES = gql`
   }
 `;
 
+const LOAD_ALL_EMPLOYEES = gql`
+  query AllEmployees {
+    employees {
+      id
+      salutation_id
+      salutation
+      surname
+      other_names
+      staff_id
+      email
+      joining_date
+      telno
+      school {
+        departments {
+          dpt_head_id
+          dpt_code
+          dpt_title
+        }
+      }
+      religion
+      gender
+      status
+      salary
+      date_of_birth
+      marital_status
+      medical_condition
+      emergency_contact
+      disability
+      illnesses
+      mother_deceased
+      mothers_email
+      mothers_name
+      mothers_nin
+      mothers_telno
+      father_deceased
+      fathers_email
+      nationality
+      fathers_name
+      fathers_nin
+      fathers_telno
+      next_of_kin {
+        id
+        name
+        email
+        relation
+        telno
+      }
+      college {
+        id
+        college_code
+        college_title
+      }
+      employees_education_info {
+        id
+        employee_id
+        institution
+        start_date
+        end_date
+        award_obtained
+        award_duration
+        grade
+      }
+    }
+  }
+`;
+
 const LOAD_EMPLOYEE_DETAILS = gql`
   query Employee($employeeId: ID!) {
     employee(id: $employeeId) {
@@ -36,22 +102,17 @@ const LOAD_EMPLOYEE_DETAILS = gql`
       staff_id
       email
       nin
+      nssf_no
       gender
       status
-      nationality_id
+      nationality
       address
       telno
+      joining_date
       religion
+      salary
       date_of_birth
       marital_status
-      next_of_kin {
-        id
-        name
-        email
-        address
-        relation
-        telno
-      }
       medical_condition
       emergency_contact
       illnesses
@@ -71,6 +132,28 @@ const LOAD_EMPLOYEE_DETAILS = gql`
         name
         approver_type
         approver_id
+      }
+      college {
+        id
+        college_code
+        college_title
+      }
+      school {
+        departments {
+          dpt_head_id
+          dpt_code
+          dpt_title
+        }
+      }
+      employees_education_info {
+        id
+        employee_id
+        institution
+        start_date
+        end_date
+        award_obtained
+        award_duration
+        grade
       }
     }
   }
@@ -155,6 +238,7 @@ export {
   LOAD_DESIGNATIONS,
   LOAD_EMPLOYEES,
   LOAD_EMPLOYEE_DETAILS,
+  LOAD_ALL_EMPLOYEES,
   LOAD_EVALUATION_TEMPLATES,
   LOAD_EVALUATION_TEMPLATE_QNS,
   LOAD_PERFORMANCE_REVIEWS,

@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Input,
   Tabs,
@@ -12,8 +11,8 @@ import {
   Select,
   Button,
   Modal,
-  Upload,
   Form,
+  Skeleton,
 } from "antd";
 import {
   Filter,
@@ -31,270 +30,37 @@ import {
   Plus,
   Share,
   CloudUpload,
-  FileSignature,
+  AlertCircle,
 } from "lucide-react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import AddEmployeeModal from "./add-employee-modal";
+import AddEmployeeModal from "./add_new_employee/AddNewEmployee";
 import InviteEmployeeModal from "./invite-employee-modal";
 import Qualifications from "./qualifications";
-import WorkHistory from "./work_history";
-import Skills from "./skills";
 import Education from "./education";
-import Certifications from "./certifications";
 import FilterEmployeesModal from "./filter-employees-modal";
 import Dependents from "./dependents";
-import Contacts from "./contacts";
 import { Card } from "@mui/material";
-// import { calc } from "antd/es/theme/internal";
+import { useQuery, gql } from "@apollo/client";
+import { useDispatch, useSelector } from "react-redux";
+import hasPermission from "src/utils/hasPermission";
+import { selectUserPermissions } from "app/store/userSlice";
+import { LOAD_ALL_EMPLOYEES, LOAD_EMPLOYEE_DETAILS } from "../../gql/queries";
+
+import {
+  selectDesignationModalVisible,
+  selectEmployeesViewLayout,
+  selectViewEmployeeDetails,
+  setAddNewEmpModalVisible,
+  setEmployees,
+  setEmployeesViewLayout,
+  setUploadEmpModalVisible,
+} from "../../store/hrSlice";
 
 const { Text, Title } = Typography;
 
 const EmployeeManagement = () => {
+  const dispatch = useDispatch();
   const [form] = Form.useForm();
-  const [employees, setEmployees] = useState([
-    {
-      id: "1",
-      initials:
-        "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100121",
-      name: "Musiitwa Joel",
-      title: "Chief Executive Officer",
-      company: "Nkumba University",
-      phone: "0706-953-457",
-      email: "managerbollz@gmail.com",
-      employeeNumber: "EMP001",
-      dob: "1984-03-17",
-      gender: "Male",
-      nationality: "UGANDAN",
-      maritalStatus: "Married",
-      joinedDate: "2018-01-01",
-      timezone: "Europe/London",
-      accessLevel: "Admin",
-      identification: {
-        nationalId: "294-38-3535",
-        socialInsurance: "",
-        personalTaxId: "",
-        healthInsurance: "",
-        additionalIds: "294-38-3535",
-        drivingLicense: "",
-      },
-      contact: {
-        address: "2772 Flynn Street, Willoughby",
-        city: "Willoughby",
-        country: "United States",
-        postalCode: "44094",
-        homePhone: "440-953-4578",
-        workPhone: "440-953-4578",
-        privateEmail: "hrm+admin@web-stalk.com",
-      },
-      jobDetails: {
-        jobTitle: "Chief Executive Officer",
-        employmentStatus: "Full Time Permanent",
-        department: "Computing",
-        manager: "Musiitwa Joel",
-      },
-      personalInfo: {
-        dateOfBirth: "1984-03-17",
-        gender: "Male",
-        nationality: "Canadian",
-        maritalStatus: "Married",
-        joinedDate: "2005-08-03",
-      },
-    },
-    {
-      id: "2",
-      initials:
-        "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100539",
-      name: "Tasha Desire",
-      title: "Software Engineer",
-      company: "Nkumba University",
-      phone: "0772-953-129",
-      email: "tasha@example.com",
-      employeeNumber: "NUA3346",
-      dob: "1984-03-17",
-      gender: "Male",
-      nationality: "UGANDAN",
-      maritalStatus: "Married",
-      joinedDate: "2018-01-01",
-      timezone: "Europe/London",
-      accessLevel: "Employee",
-      identification: {
-        nationalId: "294-38-3536",
-        socialInsurance: "NSSF099772",
-        personalTaxId: "CM987436u67837536",
-        healthInsurance: "APA234678",
-        additionalIds: "294-38-3536",
-        drivingLicense: "UILG667YUJ899",
-      },
-      contact: {
-        address: "123 Main Street",
-        city: "Cleveland",
-        country: "United States",
-        postalCode: "44101",
-        homePhone: "440-953-1234",
-        workPhone: "440-953-1234",
-        privateEmail: "tasha@example.com",
-      },
-      jobDetails: {
-        jobTitle: "Software Engineer",
-        employmentStatus: "Full Time",
-        department: "Engineering",
-        manager: "Muwanga Christopher",
-      },
-      personalInfo: {
-        dateOfBirth: "1990-05-15",
-        gender: "Female",
-        nationality: "American",
-        maritalStatus: "Single",
-        joinedDate: "2020-01-15",
-      },
-    },
-    {
-      id: "3",
-      initials:
-        "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100125",
-      name: "Kato Michael",
-      title: "Network Administrator",
-      company: "Nkumba University",
-      phone: "0789-654-321",
-      email: "kato.michael@example.com",
-      employeeNumber: "NUA5678",
-      dob: "1987-08-21",
-      gender: "Male",
-      nationality: "UGANDAN",
-      maritalStatus: "Single",
-      joinedDate: "2016-05-10",
-      timezone: "Africa/Kampala",
-      accessLevel: "Employee",
-      identification: {
-        nationalId: "301-45-6789",
-        socialInsurance: "NSSF123456",
-        personalTaxId: "CM123456789",
-        healthInsurance: "JUB345678",
-        additionalIds: "301-45-6789",
-        drivingLicense: "UAL123XYZ567",
-      },
-      contact: {
-        address: "Plot 25 Kampala Road",
-        city: "Kampala",
-        country: "Uganda",
-        postalCode: "256",
-        homePhone: "0392-123-456",
-        workPhone: "0312-789-012",
-        privateEmail: "kato.michael@example.com",
-      },
-      jobDetails: {
-        jobTitle: "Network Administrator",
-        employmentStatus: "Full Time",
-        department: "IT Services",
-        manager: "Nalubega Sarah",
-      },
-      personalInfo: {
-        dateOfBirth: "1987-08-21",
-        gender: "Male",
-        nationality: "Ugandan",
-        maritalStatus: "Single",
-        joinedDate: "2016-05-10",
-      },
-    },
-    {
-      id: "4",
-      initials:
-        "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000100128",
-      name: "Namakula Sharon",
-      title: "Human Resource Officer",
-      company: "Nkumba University",
-      phone: "0753-987-654",
-      email: "namakula.sharon@example.com",
-      employeeNumber: "NUA7890",
-      dob: "1992-12-05",
-      gender: "Female",
-      nationality: "UGANDAN",
-      maritalStatus: "Married",
-      joinedDate: "2019-08-01",
-      timezone: "Africa/Kampala",
-      accessLevel: "Employee",
-      identification: {
-        nationalId: "401-98-7654",
-        socialInsurance: "NSSF543210",
-        personalTaxId: "CM543210987",
-        healthInsurance: "AAR567890",
-        additionalIds: "401-98-7654",
-        drivingLicense: "UAJ456YUI789",
-      },
-      contact: {
-        address: "10 Jinja Road",
-        city: "Entebbe",
-        country: "Uganda",
-        postalCode: "256",
-        homePhone: "0417-654-321",
-        workPhone: "0417-789-456",
-        privateEmail: "namakula.sharon@example.com",
-      },
-      jobDetails: {
-        jobTitle: "Human Resource Officer",
-        employmentStatus: "Full Time",
-        department: "Human Resources",
-        manager: "Mugisha Paul",
-      },
-      personalInfo: {
-        dateOfBirth: "1992-12-05",
-        gender: "Female",
-        nationality: "Ugandan",
-        maritalStatus: "Married",
-        joinedDate: "2019-08-01",
-      },
-    },
-    {
-      id: "5",
-      initials:
-        "https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=2000101236",
-      name: "Mugisha William",
-      title: "Finance Manager",
-      company: "Nkumba University",
-      phone: "0701-234-567",
-      email: "mugisha.william@example.com",
-      employeeNumber: "NUA4567",
-      dob: "1980-04-12",
-      gender: "Male",
-      nationality: "UGANDAN",
-      maritalStatus: "Married",
-      joinedDate: "2010-09-15",
-      timezone: "Africa/Kampala",
-      accessLevel: "Manager",
-      identification: {
-        nationalId: "502-76-5432",
-        socialInsurance: "NSSF765432",
-        personalTaxId: "CM876543210",
-        healthInsurance: "SAN890123",
-        additionalIds: "502-76-5432",
-        drivingLicense: "UAP789WQR456",
-      },
-      contact: {
-        address: "45 Namirembe Road",
-        city: "Kampala",
-        country: "Uganda",
-        postalCode: "256",
-        homePhone: "0414-890-123",
-        workPhone: "0414-123-890",
-        privateEmail: "mugisha.william@example.com",
-      },
-      jobDetails: {
-        jobTitle: "Finance Manager",
-        employmentStatus: "Full Time",
-        department: "Finance",
-        manager: "Nakato Christine",
-      },
-      personalInfo: {
-        dateOfBirth: "1980-04-12",
-        gender: "Male",
-        nationality: "Ugandan",
-        maritalStatus: "Married",
-        joinedDate: "2010-09-15",
-      },
-    },
-  ]);
-
-  const [selectedEmployee, setSelectedEmployee] = useState(employees[0]);
   const [searchText, setSearchText] = useState("");
   const [addEmployeeVisible, setAddEmployeeVisible] = useState(false);
   const [inviteEmployeeVisible, setInviteEmployeeVisible] = useState(false);
@@ -302,176 +68,208 @@ const EmployeeManagement = () => {
   const [activeTab, setActiveTab] = useState("basic");
   const [employeePhoto, setEmployeePhoto] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
+  const [transformedEmployees, setTransformedEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalEmployees, setTotalEmployees] = useState(0);
+  const userPermissions = useSelector(selectUserPermissions);
+  const can_add_employees = hasPermission(userPermissions, "can_add_employees");
+  const can_upload_employees = hasPermission(
+    userPermissions,
+    "can_upload_employees"
+  );
+  const formatDate = (timestamp) => {
+    if (!timestamp || timestamp === "NOT PROVIDED") return "NOT PROVIDED";
+    try {
+      const date = new Date(parseInt(timestamp));
+      if (isNaN(date.getTime())) return "NOT PROVIDED";
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (error) {
+      return "NOT PROVIDED";
+    }
+  };
+  // Fetch all employees for the list
+  const {
+    loading: allEmployeesLoading,
+    error: allEmployeesError,
+    data: allEmployeesData,
+  } = useQuery(LOAD_ALL_EMPLOYEES);
+
+  const {
+    loading: selectedEmployeeLoading,
+    error: selectedEmployeeError,
+    data: selectedEmployeeData,
+  } = useQuery(LOAD_EMPLOYEE_DETAILS, {
+    variables: { employeeId: selectedEmployeeId || "" },
+    skip: !selectedEmployeeId, // Skip this query if no employee is selected
+  });
+
+  // Transform GraphQL employee data to the format needed by the UI
+  const transformEmployeeData = (employee) => {
+    if (!employee) return null;
+
+    const fullName =
+      `${employee.salutation || ""} ${employee.surname || ""} ${employee.other_names || ""}`.trim();
+
+    // Create image URL from staff_id
+    const imageUrl = employee.staff_id
+      ? `http://199.241.139.118:9000/api/lecturer/image/${employee.staff_id}`
+      : "";
+
+    return {
+      id: employee.id,
+      initials:
+        imageUrl ||
+        `${employee.surname?.[0] || ""}${employee.other_names?.[0] || ""}`,
+      name: fullName || "NOT PROVIDED",
+      title: "Lecturer",
+
+      company: employee.college.college_title,
+      phone: employee.telno || "NOT PROVIDED",
+      religion: employee.religion || "NOT PROVIDED",
+      email: employee.email || "NOT PROVIDED",
+      employeeNumber: employee.staff_id || "NOT PROVIDED",
+      dob: employee.date_of_birth || "NOT PROVIDED",
+      gender: employee.gender || "NOT PROVIDED",
+      nationality: employee.nationality || "NOT PROVIDED", // Default
+      maritalStatus: employee.marital_status || "NOT PROVIDED",
+      joinedDate: employee.joining_date || "NOT PROVIDED", // Add to your GraphQL query if available
+      timezone: "Africa/Kampala", // Default timezone
+      accessLevel: "Employee", // Default access level
+
+      identification: {
+        nationalId: employee.nin || "NOT PROVIDED",
+        socialInsurance: employee.nssf_no || "NOT PROVIDED",
+        religion: employee.religion || "NOT PROVIDED",
+        healthInsurance: "NOT PROVIDED",
+        additionalIds: "NOT PROVIDED",
+        drivingLicense: "NOT PROVIDED",
+      },
+      contact: {
+        address: employee.address || "NOT PROVIDED",
+        city: "NOT PROVIDED",
+        country: "Uganda",
+        postalCode: "NOT PROVIDED",
+        homePhone: employee.telno || "NOT PROVIDED",
+        workPhone: "NOT PROVIDED",
+        privateEmail: employee.email || "NOT PROVIDED",
+      },
+      jobDetails: {
+        jobTitle: "Lecturer", // Default
+        employmentStatus: employee.status || "NOT PROVIDED",
+
+        department: employee.school?.departments?.length
+          ? `${employee.school.departments[0].dpt_title} (${employee.school.departments[0].dpt_code})`
+          : "NOT PROVIDED",
+        manager: "NOT PROVIDED",
+      },
+      personalInfo: {
+        dateOfBirth: employee.date_of_birth || "NOT PROVIDED",
+        gender: employee.gender || "NOT PROVIDED",
+        nationality: "UGANDAN",
+        maritalStatus: employee.marital_status || "NOT PROVIDED",
+        joinedDate: "NOT PROVIDED",
+      },
+
+      // Store all original data for debugging
+      originalData: { ...employee },
+    };
+  };
+
+  // Process all employees data
+  useEffect(() => {
+    if (allEmployeesData) {
+      console.log("All employees data:", allEmployeesData);
+
+      // Check if we have employee data and how it's structured
+      if (allEmployeesData.employees) {
+        const employeeList = allEmployeesData.employees;
+        console.log("Employee list extracted:", employeeList);
+
+        // Transform the employees
+        const transformed = employeeList
+          .filter((emp) => emp) // Filter out null/undefined
+          .map(transformEmployeeData);
+
+        console.log("Transformed employees:", transformed);
+        setTransformedEmployees(transformed);
+        setTotalEmployees(transformed.length); // Set total count for pagination
+
+        // Set the first employee as selected if none is selected
+        if (!selectedEmployee && transformed.length > 0) {
+          setSelectedEmployee(transformed[0]);
+          setSelectedEmployeeId(transformed[0].id);
+        }
+      } else {
+        console.warn("No employee data found in the GraphQL response");
+      }
+    }
+  }, [allEmployeesData, selectedEmployee]);
+
+  // Process selected employee data
+  useEffect(() => {
+    if (selectedEmployeeId && selectedEmployeeData) {
+      console.log("Selected employee data:", selectedEmployeeData);
+
+      if (selectedEmployeeData.employee) {
+        const transformed = transformEmployeeData(
+          selectedEmployeeData.employee
+        );
+        console.log("Transformed selected employee:", transformed);
+        setSelectedEmployee(transformed);
+      }
+    }
+  }, [selectedEmployeeData, selectedEmployeeId]);
 
   const handleCopy = () => {
     message.success("Copied to clipboard");
   };
 
-  const handleAddEmployee = useCallback(async () => {
-    try {
-      console.log("Received employeeData:", employeeData);
-      if (!employeeData.firstName || !employeeData.lastName) {
-        console.error("Missing required fields:", {
-          firstName: employeeData.firstName,
-          lastName: employeeData.lastName,
-        });
-        throw new Error("First name and last name are required");
-      }
-      const newEmployee = {
-        id: isEditing ? selectedEmployee.id : (employees.length + 1).toString(),
-        initials: `${employeeData.firstName.charAt(
-          0
-        )}${employeeData.lastName.charAt(0)}`,
-        name: `${employeeData.firstName} ${employeeData.lastName}`,
-        title: employeeData.jobTitle || "",
-        company: "Nkumba University",
-        phone: employeeData.mobilePhone || employeeData.homePhone || "",
-        email: employeeData.workEmail || employeeData.privateEmail || "",
-        employeeNumber: employeeData.employeeNumber || "",
-        dob: employeeData.dateOfBirth || "",
-        gender: employeeData.gender || "",
-        nationality: employeeData.nationality || "",
-        maritalStatus: employeeData.maritalStatus || "",
-        joinedDate: employeeData.joinedDate || "",
-        timezone: employeeData.timezone || "",
-        accessLevel: isEditing ? selectedEmployee.accessLevel : "Employee",
-        identification: {
-          nationalId: employeeData.nationalId || "",
-          socialInsurance: employeeData.socialInsurance || "",
-          personalTaxId: employeeData.personalTaxId || "",
-          healthInsurance: employeeData.healthInsurance || "",
-          additionalIds: employeeData.additionalIds || "",
-          drivingLicense: employeeData.drivingLicense || "",
-          immigrationStatus: employeeData.immigrationStatus || "",
-        },
-        contact: {
-          address: employeeData.addressLine1 || "",
-          addressLine1: employeeData.addressLine1 || "",
-          addressLine2: employeeData.addressLine2 || "",
-          city: employeeData.city || "",
-          country: employeeData.country || "",
-          province: employeeData.province || "",
-          postalCode: employeeData.postalCode || "",
-          homePhone: employeeData.homePhone || "",
-          mobilePhone: employeeData.mobilePhone || "",
-          workPhone: employeeData.workPhone || "",
-          workEmail: employeeData.workEmail || "",
-          privateEmail: employeeData.privateEmail || "",
-        },
-        jobDetails: {
-          jobTitle: employeeData.jobTitle || "",
-          employmentStatus: employeeData.employmentStatus || "",
-          department: employeeData.department || "",
-          payGrade: employeeData.payGrade || "",
-          confirmationDate: employeeData.confirmationDate || "",
-          terminationDate: employeeData.terminationDate || "",
-          workStationId: employeeData.workStationId || "",
-          manager: employeeData.manager || "",
-          indirectManagers: employeeData.indirectManagers || [],
-          firstLevelApprover: employeeData.firstLevelApprover || "",
-          secondLevelApprover: employeeData.secondLevelApprover || "",
-          thirdLevelApprover: employeeData.thirdLevelApprover || "",
-        },
-        personalInfo: {
-          dateOfBirth: employeeData.dateOfBirth || "",
-          gender: employeeData.gender || "",
-          nationality: employeeData.nationality || "",
-          maritalStatus: employeeData.maritalStatus || "",
-          joinedDate: employeeData.joinedDate || "",
-        },
-      };
-
-      setEmployees((prevEmployees) => {
-        if (isEditing) {
-          return prevEmployees.map((emp) =>
-            emp.id === selectedEmployee.id ? newEmployee : emp
-          );
-        } else {
-          return [...prevEmployees, newEmployee];
+  const handleAddEmployee = useCallback(
+    async (employeeData) => {
+      try {
+        // console.log("Received employeeData:", employeeData);
+        if (!employeeData.firstName || !employeeData.lastName) {
+          console.error("Missing required fields:", {
+            firstName: employeeData.firstName,
+            lastName: employeeData.lastName,
+          });
+          throw new Error("First name and last name are required");
         }
-      });
 
-      setSelectedEmployee(newEmployee);
-      setAddEmployeeVisible(false);
-      setIsEditing(false);
-      message.success(
-        isEditing
-          ? "Employee updated successfully"
-          : "Employee added successfully"
-      );
-      if (!newEmployee.initials.startsWith("http")) {
-        newEmployee.initials = `${employeeData.firstName.charAt(0)}${employeeData.lastName.charAt(0)}`;
+        // Implementation for adding employee would go here
+        // This would typically involve a GraphQL mutation
+
+        message.success(
+          isEditing
+            ? "Employee updated successfully"
+            : "Employee added successfully"
+        );
+        setAddEmployeeVisible(false);
+        setIsEditing(false);
+      } catch (error) {
+        console.error("Error in handleAddEmployee:", error);
+        message.error(error.message || "Failed to add/update employee");
       }
-    } catch (error) {
-      console.error("Error in handleAddEmployee:", error);
-      message.error(error.message || "Failed to add/update employee");
-    }
-  }, [employees.length, selectedEmployee]);
+    },
+    [isEditing]
+  );
 
-  const handleInviteEmployee = async () => {
-    const newEmployee = {
-      id: (employees.length + 1).toString(),
-      initials: `${inviteData.firstName.charAt(0)}${inviteData.lastName.charAt(
-        0
-      )}`,
-      name: `${inviteData.firstName} ${inviteData.lastName}`,
-      title: inviteData.jobTitle || "New Employee",
-      company: "Nkumba University",
-      phone: "",
-      email: inviteData.email,
-      employeeNumber: inviteData.employeeNumber,
-      dob: "",
-      gender: "",
-      nationality: "",
-      maritalStatus: "",
-      joinedDate: inviteData.joinedDate || "",
-      timezone: inviteData.timezone || "UTC",
-      accessLevel: inviteData.userLevel || "Employee",
-      identification: {
-        nationalId: "",
-        socialInsurance: "",
-        personalTaxId: "",
-        healthInsurance: "",
-        additionalIds: "",
-        drivingLicense: "",
-      },
-      contact: {
-        address: "",
-        city: "",
-        country: inviteData.country,
-        postalCode: "",
-        homePhone: "",
-        workPhone: "",
-        privateEmail: inviteData.email,
-      },
-      jobDetails: {
-        jobTitle: inviteData.jobTitle || "",
-        employmentStatus: inviteData.employmentStatus || "",
-        department: inviteData.department || "",
-        payGrade: inviteData.payGrade || "",
-        manager: inviteData.directManager || "",
-      },
-      personalInfo: {
-        dateOfBirth: "",
-        gender: "",
-        nationality: "",
-        maritalStatus: "",
-        joinedDate: inviteData.joinedDate || "",
-      },
-    };
-
-    setEmployees((prevEmployees) => [...prevEmployees, newEmployee]);
-    setSelectedEmployee(newEmployee);
+  const handleInviteEmployee = async (inviteData) => {
+    // Implementation for inviting employee would go here
+    message.success("Invitation sent successfully");
+    setInviteEmployeeVisible(false);
   };
 
   const handleUploadPhoto = (info) => {
     if (info.file.status === "done") {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setEmployeePhoto();
-        message.success("Photo uploaded successfully");
-      };
-      reader.readAsDataURL();
+      message.success("Photo uploaded successfully");
     }
   };
 
@@ -488,9 +286,9 @@ const EmployeeManagement = () => {
   const handleDeactivate = () => {
     Modal.confirm({
       title: "Deactivate Employee",
-      content: `Are you sure you want to deactivate ${selectedEmployee.name}?`,
+      content: `Are you sure you want to deactivate ${selectedEmployee?.name}?`,
       onOk() {
-        message.success(`${selectedEmployee.name} has been deactivated`);
+        message.success(`${selectedEmployee?.name} has been deactivated`);
       },
     });
   };
@@ -500,7 +298,7 @@ const EmployeeManagement = () => {
       <Text type="secondary">{label}</Text>
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
         {value}
-        {value && (
+        {value && value !== "NOT PROVIDED" && (
           <CopyToClipboard text={value} onCopy={() => handleCopy(value)}>
             <Copy size={14} style={{ cursor: "pointer", color: "#1890ff" }} />
           </CopyToClipboard>
@@ -527,7 +325,7 @@ const EmployeeManagement = () => {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "4px", // Adds spacing between icon and text
+            gap: "4px",
             fontSize: "8px",
             padding: "2px 6px",
             height: "auto",
@@ -545,13 +343,20 @@ const EmployeeManagement = () => {
   );
 
   const currentTime = new Date();
-  const formattedTime = `${currentTime.getFullYear()} Feb ${currentTime.getDate()} : ${currentTime
+  const formattedTime = `${currentTime.getFullYear()} ${currentTime.toLocaleString("default", { month: "short" })} ${currentTime.getDate()} : ${currentTime
     .getHours()
     .toString()
     .padStart(2, "0")}:${currentTime.getMinutes().toString().padStart(2, "0")}`;
 
-  const filteredEmployees = employees.filter((employee) =>
-    employee.name.toLowerCase().includes(searchText.toLowerCase())
+  // Filter employees based on search text
+  const filteredEmployees = transformedEmployees.filter((employee) =>
+    employee?.name?.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  // Apply pagination to the filtered employees
+  const paginatedEmployees = filteredEmployees.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
   );
 
   return (
@@ -566,16 +371,15 @@ const EmployeeManagement = () => {
         >
           Invite an Employee
         </Button>
-        <Button
-          size="small"
-          icon={<Plus size={12} />}
-          onClick={() => {
-            setIsEditing(false);
-            setAddEmployeeVisible(true);
-          }}
-        >
-          Add a New Employee
-        </Button>
+        {can_add_employees && (
+          <Button
+            size="small"
+            icon={<Plus size={12} />}
+            onClick={() => dispatch(setAddNewEmpModalVisible(true))}
+          >
+            Add a New Employee
+          </Button>
+        )}
         <Button
           size="small"
           icon={<Filter size={12} />}
@@ -616,38 +420,82 @@ const EmployeeManagement = () => {
               />
             </div>
 
-            <List
-              size="small"
-              dataSource={filteredEmployees}
-              renderItem={(employee) => (
-                <List.Item
-                  style={{
-                    padding: "5px",
-                    cursor: "pointer",
-                    backgroundColor:
-                      employee.id === selectedEmployee.id
-                        ? "#f0f0f0"
-                        : "transparent",
-                  }}
-                  onClick={() => setSelectedEmployee(employee)}
-                >
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar
-                        src={employee.initials}
-                        style={{
-                          backgroundColor:
-                            employee.id === "1" ? "#e74c3c" : "#e67e22",
-                          verticalAlign: "middle",
-                        }}
-                      />
-                    }
-                    title={employee.name}
-                    description={`${employee.company} | ${employee.title}`}
-                  />
-                </List.Item>
-              )}
-            />
+            {allEmployeesLoading ? (
+              // Skeleton loading for employee list
+              <div>
+                {[1, 2, 3, 4, 5].map((item) => (
+                  <div key={item} style={{ padding: "10px" }}>
+                    <Skeleton.Avatar
+                      active
+                      size="small"
+                      style={{ marginRight: 8 }}
+                    />
+                    <Skeleton.Input
+                      active
+                      size="small"
+                      style={{ width: 200 }}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : allEmployeesError ? (
+              <div style={{ padding: 10, textAlign: "center" }}>
+                <Text type="danger">Error: {allEmployeesError.message}</Text>
+              </div>
+            ) : (
+              <List
+                size="small"
+                dataSource={paginatedEmployees}
+                renderItem={(employee) => (
+                  <List.Item
+                    style={{
+                      padding: "5px",
+                      cursor: "pointer",
+                      backgroundColor:
+                        employee.id === selectedEmployee?.id
+                          ? "#f0f0f0"
+                          : "transparent",
+                    }}
+                    onClick={() => {
+                      setSelectedEmployee(employee);
+                      setSelectedEmployeeId(employee.id);
+                    }}
+                  >
+                    <List.Item.Meta
+                      avatar={
+                        <Avatar
+                          src={
+                            typeof employee.initials === "string" &&
+                            employee.initials.startsWith("http")
+                              ? employee.initials
+                              : undefined
+                          }
+                          style={{
+                            backgroundColor: "#e74c3c",
+                            verticalAlign: "middle",
+                          }}
+                        >
+                          {typeof employee.initials !== "string" ||
+                          !employee.initials.startsWith("http")
+                            ? employee.name.charAt(0)
+                            : null}
+                        </Avatar>
+                      }
+                      title={employee.name}
+                      description={`${employee.company} | ${employee.title}`}
+                    />
+                  </List.Item>
+                )}
+              />
+            )}
+
+            {filteredEmployees.length === 0 && !allEmployeesLoading && (
+              <div style={{ padding: 10, textAlign: "center" }}>
+                <Text type="secondary">
+                  No employees found. Check your GraphQL query.
+                </Text>
+              </div>
+            )}
 
             {/* Pagination */}
             <div
@@ -658,20 +506,42 @@ const EmployeeManagement = () => {
                 gap: "8px",
               }}
             >
-              <Tag>{"<"}</Tag>
-              <Tag color="blue">1</Tag>
-              <Tag>{">"}</Tag>
-              <Select size="small" defaultValue="10" style={{ width: "120px" }}>
-                <Select.Option value="10">10 / page</Select.Option>
-                <Select.Option value="20">20 / page</Select.Option>
-                <Select.Option value="50">50 / page</Select.Option>
+              <Button
+                type="text"
+                size="small"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              >
+                {"<"}
+              </Button>
+              <Tag color="blue">{currentPage}</Tag>
+              <Button
+                type="text"
+                size="small"
+                disabled={currentPage * pageSize >= totalEmployees}
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+              >
+                {">"}
+              </Button>
+              <Select
+                size="small"
+                value={pageSize}
+                onChange={(value) => {
+                  setPageSize(value);
+                  setCurrentPage(1); // Reset to first page when changing page size
+                }}
+                style={{ width: "120px" }}
+              >
+                <Select.Option value={5}>5 / page</Select.Option>
+                <Select.Option value={10}>10 / page</Select.Option>
+                <Select.Option value={20}>20 / page</Select.Option>
+                <Select.Option value={50}>50 / page</Select.Option>
               </Select>
             </div>
           </div>
         </Card>
 
         {/* Right Side - Employee Details */}
-
         <div
           style={{
             flex: 1,
@@ -679,446 +549,537 @@ const EmployeeManagement = () => {
             overflowY: "scroll",
           }}
         >
-          {/* Action Tags */}
+          {selectedEmployeeLoading ? (
+            // Skeleton loading for employee details
+            <div style={{ padding: 20 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: 8,
+                  marginBottom: 20,
+                }}
+              >
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Skeleton.Button
+                    active
+                    key={i}
+                    size="small"
+                    style={{ width: 80 }}
+                  />
+                ))}
+              </div>
 
-          {/* Employee Profile */}
+              <div style={{ display: "flex", gap: 20, marginBottom: 30 }}>
+                <Skeleton.Avatar active size={100} shape="circle" />
+                <div style={{ flex: 1 }}>
+                  <Skeleton.Input
+                    active
+                    size="large"
+                    style={{ width: 300, marginBottom: 20 }}
+                  />
+                  <Skeleton active paragraph={{ rows: 4 }} />
+                </div>
+              </div>
 
-          <Card
-            style={{
-              backgroundColor: "white",
-              borderRadius: 0,
-              padding: 10,
-            }}
-          >
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: 400, marginBottom: 20 }}
+              />
+
+              <div style={{ marginTop: 20 }}>
+                <Skeleton.Input
+                  active
+                  size="small"
+                  style={{ width: 200, marginBottom: 10 }}
+                />
+                <Skeleton active paragraph={{ rows: 3 }} />
+              </div>
+
+              <div style={{ marginTop: 20 }}>
+                <Skeleton.Input
+                  active
+                  size="small"
+                  style={{ width: 200, marginBottom: 10 }}
+                />
+                <Skeleton active paragraph={{ rows: 3 }} />
+              </div>
+            </div>
+          ) : selectedEmployeeError ? (
             <div
               style={{
                 display: "flex",
-                justifyContent: "flex-end",
-                gap: "8px",
-                marginBottom: "24px",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+                flexDirection: "column",
+                gap: "16px",
               }}
             >
-              <Upload
-                accept="image/*"
-                showUploadList={false}
-                customRequest={() => {
-                  setTimeout(() => {
-                    onSuccess("ok");
-                  }, 0);
+              <AlertCircle size={48} color="red" />
+              <Title level={3}>Error loading employee details</Title>
+              <Text>{selectedEmployeeError.message}</Text>
+            </div>
+          ) : selectedEmployee ? (
+            <>
+              {/* Employee Profile Card */}
+              <Card
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: 0,
+                  padding: 10,
                 }}
-                onChange={handleUploadPhoto}
               >
-                <Button
-                  type="default"
-                  size="small"
-                  icon={<CloudUpload size={10} />}
+                <div
                   style={{
-                    fontSize: "10px",
-                    padding: "1px 4px",
-                    height: "20px",
-                    lineHeight: "normal",
-                    borderColor: "#13c2c2",
-                    color: "#13c2c2",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: "8px",
+                    marginBottom: "24px",
                   }}
                 >
-                  Upload Photo
-                </Button>
-              </Upload>
+                  <Button
+                    type="default"
+                    size="small"
+                    icon={<CloudUpload size={10} />}
+                    style={{
+                      fontSize: "10px",
+                      padding: "1px 4px",
+                      height: "20px",
+                      lineHeight: "normal",
+                      borderColor: "#13c2c2",
+                      color: "#13c2c2",
+                    }}
+                  >
+                    Upload Photo
+                  </Button>
 
-              <Button
-                color="danger"
-                variant="outlined"
-                size="small"
-                icon={<Trash2 size={10} />}
-                style={{
-                  fontSize: "10px",
-                  padding: "1px 4px",
-                  height: "20px",
-                  lineHeight: "normal",
-                  borderColor: "red",
-                  color: "red",
-                }}
-                onClick={handleRemovePhoto}
-              >
-                Remove Photo
-              </Button>
-              <Button
-                color="green"
-                variant="outlined"
-                size="small"
-                icon={<Edit2 size={10} />}
-                style={{
-                  fontSize: "10px",
-                  padding: "1px 4px",
-                  height: "20px",
-                  lineHeight: "normal",
-                  borderColor: "green",
-                  color: "green",
-                }}
-                onClick={handleEdit}
-              >
-                Edit
-              </Button>
-              <Button
-                color="danger"
-                variant="dashed"
-                size="small"
-                icon={<XCircle size={10} />}
-                style={{
-                  fontSize: "10px",
-                  padding: "1px 4px",
-                  height: "20px",
-                  lineHeight: "normal",
-                  borderColor: "red",
-                  color: "red",
-                }}
-                onClick={handleDeactivate}
-              >
-                Deactivate
-              </Button>
-              <Button
-                color="purple"
-                variant="outlined"
-                size="small"
-                icon={<Copy size={10} />}
-                style={{
-                  fontSize: "10px",
-                  padding: "1px 4px",
-                  height: "20px",
-                  lineHeight: "normal",
-                  borderColor: "purple",
-                  color: "purple",
-                }}
-                onClick={() => {
-                  const employeeData = {
-                    ...selectedEmployee,
-                    id: (employees.length + 1).toString(),
-                    employeeNumber: `EMP${(employees.length + 1)
-                      .toString()
-                      .padStart(3, "0")}`,
-                  };
-                  setAddEmployeeVisible(true);
-                  setIsEditing(false);
-                  form.setFieldsValue(employeeData);
-                  message.success(
-                    "Employee data copied. You can now edit and save as a new employee."
-                  );
-                }}
-              >
-                Copy
-              </Button>
-            </div>
-            <div style={{ display: "flex", gap: "14px", marginBottom: "24px" }}>
-              <Avatar
-                size={100}
-                src={selectedEmployee.initials}
-                style={{ backgroundColor: "#e74c3c", fontSize: "36px" }}
-              />
-              {/* {!employeePhoto && selectedEmployee.initials} */}
-              {/* </Avatar> */}
-              <div>
-                <Title level={3} style={{ marginBottom: "16px" }}>
-                  {selectedEmployee.name}
-                </Title>
-
-                <Space
-                  direction="vertical"
-                  size="middle"
-                  style={{ display: "flex" }}
+                  <Button
+                    color="danger"
+                    variant="outlined"
+                    size="small"
+                    icon={<Trash2 size={10} />}
+                    style={{
+                      fontSize: "10px",
+                      padding: "1px 4px",
+                      height: "20px",
+                      lineHeight: "normal",
+                      borderColor: "red",
+                      color: "red",
+                    }}
+                    onClick={handleRemovePhoto}
+                  >
+                    Remove Photo
+                  </Button>
+                  <Button
+                    color="green"
+                    variant="outlined"
+                    size="small"
+                    icon={<Edit2 size={10} />}
+                    style={{
+                      fontSize: "10px",
+                      padding: "1px 4px",
+                      height: "20px",
+                      lineHeight: "normal",
+                      borderColor: "green",
+                      color: "green",
+                    }}
+                    onClick={handleEdit}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    color="danger"
+                    variant="dashed"
+                    size="small"
+                    icon={<XCircle size={10} />}
+                    style={{
+                      fontSize: "10px",
+                      padding: "1px 4px",
+                      height: "20px",
+                      lineHeight: "normal",
+                      borderColor: "red",
+                      color: "red",
+                    }}
+                    onClick={handleDeactivate}
+                  >
+                    Deactivate
+                  </Button>
+                  <Button
+                    color="purple"
+                    variant="outlined"
+                    size="small"
+                    icon={<Copy size={10} />}
+                    style={{
+                      fontSize: "10px",
+                      padding: "1px 4px",
+                      height: "20px",
+                      lineHeight: "normal",
+                      borderColor: "purple",
+                      color: "purple",
+                    }}
+                    onClick={() => {
+                      setAddEmployeeVisible(true);
+                      setIsEditing(false);
+                      form.setFieldsValue(selectedEmployee);
+                      message.success(
+                        "Employee data copied. You can now edit and save as a new employee."
+                      );
+                    }}
+                  >
+                    Copy
+                  </Button>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "14px",
+                    marginBottom: "24px",
+                  }}
                 >
-                  <Space>
-                    <Phone size={14} style={{ marginRight: "8px" }} />
-                    <Text>{selectedEmployee.phone}</Text>
-                    <CopyToClipboard
-                      text={selectedEmployee.phone}
-                      onCopy={() => handleCopy(selectedEmployee.phone)}
-                    >
-                      <Copy
-                        size={14}
-                        style={{ cursor: "pointer", color: "#1890ff" }}
-                      />
-                    </CopyToClipboard>
-                  </Space>
+                  <Avatar
+                    size={100}
+                    src={
+                      typeof selectedEmployee.initials === "string" &&
+                      selectedEmployee.initials.startsWith("http")
+                        ? selectedEmployee.initials
+                        : undefined
+                    }
+                    style={{
+                      backgroundColor: "#e74c3c",
+                      fontSize: "36px",
+                      border: "1px solid #e74c3c",
+                    }}
+                  >
+                    {typeof selectedEmployee.initials !== "string" ||
+                    !selectedEmployee.initials.startsWith("http")
+                      ? selectedEmployee.name.charAt(0)
+                      : null}
+                  </Avatar>
+                  <div>
+                    <Title level={3} style={{ marginBottom: "16px" }}>
+                      {selectedEmployee.name}
+                    </Title>
 
-                  <Space>
-                    <Mail size={14} style={{ marginRight: "8px" }} />
-                    <Text>{selectedEmployee.email}</Text>
-                    <CopyToClipboard
-                      text={selectedEmployee.email}
-                      onCopy={() => handleCopy(selectedEmployee.email)}
+                    <Space
+                      direction="vertical"
+                      size="middle"
+                      style={{ display: "flex" }}
                     >
-                      <Copy
-                        size={14}
-                        style={{ cursor: "pointer", color: "#1890ff" }}
-                      />
-                    </CopyToClipboard>
-                  </Space>
+                      <Space>
+                        <Phone size={14} style={{ marginRight: "8px" }} />
+                        <Text>{selectedEmployee.phone}</Text>
+                        {selectedEmployee.phone !== "NOT PROVIDED" && (
+                          <CopyToClipboard
+                            text={selectedEmployee.phone}
+                            onCopy={() => handleCopy(selectedEmployee.phone)}
+                          >
+                            <Copy
+                              size={14}
+                              style={{ cursor: "pointer", color: "#1890ff" }}
+                            />
+                          </CopyToClipboard>
+                        )}
+                      </Space>
 
-                  <Space>
-                    <IdCard size={14} style={{ marginRight: "8px" }} />
-                    <Text>
-                      Employee Number: {selectedEmployee.employeeNumber}
-                    </Text>
-                    <CopyToClipboard
-                      text={selectedEmployee.employeeNumber}
-                      onCopy={() => handleCopy(selectedEmployee.employeeNumber)}
-                    >
-                      <Copy
-                        size={14}
-                        style={{ cursor: "pointer", color: "#1890ff" }}
-                      />
-                    </CopyToClipboard>
-                  </Space>
+                      <Space>
+                        <Mail size={14} style={{ marginRight: "8px" }} />
+                        <Text>{selectedEmployee.email}</Text>
+                        {selectedEmployee.email !== "NOT PROVIDED" && (
+                          <CopyToClipboard
+                            text={selectedEmployee.email}
+                            onCopy={() => handleCopy(selectedEmployee.email)}
+                          >
+                            <Copy
+                              size={14}
+                              style={{ cursor: "pointer", color: "#1890ff" }}
+                            />
+                          </CopyToClipboard>
+                        )}
+                      </Space>
 
-                  <Space>
-                    <Globe size={14} style={{ marginRight: "8px" }} />
-                    <Text>Timezone: {selectedEmployee.timezone}</Text>
-                    <Clock
-                      size={14}
-                      style={{ marginLeft: "12px", marginRight: "8px" }}
+                      <Space>
+                        <IdCard size={14} style={{ marginRight: "8px" }} />
+                        <Text>
+                          Employee Number: {selectedEmployee.employeeNumber}
+                        </Text>
+                        {selectedEmployee.employeeNumber !== "NOT PROVIDED" && (
+                          <CopyToClipboard
+                            text={selectedEmployee.employeeNumber}
+                            onCopy={() =>
+                              handleCopy(selectedEmployee.employeeNumber)
+                            }
+                          >
+                            <Copy
+                              size={14}
+                              style={{ cursor: "pointer", color: "#1890ff" }}
+                            />
+                          </CopyToClipboard>
+                        )}
+                      </Space>
+
+                      <Space>
+                        <Globe size={14} style={{ marginRight: "8px" }} />
+                        <Text>Timezone: {selectedEmployee.timezone}</Text>
+                        <Clock
+                          size={14}
+                          style={{ marginLeft: "12px", marginRight: "8px" }}
+                        />
+                        <Text>Time now: {formattedTime}</Text>
+                      </Space>
+
+                      <Space>
+                        <Shield size={14} style={{ marginRight: "8px" }} />
+                        <Text>Access Level:</Text>
+                        <Tag
+                          color="blue"
+                          style={{
+                            fontSize: "8px",
+                            padding: "2px 4px",
+                            height: "auto",
+                            lineHeight: "normal",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          {selectedEmployee.accessLevel}
+                        </Tag>
+                        <div
+                          size={0}
+                          style={{ marginLeft: "12px", marginRight: "8px" }}
+                        />
+                        <div style={{ fontSize: "20px" }}>✍️</div>
+
+                        <Text>
+                          Contract Health:{" "}
+                          <span style={{ color: "red" }}>
+                            Contract Expires in 10 months
+                          </span>
+                        </Text>
+                      </Space>
+                    </Space>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Tabs */}
+              <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)}>
+                <Tabs.TabPane tab="Basic Information" key="basic">
+                  {/* Personal Information Section */}
+                  <div
+                    style={{
+                      backgroundColor: "white",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <SectionHeader
+                      title="Personal Information"
+                      onEdit={() => console.log("Edit Personal Information")}
                     />
-                    <Text>Time now: {formattedTime}</Text>
-                  </Space>
-
-                  <Space>
-                    <Shield size={14} style={{ marginRight: "8px" }} />
-                    <Text>Access Level:</Text>
-                    <Tag
-                      color="blue"
+                    <div
                       style={{
-                        fontSize: "8px",
-                        padding: "2px 4px",
-                        height: "auto",
-                        lineHeight: "normal",
-                        borderRadius: "4px",
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(120px, 1fr))",
+                        gap: "12px",
                       }}
                     >
-                      {selectedEmployee.accessLevel}
-                    </Tag>
-                    <div
-                      size={0}
-                      style={{ marginLeft: "12px", marginRight: "8px" }}
+                      <CopyableField
+                        label="Date of Birth"
+                        value={formatDate(selectedEmployee.dob)}
+                      />
+                      <CopyableField
+                        label="Gender"
+                        value={
+                          selectedEmployee.gender === "M"
+                            ? "Male"
+                            : selectedEmployee.gender === "F"
+                              ? "Female"
+                              : selectedEmployee.gender || "NOT PROVIDED"
+                        }
+                      />
+
+                      <CopyableField
+                        label="Nationality"
+                        value={selectedEmployee.nationality}
+                      />
+                      <CopyableField
+                        label="Marital Status"
+                        value={selectedEmployee.maritalStatus}
+                      />
+                      <CopyableField
+                        label="Join Date"
+                        value={formatDate(selectedEmployee.joinedDate)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Identification Section */}
+                  <div
+                    style={{
+                      backgroundColor: "white",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <SectionHeader
+                      title="Identification"
+                      onEdit={() => console.log("Edit Identification")}
                     />
-                    <div style={{ fontSize: "20px" }}>✍️</div>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(120px, 1fr))",
+                        gap: "12px",
+                      }}
+                    >
+                      <CopyableField
+                        label="National ID"
+                        value={selectedEmployee.identification.nationalId}
+                      />
+                      <CopyableField
+                        label="Social Insurance"
+                        value={selectedEmployee.identification.socialInsurance}
+                      />
+                      <CopyableField
+                        label="Religion"
+                        value={selectedEmployee.identification.religion}
+                      />
+                      <CopyableField
+                        label="Health Insurance"
+                        value={selectedEmployee.identification.healthInsurance}
+                      />
+                      <CopyableField
+                        label="Additional IDs"
+                        value={selectedEmployee.identification.additionalIds}
+                      />
+                      <CopyableField
+                        label="Driving License"
+                        value={selectedEmployee.identification.drivingLicense}
+                      />
+                    </div>
+                  </div>
 
-                    <Text>
-                      Contract Health:{" "}
-                      <span style={{ color: "red" }}>
-                        Contract Expires in 10 months
-                      </span>
-                    </Text>
-                  </Space>
-                </Space>
-              </div>
+                  {/* Contact Information Section */}
+                  <div
+                    style={{
+                      backgroundColor: "white",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <SectionHeader
+                      title="Contact Information"
+                      onEdit={() => console.log("Edit Contact")}
+                    />
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(120px, 1fr))",
+                        gap: "12px",
+                      }}
+                    >
+                      <CopyableField
+                        label="Address"
+                        value={selectedEmployee.contact.address}
+                      />
+                      <CopyableField
+                        label="City"
+                        value={selectedEmployee.contact.city}
+                      />
+                      <CopyableField
+                        label="Country"
+                        value={selectedEmployee.contact.country}
+                      />
+                      <CopyableField
+                        label="Postal/Zip Code"
+                        value={selectedEmployee.contact.postalCode}
+                      />
+                      <CopyableField
+                        label="Home Phone"
+                        value={selectedEmployee.contact.homePhone}
+                      />
+                      <CopyableField
+                        label="Work Phone"
+                        value={selectedEmployee.contact.workPhone}
+                      />
+                      <CopyableField
+                        label="Private Email"
+                        value={selectedEmployee.contact.privateEmail}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Job Details Section */}
+                  <div
+                    style={{
+                      backgroundColor: "white",
+                      padding: "10px",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <SectionHeader
+                      title="Job Details"
+                      onEdit={() => console.log("Edit Job Details")}
+                    />
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(120px, 1fr))",
+                        gap: "12px",
+                      }}
+                    >
+                      <CopyableField
+                        label="Job Title"
+                        value={selectedEmployee.jobDetails.jobTitle}
+                      />
+                      <CopyableField
+                        label="Employment Status"
+                        value={selectedEmployee.jobDetails.employmentStatus}
+                      />
+                      <CopyableField
+                        label="Department"
+                        value={selectedEmployee.jobDetails.department}
+                      />
+                      <CopyableField
+                        label="Manager"
+                        value={selectedEmployee.jobDetails.manager}
+                      />
+                    </div>
+                  </div>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab="Qualifications" key="qualifications">
+                  <Qualifications employeeId={selectedEmployee.id} />
+                </Tabs.TabPane>
+
+                <Tabs.TabPane tab="Education" key="education">
+                  <Education employeeId={selectedEmployee.id} />
+                </Tabs.TabPane>
+
+                <Tabs.TabPane tab="Dependents" key="dependents">
+                  <Dependents employeeId={selectedEmployee.id} />
+                </Tabs.TabPane>
+              </Tabs>
+            </>
+          ) : (
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text>Select an employee to view details</Text>
             </div>
-          </Card>
-
-          {/* Tabs */}
-          <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)}>
-            <Tabs.TabPane tab="Basic Information" key="basic">
-              {/* Personal Information Section */}
-              <div
-                style={{
-                  backgroundColor: "white",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  marginBottom: "12px",
-                }}
-              >
-                <SectionHeader
-                  title="Personal Information"
-                  onEdit={() => console.log("Edit Personal Information")}
-                />
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-                    gap: "12px",
-                  }}
-                >
-                  <CopyableField
-                    label="Date of Birth"
-                    value={selectedEmployee.dob}
-                  />
-                  <CopyableField
-                    label="Gender"
-                    value={selectedEmployee.gender}
-                  />
-                  <CopyableField
-                    label="Nationality"
-                    value={selectedEmployee.nationality}
-                  />
-                  <CopyableField
-                    label="Marital Status"
-                    value={selectedEmployee.maritalStatus}
-                  />
-                  <CopyableField
-                    label="Join Date"
-                    value={selectedEmployee.joinedDate}
-                  />
-                </div>
-              </div>
-
-              {/* Identification Section */}
-              <div
-                style={{
-                  backgroundColor: "white",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  marginBottom: "12px",
-                }}
-              >
-                <SectionHeader
-                  title="Identification"
-                  onEdit={() => console.log("Edit Identification")}
-                />
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-                    gap: "12px",
-                  }}
-                >
-                  <CopyableField
-                    label="National ID"
-                    value={selectedEmployee.identification.nationalId}
-                  />
-                  <CopyableField
-                    label="Social Insurance"
-                    value={selectedEmployee.identification.socialInsurance}
-                  />
-                  <CopyableField
-                    label="Personal Tax ID"
-                    value={selectedEmployee.identification.personalTaxId}
-                  />
-                  <CopyableField
-                    label="Health Insurance"
-                    value={selectedEmployee.identification.healthInsurance}
-                  />
-                  <CopyableField
-                    label="Additional IDs"
-                    value={selectedEmployee.identification.additionalIds}
-                  />
-                  <CopyableField
-                    label="Driving License"
-                    value={selectedEmployee.identification.drivingLicense}
-                  />
-                </div>
-              </div>
-
-              {/* Contact Information Section */}
-              <div
-                style={{
-                  backgroundColor: "white",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  marginBottom: "12px",
-                }}
-              >
-                <SectionHeader
-                  title="Contact Information"
-                  onEdit={() => console.log("Edit Contact")}
-                />
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-                    gap: "12px",
-                  }}
-                >
-                  <CopyableField
-                    label="Address"
-                    value={selectedEmployee.contact.address}
-                  />
-                  <CopyableField
-                    label="City"
-                    value={selectedEmployee.contact.city}
-                  />
-                  <CopyableField
-                    label="Country"
-                    value={selectedEmployee.contact.country}
-                  />
-                  <CopyableField
-                    label="Postal/Zip Code"
-                    value={selectedEmployee.contact.postalCode}
-                  />
-                  <CopyableField
-                    label="Home Phone"
-                    value={selectedEmployee.contact.homePhone}
-                  />
-                  <CopyableField
-                    label="Work Phone"
-                    value={selectedEmployee.contact.workPhone}
-                  />
-                  <CopyableField
-                    label="Private Email"
-                    value={selectedEmployee.contact.privateEmail}
-                  />
-                </div>
-              </div>
-
-              {/* Job Details Section */}
-              <div
-                style={{
-                  backgroundColor: "white",
-                  padding: "10px",
-                  borderRadius: "8px",
-                }}
-              >
-                <SectionHeader
-                  title="Job Details"
-                  onEdit={() => console.log("Edit Job Details")}
-                />
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-                    gap: "12px",
-                  }}
-                >
-                  <CopyableField
-                    label="Job Title"
-                    value={selectedEmployee.jobDetails.jobTitle}
-                  />
-                  <CopyableField
-                    label="Employment Status"
-                    value={selectedEmployee.jobDetails.employmentStatus}
-                  />
-                  <CopyableField
-                    label="Department"
-                    value={selectedEmployee.jobDetails.department}
-                  />
-                  <CopyableField
-                    label="Manager"
-                    value={selectedEmployee.jobDetails.manager}
-                  />
-                </div>
-              </div>
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="Qualifications" key="qualifications">
-              <Qualifications employeeId={selectedEmployee.id} />
-            </Tabs.TabPane>
-
-            <Tabs.TabPane tab="Work History" key="work-history">
-              <WorkHistory employeeId={selectedEmployee.id} />
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="Skills" key="skills">
-              <Skills employeeId={selectedEmployee.id} />
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="Education" key="education">
-              <Education employeeId={selectedEmployee.id} />
-            </Tabs.TabPane>
-
-            <Tabs.TabPane tab="Certifications" key="certifications">
-              <Certifications employeeId={selectedEmployee.id} />
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="Dependents" key="dependents">
-              <Dependents employeeId={selectedEmployee.id} />
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="Contacts" key="contacts">
-              <Contacts employeeId={selectedEmployee.id} />
-            </Tabs.TabPane>
-          </Tabs>
+          )}
         </div>
       </div>
 

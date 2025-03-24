@@ -607,7 +607,14 @@ const Dashboard = () => {
             value={`${data?.employees?.length || 0} Employees`}
             color="#36B9CC"
             Icon={Users}
-            actionText="Manage Employees"
+            actionText={
+              <span
+                onClick={() => (window.location.href = "/apps/hr/employee")}
+              >
+                Manage Employees
+              </span>
+            }
+            // actionText="Manage Employees"
           />
         </Col>
 
