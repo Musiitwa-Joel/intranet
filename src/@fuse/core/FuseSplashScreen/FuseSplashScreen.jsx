@@ -1,6 +1,7 @@
 import { memo } from "react";
 import Box from "@mui/material/Box";
-import tredumoLogo from "/assets/images/logo/tred-logo.png";
+import { url2 } from "app/configs/apiConfig";
+// import tredumoLogo from "/assets/images/logo/tred-logo.png";
 /**
  * The FuseSplashScreen component is responsible for rendering a splash screen with a logo and a loading spinner.
  * It uses various MUI components to render the logo and spinner.
@@ -15,7 +16,7 @@ function FuseSplashScreen() {
 					src="assets/images/logo/logo.svg"
 					alt="logo"
 				/> */}
-        <img width="128" src={tredumoLogo} alt="logo" />
+        <img width="128" src={`${url2}/university/tred-logo.png`} alt="logo" />
       </div>
       <Box
         id="spinner"
