@@ -1,5 +1,5 @@
-import FuseLoading from '@fuse/core/FuseLoading';
-import { Suspense } from 'react';
+import FuseLoading from "@fuse/core/FuseLoading";
+import { Suspense } from "react";
 
 /**
  * The FuseSuspense component is a wrapper around the React Suspense component.
@@ -9,8 +9,12 @@ import { Suspense } from 'react';
  * For to Avoid Repetition
  */
 function FuseSuspense(props) {
-	const { children, loadingProps } = props;
-	return <Suspense fallback={<FuseLoading {...loadingProps} />}>{children}</Suspense>;
+  const { children, loadingProps } = props;
+  return (
+    <Suspense fallback={<FuseLoading {...loadingProps} logo={props.logo} />}>
+      {children}
+    </Suspense>
+  );
 }
 
 export default FuseSuspense;

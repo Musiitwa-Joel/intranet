@@ -87,7 +87,6 @@ function FeesStructureForm() {
   const scrollContainerRef = useRef(null);
   const psRef = useRef(null);
   const user = useSelector((state) => state.user.user);
-  const selectedIntake = useSelector((state) => state.setUp.selectedIntake);
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const feesCategories = useSelector(selectFeesCategories);

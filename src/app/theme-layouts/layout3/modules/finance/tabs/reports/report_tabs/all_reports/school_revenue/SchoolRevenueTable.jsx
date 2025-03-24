@@ -62,7 +62,7 @@ export default function SchoolRevenueTable() {
       title: "College",
       ellipsis: true,
       dataIndex: "college",
-      ellipsis: true,
+
       key: "college",
       width: 150,
     },
