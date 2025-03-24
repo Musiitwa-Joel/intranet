@@ -3,8 +3,9 @@
 // const mainUrl = "https://tredumo.com/graphql";
 // const webSocketUrl = "ws://tredumo.com/graphql";
 // const url2 = "https://tredumo.com/api";
-const mainUrl = "https://tredumo.com/graphql";
-const webSocketUrl = "ws://tredumo.com/graphql";
-const url2 = "https://tredumo.com/api";
+
+const mainUrl = "http://localhost:2323/graphql";
+const webSocketUrl = "ws://localhost:2323/graphql";
+const url2 = "http://localhost:2222";
 
 export { mainUrl, url2, webSocketUrl };
