@@ -7,6 +7,7 @@ import useThemeMediaQuery from "@fuse/hooks/useThemeMediaQuery";
 import StudentRecords from "./tabs/student_records/StudentRecords";
 import { selectActiveTab, setActiveTab } from "./store/infoCenterSlice";
 import AppNav from "../../components/AppNav";
+import "./programs.css";
 import { ConfigProvider, theme } from "antd";
 
 const tabs = ["Student Records", "Settings"];

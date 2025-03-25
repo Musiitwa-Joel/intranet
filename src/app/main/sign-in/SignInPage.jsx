@@ -163,6 +163,9 @@ function SignInPage() {
             className="w-50"
             src={`${url2}/university/nkumba-university.png`}
             alt="logo"
+            style={{
+              width: 220,
+            }}
           />
 
           <Typography className="mt-32 text-4xl font-extrabold tracking-tight leading-tight">
