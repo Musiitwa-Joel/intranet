@@ -784,10 +784,12 @@ export default function SalaryManagement() {
     setDrawerVisible(true);
   };
 
-  const showEditModal = (employee) => {
-    salaryStructureForm.setFieldsValue(employee);
+  // Removed duplicate declaration of showEditModal
+
+  const showAddModal = () => {
+    salaryStructureForm.resetFields();
     Modal.confirm({
-      title: "Edit Salary Structure",
+      title: "Add New Employee Salary",
       width: 800,
       icon: null,
       content: (
@@ -809,7 +811,7 @@ export default function SalaryManagement() {
                   },
                 ]}
               >
-                <Input disabled />
+                <Input />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -823,7 +825,7 @@ export default function SalaryManagement() {
                   },
                 ]}
               >
-                <Input disabled />
+                <Input />
               </Form.Item>
             </Col>
           </Row>
@@ -972,7 +974,7 @@ export default function SalaryManagement() {
       okText: "Save Changes",
       cancelText: "Cancel",
       onOk() {
-        message.success("Salary structure updated successfully");
+        message.success("Salary structure added successfully");
       },
     });
   };
@@ -1941,7 +1943,7 @@ export default function SalaryManagement() {
           <Button
             type="primary"
             icon={<PlusCircle size={16} />}
-            onClick={() => showEditModal({})}
+            onClick={() => showAddModal()}
           >
             Add Employee Salary
           </Button>

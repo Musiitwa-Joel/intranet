@@ -24,7 +24,6 @@ import {
   Timeline,
   theme,
 } from "antd";
-import { MenuProps } from "antd";
 import {
   CheckCircle,
   XCircle,
@@ -146,8 +145,7 @@ function App() {
   const [selectedLeave, setSelectedLeave] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [filterType, setFilterType] = useState("all");
-  const [dateRange, setDateRange] =
-    useState < [Dayjs | null, Dayjs | null] > [null, null];
+  const [dateRange, setDateRange] = useState([null, null]);
   const [selectedDepartment, setSelectedDepartment] = useState("all");
 
   const getStatusIcon = useCallback(

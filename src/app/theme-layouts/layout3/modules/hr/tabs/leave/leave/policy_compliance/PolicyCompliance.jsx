@@ -87,8 +87,7 @@ const LeavePoliciesTab = () => {
     },
   ]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingPolicy, setEditingPolicy] =
-    (useState < LeavePolicy) | (null > null);
+  const [editingPolicy, setEditingPolicy] = useState(null);
   const [form] = Form.useForm();
 
   const columns = [
@@ -228,8 +227,7 @@ const ApprovalRulesTab = () => {
     { id: 2, leaveType: "Sick", maxDays: 3, autoApprove: false },
   ]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingRule, setEditingRule] =
-    (useState < ApprovalRule) | (null > null);
+  const [editingRule, setEditingRule] = useState(null > null);
   const [form] = Form.useForm();
 
   const columns = [
@@ -347,8 +345,7 @@ const BlackoutPeriodsTab = () => {
     },
   ]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingPeriod, setEditingPeriod] =
-    (useState < BlackoutPeriod) | (null > null);
+  const [editingPeriod, setEditingPeriod] = useState(null > null);
   const [form] = Form.useForm();
 
   const columns = [
@@ -469,14 +466,11 @@ const BlackoutPeriodsTab = () => {
 // Leave Deductions Tab
 const LeaveDeductionsTab = () => {
   const [form] = Form.useForm();
-  const [settings, setSettings] =
-    useState <
-    LeaveDeductionSettings >
-    {
-      unpaidLeaveDeduction: 100,
-      excessLeaveHandling: "deduct",
-      alertThreshold: 80,
-    };
+  const [settings, setSettings] = useState({
+    unpaidLeaveDeduction: 100,
+    excessLeaveHandling: "deduct",
+    alertThreshold: 80,
+  });
 
   const onFinish = (values) => {
     setSettings(values);
