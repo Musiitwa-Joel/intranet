@@ -34,6 +34,7 @@ import config from "../../auth/services/jwt/jwtAuthConfig";
 import { GET_MY_PROFILE } from "app/theme-layouts/layout3/graphql/queries";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import jwtDecode from "jwt-decode";
+import { url2 } from "app/configs/apiConfig";
 
 /**
  * Form Validation Schema
@@ -160,8 +161,11 @@ function SignInPage() {
         <div className="w-full max-w-320 sm:w-320 mx-auto sm:mx-0">
           <img
             className="w-50"
-            src="assets/images/logo/nkumba-uninersity.png"
+            src={`${url2}/university/nkumba-university.png`}
             alt="logo"
+            style={{
+              width: 220,
+            }}
           />
 
           <Typography className="mt-32 text-4xl font-extrabold tracking-tight leading-tight">
@@ -387,10 +391,10 @@ function SignInPage() {
                 },
               }}
             >
-              <Avatar src="assets/images/avatars/finance.png" />
-              <Avatar src="assets/images/avatars/admissions.png" />
-              <Avatar src="assets/images/avatars/assesement.png" />
-              <Avatar src="assets/images/avatars/qualityAssurance.png" />
+              <Avatar src={`${url2}/module_logos/finance.png`} />
+              <Avatar src={`${url2}/module_logos/admissions.png`} />
+              <Avatar src={`${url2}/module_logos/assesement.png`} />
+              <Avatar src={`${url2}/module_logos/qualityAssurance.png`} />
             </AvatarGroup>
 
             <div className="ml-16 font-medium tracking-tight text-gray-400">
