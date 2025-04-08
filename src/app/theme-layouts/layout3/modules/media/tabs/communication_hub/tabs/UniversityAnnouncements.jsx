@@ -18,7 +18,6 @@ import {
   Space,
   Table,
   Modal,
-  Alert,
   Tooltip,
   Badge,
   Drawer,
@@ -26,7 +25,6 @@ import {
   List,
   Avatar,
   Menu,
-  InputNumber,
   Descriptions,
   Statistic,
 } from "antd";
@@ -40,7 +38,6 @@ import {
   EditOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
-  SettingOutlined,
   UserOutlined,
   TeamOutlined,
   FileTextOutlined,
@@ -53,7 +50,6 @@ import {
   HistoryOutlined,
   LoadingOutlined,
 } from "@ant-design/icons";
-import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
 // Import our professional email templates
@@ -72,6 +68,7 @@ import PasswordReset from "../tabs/components/security/PasswordReset";
 import WelcomeEmail from "../tabs/components/general/WelcomeEmail";
 import SystemMaintenance from "../tabs/components/general/SystemMaintenance";
 import GradeRelease from "../tabs/components/academic/GradeRelease";
+import GeneralInformation from "../tabs/components/general/GeneralInformation";
 
 // Import our template registry
 import emailTemplateRegistry from "../tabs/components/integration/EmailTemplateRegistry";
@@ -245,12 +242,11 @@ const EmailSenderWithTemplates = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [emailContent, setEmailContent] = useState("");
   const [previewVisible, setPreviewVisible] = useState(false);
-  const [settingsVisible, setSettingsVisible] = useState(false);
   const [recipientDrawerVisible, setRecipientDrawerVisible] = useState(false);
   const [selectedRecipients, setSelectedRecipients] = useState([]);
   const [selectedGroups, setSelectedGroups] = useState([]);
   const [sentEmails, setSentEmails] = useState(mockSentEmails);
-  const [emailConfigured, setEmailConfigured] = useState(false);
+  const [emailConfigured, setEmailConfigured] = useState(true);
   const [emailSettings, setEmailSettings] = useState({
     host: "",
     port: "587",
@@ -271,10 +267,8 @@ const EmailSenderWithTemplates = () => {
   const [selectedProfessionalTemplate, setSelectedProfessionalTemplate] =
     useState(null);
   const [templateHtml, setTemplateHtml] = useState("");
-  const [templatePreviewRef, setTemplatePreviewRef] = useState(null);
 
   const [form] = Form.useForm();
-  const [settingsForm] = Form.useForm();
   const editorRef = useRef(null);
   const templateContainerRef = useRef(null);
 
@@ -329,164 +323,22 @@ const EmailSenderWithTemplates = () => {
     try {
       setLoading(true);
 
-      // For demo purposes, we'll use mock data plus our professional templates
-      setTimeout(() => {
-        // Your existing templates
-        const mockTemplates = [
-          {
-            id: 1,
-            name: "Standard Announcement",
-            subject: "[Nkumba University] - {{announcement_title}}",
-            content: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
-                <div style="text-align: center; margin-bottom: 20px;">
-                  <img src="https://www.nkumbauniversity.ac.ug/images/logo.png" alt="Nkumba University Logo" style="max-width: 150px;">
-                </div>
-                <div style="background-color: #4B0082; color: white; padding: 10px; text-align: center; font-size: 18px; font-weight: bold; border-radius: 5px;">
-                  {{announcement_title}}
-                </div>
-                <div style="padding: 20px 0;">
-                  <p>Dear {{recipient_name}},</p>
-                  <div>{{announcement_content}}</div>
-                  <p>For more information, please visit the <a href="{{portal_link}}" style="color: #4B0082; text-decoration: none; font-weight: bold;">Student Portal</a>.</p>
-                </div>
-                <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; font-size: 14px;">
-                  <p style="margin: 0;">If you have any questions, please contact us at:</p>
-                  <p style="margin: 5px 0;"><strong>Email:</strong> info@nkumbauniversity.ac.ug</p>
-                  <p style="margin: 5px 0;"><strong>Phone:</strong> +256 414 123456</p>
-                </div>
-                <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
-                  <p>&copy; 2025 Nkumba University. All rights reserved.</p>
-                  <p>Entebbe Road, Kampala, Uganda</p>
-                </div>
-              </div>
-            `,
-            category: "general",
-            templateType: "standard", // Add this to identify standard templates
-          },
-          {
-            id: 2,
-            name: "Academic Announcement",
-            subject:
-              "[Nkumba University] Academic Update - {{announcement_title}}",
-            content: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
-                <div style="text-align: center; margin-bottom: 20px;">
-                  <img src="https://www.nkumbauniversity.ac.ug/images/logo.png" alt="Nkumba University Logo" style="max-width: 150px;">
-                </div>
-                <div style="background-color: #00308F; color: white; padding: 10px; text-align: center; font-size: 18px; font-weight: bold; border-radius: 5px;">
-                  {{announcement_title}}
-                </div>
-                <div style="padding: 20px 0;">
-                  <p>Dear {{recipient_name}},</p>
-                  <div>{{announcement_content}}</div>
-                  <p>Please ensure you take note of all important dates and requirements.</p>
-                  <p>For more information, please visit the <a href="{{portal_link}}" style="color: #00308F; text-decoration: none; font-weight: bold;">Academic Portal</a>.</p>
-                </div>
-                <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; font-size: 14px;">
-                  <p style="margin: 0;">If you have any questions, please contact the Academic Office:</p>
-                  <p style="margin: 5px 0;"><strong>Email:</strong> academic@nkumbauniversity.ac.ug</p>
-                  <p style="margin: 5px 0;"><strong>Phone:</strong> +256 414 123457</p>
-                </div>
-                <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
-                  <p>&copy; 2025 Nkumba University. All rights reserved.</p>
-                  <p>Entebbe Road, Kampala, Uganda</p>
-                </div>
-              </div>
-            `,
-            category: "academic",
-            templateType: "standard",
-          },
-          {
-            id: 3,
-            name: "Urgent Announcement",
-            subject: "[URGENT] [Nkumba University] - {{announcement_title}}",
-            content: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
-                <div style="text-align: center; margin-bottom: 20px;">
-                  <img src="https://www.nkumbauniversity.ac.ug/images/logo.png" alt="Nkumba University Logo" style="max-width: 150px;">
-                </div>
-                <div style="background-color: #B22222; color: white; padding: 10px; text-align: center; font-size: 18px; font-weight: bold; border-radius: 5px;">
-                  URGENT: {{announcement_title}}
-                </div>
-                <div style="padding: 20px 0;">
-                  <p>Dear {{recipient_name}},</p>
-                  <div style="padding: 15px; background-color: #FFEBEE; border-left: 4px solid #B22222; margin-bottom: 15px;">
-                    {{announcement_content}}
-                  </div>
-                  <p>Please take immediate action as required.</p>
-                  <p>For more information, please visit the <a href="{{portal_link}}" style="color: #B22222; text-decoration: none; font-weight: bold;">Student Portal</a>.</p>
-                </div>
-                <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; font-size: 14px;">
-                  <p style="margin: 0;">If you have any questions, please contact us immediately at:</p>
-                  <p style="margin: 5px 0;"><strong>Email:</strong> urgent@nkumbauniversity.ac.ug</p>
-                  <p style="margin: 5px 0;"><strong>Phone:</strong> +256 414 123459</p>
-                </div>
-                <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
-                  <p>&copy; 2025 Nkumba University. All rights reserved.</p>
-                  <p>Entebbe Road, Kampala, Uganda</p>
-                </div>
-              </div>
-            `,
-            category: "urgent",
-            templateType: "standard",
-          },
-          {
-            id: 4,
-            name: "Financial Announcement",
-            subject:
-              "[Nkumba University] Financial Notice - {{announcement_title}}",
-            content: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
-                <div style="text-align: center; margin-bottom: 20px;">
-                  <img src="https://www.nkumbauniversity.ac.ug/images/logo.png" alt="Nkumba University Logo" style="max-width: 150px;">
-                </div>
-                <div style="background-color: #1B5E20; color: white; padding: 10px; text-align: center; font-size: 18px; font-weight: bold; border-radius: 5px;">
-                  {{announcement_title}}
-                </div>
-                <div style="padding: 20px 0;">
-                  <p>Dear {{recipient_name}},</p>
-                  <div>{{announcement_content}}</div>
-                  <div style="margin: 20px 0; padding: 15px; border: 1px solid #1B5E20; border-radius: 5px;">
-                    <p style="font-weight: bold; margin: 0;">Important Financial Information:</p>
-                    <p style="margin: 5px 0;"><strong>Due Date:</strong> {{due_date}}</p>
-                    <p style="margin: 5px 0;"><strong>Payment Methods:</strong> {{payment_methods}}</p>
-                  </div>
-                  <p>For more information, please visit the <a href="{{finance_portal_link}}" style="color: #1B5E20; text-decoration: none; font-weight: bold;">Finance Portal</a>.</p>
-                </div>
-                <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; font-size: 14px;">
-                  <p style="margin: 0;">If you have any questions, please contact the Finance Office:</p>
-                  <p style="margin: 5px 0;"><strong>Email:</strong> finance@nkumbauniversity.ac.ug</p>
-                  <p style="margin: 5px 0;"><strong>Phone:</strong> +256 414 123460</p>
-                </div>
-                <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
-                  <p>&copy; 2025 Nkumba University. All rights reserved.</p>
-                  <p>Entebbe Road, Kampala, Uganda</p>
-                </div>
-              </div>
-            `,
-            category: "financial",
-            templateType: "standard",
-          },
-        ];
+      // Convert our professional template registry to the format expected by the admin
+      const professionalTemplates = emailTemplateRegistry.map(
+        (template, index) => ({
+          id: 100 + index, // Use IDs that won't conflict with existing templates
+          name: template.name,
+          subject: template.subject,
+          content: "", // The actual content will be generated dynamically
+          category: template.category,
+          templateType: "professional", // Add this to identify professional templates
+          templateId: template.id, // Store the original template ID
+        })
+      );
 
-        // Convert our professional template registry to the format expected by the admin
-        const professionalTemplates = emailTemplateRegistry.map(
-          (template, index) => ({
-            id: 100 + index, // Use IDs that won't conflict with existing templates
-            name: template.name,
-            subject: template.subject,
-            content: "", // The actual content will be generated dynamically
-            category: template.category,
-            templateType: "professional", // Add this to identify professional templates
-            templateId: template.id, // Store the original template ID
-          })
-        );
-
-        // Combine both types of templates
-        setTemplates([...mockTemplates, ...professionalTemplates]);
-        setLoading(false);
-      }, 1000);
+      // Set templates
+      setTemplates(professionalTemplates);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching templates:", error);
       message.error("Failed to fetch email templates");
@@ -515,13 +367,6 @@ const EmailSenderWithTemplates = () => {
 
         // Generate the preview content
         generateProfessionalTemplateHtml(template.templateId);
-      } else {
-        // For standard templates, use the existing behavior
-        setSelectedProfessionalTemplate(null);
-        setEmailContent(template.content);
-        form.setFieldsValue({
-          subject: template.subject,
-        });
       }
     }
   };
@@ -554,42 +399,6 @@ const EmailSenderWithTemplates = () => {
 
     // For this example, we'll set a placeholder
     setTemplateHtml(`<div>Professional template: ${templateId}</div>`);
-  };
-
-  // Handle email content change
-  const handleEditorChange = (content) => {
-    setEmailContent(content);
-  };
-
-  // Function to send a test email
-  const handleSendTestEmail = async () => {
-    try {
-      if (!emailConfigured) {
-        message.error("Please configure email settings first");
-        setSettingsVisible(true);
-        return;
-      }
-
-      const testEmail = prompt("Enter email address to send test to:");
-      if (!testEmail) return;
-
-      setLoading(true);
-
-      // In a real app, this would be an API call
-      // const response = await axios.post('/api/send-test-email', { email: testEmail });
-
-      // For demo purposes, we'll simulate a response
-      setTimeout(() => {
-        setLoading(false);
-        message.success(
-          `Test email sent to ${testEmail}. Please check your inbox (and spam folder).`
-        );
-      }, 2000);
-    } catch (error) {
-      console.error("Error sending test email:", error);
-      message.error("Failed to send test email");
-      setLoading(false);
-    }
   };
 
   // Add this function to check email delivery status
@@ -639,12 +448,6 @@ const EmailSenderWithTemplates = () => {
   // Handle form submission
   const handleSubmit = async (values) => {
     try {
-      if (!emailConfigured) {
-        message.error("Please configure email settings first");
-        setSettingsVisible(true);
-        return;
-      }
-
       if (selectedRecipients.length === 0 && selectedGroups.length === 0) {
         message.error("Please select at least one recipient or group");
         return;
@@ -738,71 +541,6 @@ const EmailSenderWithTemplates = () => {
     } catch (error) {
       console.error("Error sending email:", error);
       message.error("Failed to send email");
-      setLoading(false);
-    }
-  };
-
-  // Handle email settings form submission
-  const handleSettingsSubmit = async (values) => {
-    try {
-      setLoading(true);
-
-      // In a real app, this would be an API call to initialize the email service
-      // const response = await axios.post('/api/initialize-email', {
-      //   host: values.host,
-      //   port: values.port,
-      //   secure: values.secure,
-      //   user: values.user,
-      //   password: values.password,
-      // });
-
-      // For demo purposes, we'll simulate a successful configuration
-      setTimeout(() => {
-        setEmailSettings({
-          host: values.host,
-          port: values.port,
-          secure: values.secure,
-          user: values.user,
-          password: values.password,
-          fromName: values.fromName,
-          fromEmail: values.fromEmail,
-        });
-
-        setEmailConfigured(true);
-        setSettingsVisible(false);
-        setLoading(false);
-        message.success("Email settings configured successfully");
-      }, 1500);
-    } catch (error) {
-      console.error("Error configuring email settings:", error);
-      message.error("Failed to configure email settings");
-      setLoading(false);
-    }
-  };
-
-  // Handle test connection
-  const handleTestConnection = async () => {
-    try {
-      const values = await settingsForm.validateFields();
-      setLoading(true);
-
-      // In a real app, this would be an API call to test the email connection
-      // const response = await axios.post('/api/test-connection', {
-      //   host: values.host,
-      //   port: values.port,
-      //   secure: values.secure,
-      //   user: values.user,
-      //   password: values.password,
-      // });
-
-      // For demo purposes, we'll simulate a successful connection
-      setTimeout(() => {
-        setLoading(false);
-        message.success("Connection test successful");
-      }, 1500);
-    } catch (error) {
-      console.error("Error testing connection:", error);
-      message.error("Connection test failed");
       setLoading(false);
     }
   };
@@ -988,6 +726,8 @@ const EmailSenderWithTemplates = () => {
   const renderProfessionalTemplate = (templateId, variables) => {
     // Use the existing template components directly
     switch (templateId) {
+      case "general":
+        return <GeneralInformation {...variables} />;
       case "admission":
         return <AdmissionLetter {...variables} />;
       case "registration":
@@ -1034,18 +774,12 @@ const EmailSenderWithTemplates = () => {
           }
           extra={
             <Space>
-              <Button
-                icon={<SettingOutlined />}
-                onClick={() => setSettingsVisible(true)}
-              >
-                Email Settings
-              </Button>
               {activeTab === "compose" && (
                 <Button
                   type="primary"
                   icon={<EyeOutlined />}
                   onClick={() => setPreviewVisible(true)}
-                  disabled={!emailContent && !selectedProfessionalTemplate}
+                  disabled={!selectedProfessionalTemplate}
                   style={{ backgroundColor: "#4B0082", borderColor: "#4B0082" }}
                 >
                   Preview
@@ -1064,25 +798,6 @@ const EmailSenderWithTemplates = () => {
               }
               key="compose"
             >
-              {!emailConfigured && (
-                <Alert
-                  message="Email Not Configured"
-                  description="Please configure your email settings before sending emails."
-                  type="warning"
-                  showIcon
-                  action={
-                    <Button
-                      size="small"
-                      type="primary"
-                      onClick={() => setSettingsVisible(true)}
-                    >
-                      Configure Now
-                    </Button>
-                  }
-                  style={{ marginBottom: 16 }}
-                />
-              )}
-
               <Form form={form} layout="vertical" onFinish={handleSubmit}>
                 <Row gutter={16}>
                   <Col xs={24} md={12}>
@@ -1093,20 +808,23 @@ const EmailSenderWithTemplates = () => {
                         allowClear
                       >
                         <Option value="" disabled>
-                          -- Standard Templates --
+                          -- Official Communication Templates --
                         </Option>
                         {templates
-                          .filter((t) => t.templateType === "standard")
-                          .map((template) => (
-                            <Option key={template.id} value={template.id}>
-                              {template.name}
-                            </Option>
-                          ))}
-                        <Option value="" disabled>
-                          -- Professional Templates --
-                        </Option>
-                        {templates
-                          .filter((t) => t.templateType === "professional")
+                          .filter((t) =>
+                            [
+                              "general",
+                              "admission",
+                              "registration",
+                              "exam",
+                              "grades",
+                              "tuition",
+                              "payment",
+                              "event",
+                              "welcome",
+                              "helpdesk",
+                            ].includes(t.templateId)
+                          )
                           .map((template) => (
                             <Option key={template.id} value={template.id}>
                               {template.name}
@@ -1227,29 +945,6 @@ const EmailSenderWithTemplates = () => {
                   <TextArea rows={6} placeholder="Enter your message here" />
                 </Form.Item>
 
-                {/* Show the editor only for standard templates */}
-                {!selectedProfessionalTemplate && (
-                  <Form.Item
-                    label="Email Content"
-                    help="This is how your email will look with the selected template"
-                  >
-                    <div
-                      style={{
-                        border: "1px solid #d9d9d9",
-                        borderRadius: 4,
-                        padding: 8,
-                      }}
-                    >
-                      <ReactQuill
-                        ref={editorRef}
-                        value={emailContent}
-                        onChange={handleEditorChange}
-                        style={{ height: 300, marginBottom: 50 }}
-                      />
-                    </div>
-                  </Form.Item>
-                )}
-
                 {/* Show template preview for professional templates */}
                 {selectedProfessionalTemplate && (
                   <Form.Item
@@ -1270,7 +965,7 @@ const EmailSenderWithTemplates = () => {
                       {renderProfessionalTemplate(
                         selectedProfessionalTemplate,
                         {
-                          recipient_name:
+                          recipientName:
                             form.getFieldValue("recipientName") ||
                             "Valued Member",
                           studentName:
@@ -1281,10 +976,7 @@ const EmailSenderWithTemplates = () => {
                             form.getFieldValue("program") ||
                             "Bachelor of Science",
                           subject: form.getFieldValue("subject") || "",
-                          announcement_title:
-                            form.getFieldValue("subject") ||
-                            "University Announcement",
-                          announcement_content:
+                          message:
                             form.getFieldValue("message") ||
                             "This is an important announcement from the university.",
                           dueDate:
@@ -1351,13 +1043,6 @@ const EmailSenderWithTemplates = () => {
                     </Button>
                     <Button htmlType="button" icon={<SaveOutlined />}>
                       Save as Draft
-                    </Button>
-                    <Button
-                      htmlType="button"
-                      icon={<SendOutlined />}
-                      onClick={handleSendTestEmail}
-                    >
-                      Send Test Email
                     </Button>
                   </Space>
                 </Form.Item>
@@ -1436,17 +1121,7 @@ const EmailSenderWithTemplates = () => {
                     <Card
                       hoverable
                       title={template.name}
-                      extra={
-                        <Tag
-                          color={
-                            template.templateType === "professional"
-                              ? "purple"
-                              : "blue"
-                          }
-                        >
-                          {template.category}
-                        </Tag>
-                      }
+                      extra={<Tag color="purple">{template.category}</Tag>}
                       actions={[
                         <Tooltip title="Preview" key="preview">
                           <EyeOutlined
@@ -1479,18 +1154,9 @@ const EmailSenderWithTemplates = () => {
                             textOverflow: "ellipsis",
                           }}
                         >
-                          {template.templateType === "professional" ? (
-                            <span>
-                              Professional template with dynamic content
-                            </span>
-                          ) : (
-                            <div
-                              dangerouslySetInnerHTML={{
-                                __html:
-                                  template.content.substring(0, 150) + "...",
-                              }}
-                            />
-                          )}
+                          <span>
+                            Professional template with dynamic content
+                          </span>
                         </div>
                       </div>
                     </Card>
@@ -1523,227 +1189,24 @@ const EmailSenderWithTemplates = () => {
               overflow: "auto",
             }}
           >
-            {selectedProfessionalTemplate ? (
+            {selectedProfessionalTemplate &&
               // Directly render the template component
               renderProfessionalTemplate(selectedProfessionalTemplate, {
-                recipient_name:
+                recipientName:
                   form.getFieldValue("recipientName") || "Valued Member",
                 studentName: form.getFieldValue("recipientName") || "Student",
                 userName: form.getFieldValue("recipientName") || "User",
                 program: form.getFieldValue("program") || "Bachelor of Science",
                 subject: form.getFieldValue("subject") || "",
-                announcement_title:
-                  form.getFieldValue("subject") || "University Announcement",
-                announcement_content:
+                message:
                   form.getFieldValue("message") ||
                   "This is an important announcement from the university.",
                 dueDate: form.getFieldValue("dueDate") || "April 30, 2025",
                 paymentMethods:
                   form.getFieldValue("paymentMethods") ||
                   "Bank Transfer, Mobile Money",
-              })
-            ) : (
-              // For standard templates, use the existing behavior
-              <div dangerouslySetInnerHTML={{ __html: emailContent }} />
-            )}
+              })}
           </div>
-        </Modal>
-
-        {/* Email Settings Modal */}
-        <Modal
-          title="Email Settings"
-          visible={settingsVisible}
-          onCancel={() => setSettingsVisible(false)}
-          footer={null}
-          width={700}
-        >
-          <Form
-            form={settingsForm}
-            layout="vertical"
-            onFinish={handleSettingsSubmit}
-            initialValues={emailSettings}
-          >
-            <Tabs defaultActiveKey="smtp">
-              <TabPane
-                tab={
-                  <span>
-                    <MailOutlined /> SMTP Settings
-                  </span>
-                }
-                key="smtp"
-              >
-                <Row gutter={16}>
-                  <Col span={16}>
-                    <Form.Item
-                      name="host"
-                      label="SMTP Host"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please enter the SMTP host",
-                        },
-                      ]}
-                    >
-                      <Input placeholder="e.g., smtp.gmail.com" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item
-                      name="port"
-                      label="Port"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please enter the SMTP port",
-                        },
-                      ]}
-                    >
-                      <Input placeholder="e.g., 587" />
-                    </Form.Item>
-                  </Col>
-                </Row>
-
-                <Form.Item name="secure" valuePropName="checked">
-                  <Checkbox>Use SSL/TLS</Checkbox>
-                </Form.Item>
-
-                <Form.Item
-                  name="user"
-                  label="Username"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter the SMTP username",
-                    },
-                  ]}
-                >
-                  <Input placeholder="e.g., your-email@gmail.com" />
-                </Form.Item>
-
-                <Form.Item
-                  name="password"
-                  label="Password"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter the SMTP password",
-                    },
-                  ]}
-                >
-                  <Input.Password placeholder="Enter your password" />
-                </Form.Item>
-
-                <Alert
-                  message="Security Note"
-                  description="If you're using Gmail, you may need to create an app password instead of using your regular password."
-                  type="info"
-                  showIcon
-                  style={{ marginBottom: 16 }}
-                />
-
-                <Button
-                  type="primary"
-                  onClick={handleTestConnection}
-                  style={{ marginBottom: 16 }}
-                >
-                  Test Connection
-                </Button>
-              </TabPane>
-
-              <TabPane
-                tab={
-                  <span>
-                    <UserOutlined /> Sender Information
-                  </span>
-                }
-                key="sender"
-              >
-                <Form.Item
-                  name="fromName"
-                  label="From Name"
-                  rules={[
-                    { required: true, message: "Please enter the sender name" },
-                  ]}
-                >
-                  <Input placeholder="e.g., Nkumba University" />
-                </Form.Item>
-
-                <Form.Item
-                  name="fromEmail"
-                  label="From Email"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter the sender email",
-                    },
-                    {
-                      type: "email",
-                      message: "Please enter a valid email address",
-                    },
-                  ]}
-                >
-                  <Input placeholder="e.g., no-reply@nkumbauniversity.ac.ug" />
-                </Form.Item>
-
-                <Alert
-                  message="Important"
-                  description="The 'From Email' should match the domain of your SMTP server to avoid emails being marked as spam."
-                  type="warning"
-                  showIcon
-                  style={{ marginBottom: 16 }}
-                />
-              </TabPane>
-
-              <TabPane
-                tab={
-                  <span>
-                    <SettingOutlined /> Advanced
-                  </span>
-                }
-                key="advanced"
-              >
-                <Form.Item
-                  name="rateLimit"
-                  label="Rate Limit (emails per hour)"
-                >
-                  <InputNumber min={1} max={1000} defaultValue={100} />
-                </Form.Item>
-
-                <Form.Item name="retryFailed" valuePropName="checked">
-                  <Checkbox>Automatically retry failed emails</Checkbox>
-                </Form.Item>
-
-                <Form.Item name="trackOpens" valuePropName="checked">
-                  <Checkbox>Track email opens</Checkbox>
-                </Form.Item>
-
-                <Form.Item name="trackClicks" valuePropName="checked">
-                  <Checkbox>Track link clicks</Checkbox>
-                </Form.Item>
-
-                <Alert
-                  message="Note"
-                  description="Tracking features require additional configuration and may affect email deliverability."
-                  type="info"
-                  showIcon
-                  style={{ marginBottom: 16 }}
-                />
-              </TabPane>
-            </Tabs>
-
-            <Divider />
-
-            <Form.Item>
-              <Space>
-                <Button type="primary" htmlType="submit">
-                  Save Settings
-                </Button>
-                <Button onClick={() => setSettingsVisible(false)}>
-                  Cancel
-                </Button>
-              </Space>
-            </Form.Item>
-          </Form>
         </Modal>
 
         {/* Recipients Drawer */}

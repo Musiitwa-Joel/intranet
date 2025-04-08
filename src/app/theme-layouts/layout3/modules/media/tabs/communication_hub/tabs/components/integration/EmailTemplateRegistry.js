@@ -3,6 +3,20 @@
 
 const emailTemplateRegistry = [
   {
+    id: "general",
+    name: "General Information",
+    category: "general",
+    subject: "[Nkumba University] {{subject}}",
+    description: "General purpose communication template",
+    variables: [
+      { name: "recipientName", label: "Recipient Name", required: true },
+      { name: "subject", label: "Subject", required: true },
+      { name: "message", label: "Message", required: true },
+      { name: "ctaText", label: "Call to Action Text", required: false },
+      { name: "ctaLink", label: "Call to Action Link", required: false },
+    ],
+  },
+  {
     id: "admission",
     name: "Admission Letter",
     category: "academic",
