@@ -26,13 +26,13 @@ function HR() {
   const tabs = [
     { label: "Dashboard", value: "dashboard" },
     { label: "Employees", value: "employees" },
-    { label: "Appraisals", value: "appraisals" },
-    { label: "Travel", value: "travel" },
-    { label: "Payroll", value: "payroll" },
-    { label: "Leave", value: "leave" },
-    { label: "Compliance & Legal", value: "compliance_legal" },
-    { label: "Designations", value: "designations" },
-    { label: "Management", value: "management" },
+    // { label: "Appraisals", value: "appraisals" },
+    // { label: "Travel", value: "travel" },
+    // { label: "Payroll", value: "payroll" },
+    // { label: "Leave", value: "leave" },
+    // { label: "Compliance & Legal", value: "compliance_legal" },
+    // { label: "Designations", value: "designations" },
+    // { label: "Management", value: "management" },
   ];
 
   useEffect(() => {
@@ -70,12 +70,12 @@ function HR() {
             {activeTab === "employees" && <Employee />}{" "}
             {/* Always renders Employee */}
             {activeTab === "appraisals" && <Appraisals />}
-            {activeTab === "designations" && <Designations />}
+            {/* {activeTab === "designations" && <Designations />}
             {activeTab === "travel" && <Travel />}
             {activeTab === "payroll" && <Payroll />}
             {activeTab === "leave" && <Leave />}
             {activeTab === "compliance_legal" && <ComplianceLegal />}
-            {activeTab === "management" && <HRManagement />}
+            {activeTab === "management" && <HRManagement />} */}
           </Box>
         </Suspense>
       </ConfigProvider>

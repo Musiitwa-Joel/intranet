@@ -13,6 +13,7 @@ import { selectUser, userLoggedOut } from "app/store/userSlice";
 import { addAppToTaskBar, updateApps } from "app/store/appSlice";
 import { setToken } from "app/store/tokenSlice";
 import { useApolloClient } from "@apollo/client";
+import { Icon } from "@iconify/react";
 
 function UserMenu(props) {
   const user = useSelector((state) => state.user.user);
@@ -85,21 +86,11 @@ function UserMenu(props) {
             role="button"
           >
             <ListItemIcon className="min-w-40">
-              <FuseSvgIcon>heroicons-outline:user-circle</FuseSvgIcon>
+              <Icon icon="gg:profile" width="16" height="16" />
             </ListItemIcon>
             <ListItemText primary="My Profile" />
           </MenuItem>
-          <MenuItem
-            component={Link}
-            to="/apps/mailbox"
-            onClick={userMenuClose}
-            role="button"
-          >
-            <ListItemIcon className="min-w-40">
-              <FuseSvgIcon>heroicons-outline:mail-open</FuseSvgIcon>
-            </ListItemIcon>
-            <ListItemText primary="Inbox" />
-          </MenuItem>
+
           <MenuItem
             component={NavLink}
             // to="/"
@@ -113,9 +104,17 @@ function UserMenu(props) {
             }}
           >
             <ListItemIcon className="min-w-40">
-              <FuseSvgIcon>heroicons-outline:logout</FuseSvgIcon>
+              <Icon
+                icon="hugeicons:logout-04"
+                width="16"
+                height="16"
+                style={{ color: "red" }}
+              />
             </ListItemIcon>
-            <ListItemText primary="Sign out" />
+            <ListItemText
+              primary="Sign out"
+              style={{ color: "red", fontWeight: "bold" }}
+            />
           </MenuItem>
         </>
       </Popover>

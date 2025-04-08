@@ -110,8 +110,8 @@ const EmployeeManagement = () => {
     variables: { employeeId: selectedEmployeeId || "" },
     skip: !selectedEmployeeId, // Skip this query if no employee is selected
   });
-  console.log("Father Deceased:", selectedEmployee.parentInfo?.fatherDeceased);
-  console.log("Mother Deceased:", selectedEmployee.parentInfo?.motherDeceased);
+  // console.log("Father Deceased:", selectedEmployee.parentInfo?.fatherDeceased);
+  // console.log("Mother Deceased:", selectedEmployee.parentInfo?.motherDeceased);
 
   // Transform GraphQL employee data to the format needed by the UI
   const transformEmployeeData = (employee) => {
