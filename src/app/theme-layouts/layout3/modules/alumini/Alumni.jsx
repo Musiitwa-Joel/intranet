@@ -24,7 +24,7 @@ const Alumni = () => {
       <div style={{ position: "relative", width: "100%", height: "100vh" }}>
         {/* iframe with onLoad event to hide loader when loaded */}
         <iframe
-          src={activeApp?.url}
+          src="http://tredumo.com/alumni"
           style={{
             width: "100%",
             height: "100%",

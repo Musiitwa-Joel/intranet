@@ -1,6 +1,4 @@
 import SignInPage from "./SignInPage";
-import OtpVerification from "./OtpPage";
-import ChangePassword from "./ChangePassword";
 import authRoles from "../../auth/authRoles";
 
 const SignInConfig = {
@@ -30,14 +28,6 @@ const SignInConfig = {
     {
       path: "/",
       element: <SignInPage />,
-    },
-    {
-      path: "/otp-verification",
-      element: <OtpVerification />,
-    },
-    {
-      path: "/change-password",
-      element: <ChangePassword />,
     },
   ],
 };

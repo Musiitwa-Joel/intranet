@@ -7,14 +7,8 @@ import { selectActiveTab, setActiveTab } from "./store/systemAccessSlice";
 import RolePermissions from "./tabs/role_permissions/RolePermissions";
 import Users from "./tabs/users/Users";
 import AppNav from "../../components/AppNav";
-import { ConfigProvider, theme } from "antd";
 
-const tabs = [
-  // "Role Permissions",
-  "Users",
-  "System Logs",
-  "Other Configs",
-];
+const tabs = ["Role Permissions", "Users", "System Logs", "Other Configs"];
 
 function SystemAccess() {
   const dispatch = useDispatch();
@@ -49,14 +43,9 @@ function SystemAccess() {
             activeTab={activeTab}
             handleTabChange={handleTabChange}
           />
-          <ConfigProvider
-            theme={{
-              algorithm: theme.compactAlgorithm,
-            }}
-          >
-            {/* {activeTab === 0 && <RolePermissions />} */}
-            {activeTab === 0 && <Users />}
-          </ConfigProvider>
+
+          {activeTab === 0 && <RolePermissions />}
+          {activeTab === 1 && <Users />}
         </Box>
       </Suspense>
     </>

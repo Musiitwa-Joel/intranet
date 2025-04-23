@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Spin } from "antd"; // Ant Design spinner (optional)
 import { useSelector } from "react-redux";
 import FuseLoading from "@fuse/core/FuseLoading";
@@ -11,16 +11,6 @@ const Library = () => {
   const token = useSelector(selectToken);
 
   console.log("token", token);
-
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    iframe.onload = () => {
-      iframe.contentWindow.postMessage(
-        { type: "AUTH_TOKEN", token: token },
-        "http://localhost:3000"
-      );
-    };
-  }, []);
 
   return (
     <>

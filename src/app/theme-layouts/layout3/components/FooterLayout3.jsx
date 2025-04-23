@@ -184,7 +184,7 @@ function FooterLayout3(props) {
             </div>
           </div>
 
-          {/* <div className="flex grow shrink-0 px-12 justify-end sticky right-0">
+          <div className="flex grow shrink-0 px-12 justify-end sticky right-0">
             <Tooltip
               title="All apps"
               placement="top"
@@ -207,7 +207,7 @@ function FooterLayout3(props) {
                 <AppsIcon fontSize="inherit" />
               </IconButton>
             </Tooltip>
-          </div> */}
+          </div>
         </Toolbar>
       </AppBar>
     </ThemeProvider>
