@@ -30,7 +30,7 @@ function Elearnig() {
           }}
         >
           <iframe
-            src="https://elearning.nkumbauniversity.ac.ug/course/"
+            src={activeApp?.url}
             style={{ width: "100%", height: "100vh", border: "none" }}
             title="Embedded App"
           />

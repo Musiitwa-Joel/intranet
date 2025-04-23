@@ -13,14 +13,20 @@ import {
   Checkbox,
   Select,
   Modal,
+  Radio,
 } from "antd";
 import PerfectScrollbar from "perfect-scrollbar";
 
-import { gql, useMutation, useQuery } from "@apollo/client";
+// import { gql, useMutation, useQuery } from "@apollo/client";
 
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
-import { ADD_NEW_USER } from "../../gql/mutations";
-import { selectSelectedUser } from "../../store/systemAccessSlice";
+// import { ADD_NEW_USER } from "../../gql/mutations";
+import {
+  selectSelectedUser,
+  selectUsers,
+  setUsers,
+} from "../../store/systemAccessSlice";
+import api from "app/configs/api";
 
 const { TextArea } = Input;
 
@@ -28,37 +34,40 @@ const onFinishFailed = (errorInfo) => {
   console.log("Failed:", errorInfo);
 };
 
-const LOAD_REQS = gql`
-  query Query {
-    employees {
-      id
-      salutation
-      surname
-      other_names
-    }
-    all_roles {
-      role_id
-      role_name
-    }
-    schools {
-      id
-      school_code
-      school_title
-    }
-  }
-`;
+// const LOAD_REQS = gql`
+//   query Query {
+//     employees {
+//       id
+//       salutation
+//       surname
+//       other_names
+//     }
+//     all_roles {
+//       role_id
+//       role_name
+//     }
+//     schools {
+//       id
+//       school_code
+//       school_title
+//     }
+//   }
+// `;
 
 function AddNewUserForm() {
   const scrollContainerRef = useRef(null);
   const psRef = useRef(null);
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-  const { error, loading, data } = useQuery(LOAD_REQS);
+  const users = useSelector(selectUsers);
+  const [loadingAllUsers, setLoadingAllUsers] = useState(false);
+  const [savingUsers, setSavingUsers] = useState(false);
+  // const { error, loading, data } = useQuery(LOAD_REQS);
   const selectedUser = useSelector(selectSelectedUser);
-  const [addNewUser, { error: addErr, loading: addingUser, data: addRes }] =
-    useMutation(ADD_NEW_USER, {
-      refetchQueries: ["loadUsers"],
-    });
+  // const [addNewUser, { error: addErr, loading: addingUser, data: addRes }] =
+  //   useMutation(ADD_NEW_USER, {
+  //     refetchQueries: ["loadUsers"],
+  //   });
 
   // console.log("user", selectedUser);
 
@@ -89,59 +98,53 @@ function AddNewUserForm() {
     }
   }, [selectedUser]);
 
-  useEffect(() => {
-    if (error) {
-      dispatch(
-        showMessage({
-          message: error.message,
-          variant: "error",
-        })
-      );
-    }
-
-    if (addErr) {
-      dispatch(
-        showMessage({
-          message: addErr.message,
-          variant: "error",
-        })
-      );
-    }
-  }, [error, addErr]);
-
-  // useEffect(() => {
-  //   if (selectedRow) {
-  //     form.setFieldsValue({
-  //       designation_name: selectedRow.designation_name,
-  //     });
-  //   }
-  // }, [selectedRow]);
-
   const onFinish = async (values) => {
     const payload = {
-      payload: {
-        role_id: values.role,
-        user_id: values.user_id,
-        employee_id: values.staff,
-        school_id: values.school,
-      },
+      first_name: values.first_name,
+      other_names: values.other_names,
+      email: values.email,
+      gender: values.gender,
     };
 
-    const res = await addNewUser({
-      variables: payload,
-    });
+    setSavingUsers(true);
 
-    form.resetFields();
-    // // dispatch(setSelectedDesignation(null));
-    // // dispatch(setDesignationModalVisible(false));
+    try {
+      const response = await api.post("/api/users", payload);
 
-    dispatch(
-      showMessage({
-        message: res.data.addNewUser.message,
-        variant: "success",
-      })
-    );
-  };
+      if (response.data?.success) {
+        // Fetch updated users list
+        const usersResponse = await api.get("/api/users");
+        
+        // Update Redux store with new users list
+        dispatch(setUsers(usersResponse.data.result));
+
+        dispatch(
+          showMessage({
+            message: response.data.message,
+            variant: "success",
+          })
+        );
+
+        // Clear the form
+        handleClear();
+      } else {
+        dispatch(
+          showMessage({
+            message: response.data.message,
+            variant: "error",
+          })
+        );
+      }
+    } catch (error) {
+      dispatch(
+        showMessage({
+          message: "Error adding user",
+          variant: "error",
+        })
+      );
+    } finally {
+      setSavingUsers(false);
+    }}
 
   useEffect(() => {
     form.setFieldsValue({
@@ -182,7 +185,7 @@ function AddNewUserForm() {
           }}
         >
           <Typography className="font-medium text-20 bold">
-            {"Add New User"}
+            {"Add Login Details"}
           </Typography>
         </Divider>
 
@@ -208,37 +211,8 @@ function AddNewUserForm() {
               autoComplete="off"
             >
               <Form.Item
-                label="Staff"
-                name="staff"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please select Staff",
-                  },
-                ]}
-              >
-                <Select
-                  showSearch
-                  // loading={loading}
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  options={
-                    data
-                      ? data?.employees?.map((emp) => ({
-                          label: `${emp.salutation} ${emp.surname} ${emp.other_names}`,
-                          value: emp.id,
-                        }))
-                      : []
-                  }
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="Email or any other user id"
-                name="user_id"
+                label="First Name"
+                name="first_name"
                 rules={[
                   {
                     required: true,
@@ -250,62 +224,45 @@ function AddNewUserForm() {
               </Form.Item>
 
               <Form.Item
-                label="User Role"
-                name="role"
+                label="Other Names"
+                name="other_names"
                 rules={[
                   {
                     required: true,
-                    message: "Please select user role",
+                    message: "This is required",
                   },
                 ]}
               >
-                <Select
-                  showSearch
-                  // loading={loading}
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  options={
-                    data
-                      ? data?.all_roles?.map((role) => ({
-                          label: `${role.role_name}`,
-                          value: role.role_id,
-                        }))
-                      : []
-                  }
-                />
+                <Input />
               </Form.Item>
 
               <Form.Item
-                label="Faculty/Schools"
-                name="school"
-                initialValue={null}
+                label="Email"
+                name="email"
+                rules={[
+                  {
+                    required: true,
+                    message: "This is required",
+                  },
+                ]}
               >
-                <Select
-                  showSearch
-                  // loading={loading}
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  options={
-                    data
-                      ? [
-                          {
-                            label: "ALL SCHOOLS",
-                            value: null,
-                          },
-                          ...data?.schools?.map((school) => ({
-                            label: `(${school.school_code}) ${school.school_title}`,
-                            value: school.id,
-                          })),
-                        ]
-                      : []
-                  }
-                />
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                label="Gender"
+                name="gender"
+                rules={[
+                  {
+                    required: true,
+                    message: "This is required",
+                  },
+                ]}
+              >
+                <Radio.Group>
+                  <Radio value="M">Male</Radio>
+                  <Radio value="F">Female</Radio>
+                </Radio.Group>
               </Form.Item>
 
               <Space
@@ -331,8 +288,8 @@ function AddNewUserForm() {
                   <Button2
                     type="primary"
                     htmlType="submit"
-                    loading={addingUser}
-                    disabled={addingUser}
+                    loading={savingUsers}
+                    disabled={savingUsers}
                   >
                     Save
                   </Button2>

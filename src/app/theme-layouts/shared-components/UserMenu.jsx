@@ -12,12 +12,12 @@ import FuseSvgIcon from "@fuse/core/FuseSvgIcon";
 import { selectUser, userLoggedOut } from "app/store/userSlice";
 import { addAppToTaskBar, updateApps } from "app/store/appSlice";
 import { setToken } from "app/store/tokenSlice";
-import { useApolloClient } from "@apollo/client";
+// import { useApolloClient } from "@apollo/client";
 
 function UserMenu(props) {
-  const user = useSelector((state) => state.user.user);
+  const userObj = useSelector((state) => state.user.user);
   const currentRoute = useLocation();
-  const client = useApolloClient();
+  // const client = useApolloClient();
   const [userMenu, setUserMenu] = useState(null);
   const dispatch = useDispatch();
 
@@ -39,25 +39,25 @@ function UserMenu(props) {
         {currentRoute.pathname == "/example" && (
           <div className="hidden md:flex flex-col mx-4 items-end">
             <Typography component="span" className="font-semibold flex">
-              {`${user?.biodata?.salutation} ${user?.biodata?.surname} ${user?.biodata?.other_names}`}
+              {`${userObj?.user?.first_name} ${userObj?.user?.other_names}`}
             </Typography>
             <Typography
               className="text-11 font-medium capitalize"
               color="text.secondary"
             >
-              {user?.role.role_name}
+              {/* {user?.role.role_name} */}
             </Typography>
           </div>
         )}
 
-        {user?.biodata ? (
+        {userObj?.user ? (
           <Avatar
             className="md:mx-4"
             alt="user photo"
-            src={user?.biodata.salutation}
+            src={userObj?.user?.photo}
           />
         ) : (
-          <Avatar className="md:mx-4">{user?.biodata.salutation}</Avatar>
+          <Avatar className="md:mx-4">{userObj?.user?.photo}</Avatar>
         )}
       </Button>
 
@@ -104,12 +104,9 @@ function UserMenu(props) {
             component={NavLink}
             // to="/"
             onClick={() => {
-              // dispatch(userLoggedOut());
-              // dispatch(updateApps([]));
               dispatch(setToken(null)); // remove token
               dispatch(addAppToTaskBar([])); // close all apps
               dispatch(userLoggedOut()); // remove the user profile
-              client.resetStore(); // reset all queries
             }}
           >
             <ListItemIcon className="min-w-40">

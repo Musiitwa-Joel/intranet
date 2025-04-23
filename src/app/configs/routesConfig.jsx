@@ -10,6 +10,8 @@ import Error404Page from "../main/404/Error404Page";
 import ExampleConfig from "../main/example/ExampleConfig";
 import Example from "../main/example/Example";
 import SignInPage from "../main/sign-in/SignInPage";
+import OtpVerification from "../main/sign-in/OtpPage";
+import ChangePassword from "../main/sign-in/ChangePassword";
 // import Admissions from "app/theme-layouts/layout3/modules/admissions/Admissions";
 // import Setup from "app/theme-layouts/layout3/modules/setup/Setup";
 // import ProgramsAndCourses from "app/theme-layouts/layout3/modules/prog_and_courses/ProgramsAndCourses";
@@ -115,6 +117,14 @@ const Library = lazy(
   () => import("app/theme-layouts/layout3/modules/library/Library")
 );
 
+const Rims = lazy(() => import("app/theme-layouts/layout3/modules/rims/Rims"));
+
+const Jobs = lazy(() => import("app/theme-layouts/layout3/modules/jobs/jobs"));
+
+const SmeHub = lazy(
+  () => import("app/theme-layouts/layout3/modules/sme_hub/SmeHub")
+);
+
 const MemoizedProgramsAndCourses = memo(ProgramsAndCourses);
 const MemoizedAdmissions = memo(Admissions);
 const MemoizedSetup = memo(Setup);
@@ -134,6 +144,9 @@ const MemoizedVoting = memo(Voting);
 const MemoizedCounselling = memo(Counselling);
 const MemoizedGraduation = memo(Graduation);
 const MemoizedLibrary = memo(Library);
+const MemoizedRims = memo(Rims);
+const MemoizedJobs = memo(Jobs);
+const MemoizedSmeHub = memo(SmeHub);
 
 const routeConfigs = [ExampleConfig, SignOutConfig, SignInConfig, SignUpConfig];
 /**
@@ -155,6 +168,16 @@ const routes = [
     // auth: settingsConfig.defaultAuth,
   },
   {
+    path: "/otp-verification",
+    element: <OtpVerification />,
+    // auth: settingsConfig.defaultAuth,
+  },
+  {
+    path: "/change-password",
+    element: <ChangePassword />,
+    // auth: settingsConfig.defaultAuth,
+  },
+  {
     path: "loading",
     element: <FuseLoading />,
   },
@@ -172,6 +195,30 @@ const routes = [
     element: (
       <ProtectedRoute>
         <MemoizedAdmissions />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "rims",
+    element: (
+      <ProtectedRoute>
+        <MemoizedRims />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "jobs",
+    element: (
+      <ProtectedRoute>
+        <MemoizedJobs />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "sme_hub",
+    element: (
+      <ProtectedRoute>
+        <MemoizedSmeHub />
       </ProtectedRoute>
     ),
   },

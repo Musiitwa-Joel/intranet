@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { rootReducer } from "app/store/lazyLoadedSlices";
+import { setUserSettings } from "src/app/auth/user/store/userSlice";
 
 const initialState = {
   activeTab: 0,
@@ -13,12 +14,16 @@ const initialState = {
   loadingRoleModules: false,
   selectedPermissions: [],
   selectedUser: null,
+  users: [],
 };
 
 export const systemAccessSlice = createSlice({
   name: "systemAccess",
   initialState,
   reducers: {
+    setUsers: (state, action) => {
+      state.users = action.payload;
+    },
     setActiveTab: (state, action) => {
       state.activeTab = action.payload;
     },
@@ -55,6 +60,7 @@ export const systemAccessSlice = createSlice({
   },
 
   selectors: {
+    selectUsers: (state) => state.users,
     selectActiveTab: (state) => state.activeTab,
     selectAllRoles: (state) => state.allRoles,
     selectCreateRoleModalVisible: (state) => state.createRoleModalVisible,
@@ -74,6 +80,7 @@ export const systemAccessSlice = createSlice({
 rootReducer.inject(systemAccessSlice);
 const injectedSlice = systemAccessSlice.injectInto(rootReducer);
 export const {
+  setUsers,
   setActiveTab,
   setAllRoles,
   setCreateRoleModalVisible,
@@ -88,6 +95,7 @@ export const {
 } = systemAccessSlice.actions;
 
 export const {
+  selectUsers,
   selectActiveTab,
   selectAllRoles,
   selectCreateRoleModalVisible,

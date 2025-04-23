@@ -7,62 +7,24 @@ import { useDispatch, useSelector } from "react-redux";
 import _ from "@lodash";
 import Button from "@mui/material/Button";
 import FuseSvgIcon from "@fuse/core/FuseSvgIcon";
+import { Space } from "antd";
+import { selectSelectedTab, setSelectedTab } from "./store/homeSlice";
+import formatDateString from "app/theme-layouts/layout3/utils/formatDateString";
 // import { getProjects, selectProjects } from "./store/projectsSlice";
 
-const formatDateString = (timestamp) => {
-  if (!timestamp || isNaN(timestamp) || timestamp <= 0) {
-    return "Invalid Date";
-  }
-
-  const date = new Date(timestamp);
-
-  if (isNaN(date.getTime())) {
-    return "Invalid Date";
-  }
-
-  const options = {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  };
-
-  const formattedDate = new Intl.DateTimeFormat("en-US", options).format(date);
-
-  const [weekday, month, day, year, time] = formattedDate.split(" ");
-
-  const ampm = date.getHours() >= 12 ? "PM" : "AM";
-
-  return `${weekday}-${month}-${day}-${year} ${time} ${ampm}`
-    .replace(/,/g, "")
-    .toUpperCase();
-};
 
 function ProjectDashboardAppHeader(props) {
+  const dispatch = useDispatch();
   // const dispatch = useDispatch();
   // const projects = useSelector(selectProjects);
   const projects = [
     {
       id: 1,
-      name: "ACME Corp. Backend App",
-    },
-    {
-      id: 2,
-      name: "ACME Corp. Frontend App",
-    },
-    {
-      id: 3,
-      name: "Creapond",
-    },
-    {
-      id: 4,
-      name: "Withinpixels",
+      name: "Apps",
     },
   ];
-  const user = useSelector((state) => state.user.user);
+  const userObj = useSelector((state) => state.user.user);
+  const selectedTab = useSelector(selectSelectedTab);
 
   const [selectedProject, setSelectedProject] = useState({
     id: 1,
@@ -78,6 +40,11 @@ function ProjectDashboardAppHeader(props) {
       id,
       menuEl: null,
     });
+  }
+
+  function handleTabClick(event, name) {
+    // setSelectedTab(name);
+    dispatch(setSelectedTab(name));
   }
 
   function handleOpenProjectMenu(event) {
@@ -100,96 +67,83 @@ function ProjectDashboardAppHeader(props) {
 
   return (
     <div className="flex flex-col w-full px-24 sm:px-32">
-      <div className="flex flex-col sm:flex-row flex-auto sm:items-center min-w-0 my-32 sm:my-48">
+      <div className="flex flex-col sm:flex-row flex-auto sm:items-center min-w-0 my-24 sm:my-32">
         <div className="flex flex-auto items-center min-w-0">
-          <Avatar
-            className="flex-0 w-80 h-80"
+        <Avatar
+            className="flex-0 w-80 h-80 border-2"
             alt="user photo"
-            src={user?.data?.photoURL}
+            src={userObj?.user?.photo}
+            sx={{
+              backgroundColor: '#825505',
+              fontSize: '1.5rem'
+            }}
           >
-            {user?.data?.displayName[0]}
+            {!userObj?.user?.photo && userObj?.user?.first_name && userObj?.user?.other_names
+              ? `${userObj?.user?.first_name[0]}${userObj?.user?.other_names[0]}`
+              : ''}
           </Avatar>
           <div className="flex flex-col min-w-0 mx-16">
-            <Typography className="text-2xl md:text-5xl font-semibold tracking-tight leading-7 md:leading-snug truncate">
-              {`Welcome back, ${user?.biodata?.salutation} ${user?.biodata?.surname} ${user?.biodata?.other_names}!`}
+            <Typography 
+              className="text-2xl md:text-4xl font-semibold tracking-tight leading-7 md:leading-snug truncate"
+              sx={{ color: 'primary.main' }}
+            >
+              {`Welcome back, ${userObj?.user?.first_name} ${userObj?.user?.other_names}!`}
             </Typography>
 
-            <div className="flex items-center">
-              <Typography
-                className="mx-6 leading-6 truncate"
-                color="text.secondary"
-                style={{
-                  fontSize: 16,
-                }}
-              >
-                Last logged in:{" "}
-                {formatDateString(
-                  parseInt(
-                    user.last_logged_in[0]
-                      ? user.last_logged_in[0].logged_in
-                      : "_"
-                  )
-                )}
-              </Typography>
-            </div>
+            <Typography
+              variant="body"
+              className="mt-2 leading-6 truncate"
+              color="text.secondary"
+            >
+              Last logged in: {userObj?.lastLogin?.logged_in ? formatDateString(userObj?.lastLogin?.logged_in) : "_"}
+            </Typography>
           </div>
         </div>
-        <div className="flex items-center mt-24 sm:mt-0 sm:mx-8 space-x-12">
+        <div className="flex items-center mt-24 sm:mt-0 sm:mx-8 space-x-8">
           <Button
-            className="whitespace-nowrap"
+            className="whitespace-nowrap px-16"
             variant="contained"
             color="primary"
-            startIcon={
-              <FuseSvgIcon size={20}>heroicons-solid:mail</FuseSvgIcon>
-            }
+            startIcon={<FuseSvgIcon size={20}>heroicons-solid:mail</FuseSvgIcon>}
+            sx={{ borderRadius: '8px', textTransform: 'none', backgroundColor: "#825505" }}
+
           >
             Messages
           </Button>
           <Button
-            className="whitespace-nowrap"
-            variant="contained"
-            color="secondary"
+            className="whitespace-nowrap px-16"
+            variant="outlined"
+            color="primary"
             startIcon={<FuseSvgIcon size={20}>heroicons-solid:cog</FuseSvgIcon>}
+            sx={{ borderRadius: '8px', textTransform: 'none' }}
           >
             Settings
           </Button>
         </div>
       </div>
-      <div className="flex items-center">
-        <Button
-          onClick={handleOpenProjectMenu}
-          className="flex items-center border border-solid border-b-0 rounded-t-xl rounded-b-0 h-40 px-16 text-13 sm:text-16"
-          variant="default"
-          sx={{
-            backgroundColor: (theme) => theme.palette.background.default,
-            borderColor: (theme) => theme.palette.divider,
-          }}
-          endIcon={
-            <FuseSvgIcon size={20} color="action">
-              heroicons-solid:chevron-down
-            </FuseSvgIcon>
-          }
-        >
-          {_.find(projects, ["id", selectedProject.id]).name}
-        </Button>
-        <Menu
-          id="project-menu"
-          anchorEl={selectedProject.menuEl}
-          open={Boolean(selectedProject.menuEl)}
-          onClose={handleCloseProjectMenu}
-        >
-          {projects &&
-            projects.map((project) => (
-              <MenuItem
-                key={project.id}
-                onClick={(ev) => {
-                  handleChangeProject(project.id);
-                }}
-              >
-                {project.name}
-              </MenuItem>
-            ))}
-        </Menu>
+      <div className="flex items-center mb-8">
+        <div className="flex space-x-2">
+          {['apps', 'notices', 'feedback'].map((tab) => (
+            <Button
+              key={tab}
+              onClick={(e) => handleTabClick(e, tab)}
+              className="h-48 px-24 text-15"
+              sx={{
+                backgroundColor: selectedTab === tab ? 'rgba(81, 53, 3, 0.08)' : '#fff',
+                color: selectedTab === tab ? '#513503' : 'text.secondary',
+                borderRadius: '12px 12px 0 0',
+                borderColor: 'divider',
+                borderBottom: 0,
+                '&:hover': {
+                  backgroundColor: selectedTab === tab ? 'rgba(81, 53, 3, 0.12)' : 'rgba(81, 53, 3, 0.04)',
+                },
+                textTransform: 'capitalize'
+              }}
+            >
+              {tab}
+            </Button>
+          ))}
+        </div>
       </div>
     </div>
   );

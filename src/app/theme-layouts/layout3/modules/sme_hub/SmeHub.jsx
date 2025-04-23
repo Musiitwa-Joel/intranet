@@ -2,10 +2,15 @@ import React, { useState } from "react";
 import { Spin } from "antd"; // Ant Design spinner (optional)
 import { useSelector } from "react-redux";
 import FuseLoading from "@fuse/core/FuseLoading";
+import { selectToken } from "app/store/tokenSlice";
+import AppNav2 from "../../components/AppNav2";
 
-const Alumni = () => {
+const SmeHub = () => {
   const [loading, setLoading] = useState(true);
   const activeApp = useSelector((state) => state.apps.activeApp);
+  const token = useSelector(selectToken);
+
+  console.log("token", token);
 
   return (
     <>
@@ -21,7 +26,21 @@ const Alumni = () => {
         {loading && <FuseLoading logo={activeApp?.logo} />}
       </div>
 
-      <div style={{ position: "relative", width: "100%", height: "100vh" }}>
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "calc(100vh - 100px)",
+        }}
+      >
+        {!loading && (
+          <AppNav2
+            tabs={[]}
+            activeApp={activeApp}
+            // activeTab={activeTab}
+            // handleTabChange={handleTabChange}
+          />
+        )}
         {/* iframe with onLoad event to hide loader when loaded */}
         <iframe
           src={activeApp?.url}
@@ -38,4 +57,4 @@ const Alumni = () => {
   );
 };
 
-export default Alumni;
+export default SmeHub;

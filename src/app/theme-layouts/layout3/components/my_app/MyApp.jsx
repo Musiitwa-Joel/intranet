@@ -1,64 +1,60 @@
 import React from "react";
 import "./my_app.css";
 import { motion } from "framer-motion";
+import { Paper } from "@mui/material";
+import Typography from "@mui/material/Typography";
 
-const MyApp = ({ title, onClick, logo }) => {
-  const lines = title.split("\n");
 
+function MyApp({ title, logo, description, onClick, sx }) {
   return (
-    <motion.div
-      whileHover={{
-        scale: 1.1,
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
-        transition: { duration: 0.04 },
-      }}
-      whileTap={{ scale: 0.9 }}
+    <Paper
       onClick={onClick}
-      // className="myapp"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        margin: 10,
-        boxShadow: 3,
-        borderRadius: 10,
-        cursor: "pointer",
-        padding: 10,
-        // backgroundColor: "red",
-        width: 150,
+      sx={{
+        p: 2,
+        cursor: 'pointer',
+        borderRadius: 2,
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        backgroundColor: 'background.paper',
+        ...sx
       }}
     >
-      {logo ? (
-        <img src={logo} alt="logo" width={80} height={80} />
-      ) : (
-        <div
-          style={{
-            width: 100,
-            height: 100,
-            backgroundColor: "lightgray",
-            marginBottom: 5,
-          }}
-        ></div>
-      )}
-      <span
+      <img 
+        src={logo} 
+        alt={title}
         style={{
-          marginTop: 10,
-          fontSize: "1.8rem",
-          overflow: "hidden",
-          whiteSpace: "normal",
-          display: "-webkit-box",
-          WebkitBoxOrient: "vertical",
-          WebkitLineClamp: 2,
-          textOverflow: "ellipsis",
-          // width: ,
-          textAlign: "center",
+          width: 64,
+          height: 64,
+          objectFit: 'contain',
+          marginBottom: 12
         }}
+      />
+      <Typography 
+        variant="subtitle1" 
+        className="text-center font-medium"
+        sx={{ color: 'text.primary' }}
       >
         {title}
-      </span>
-    </motion.div>
+      </Typography>
+      {description && (
+        <Typography 
+          variant="body2" 
+          className="text-center mt-4"
+          sx={{ 
+            color: 'text.secondary',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden'
+          }}
+        >
+          {description}
+        </Typography>
+      )}
+    </Paper>
   );
-};
+}
 
 export default MyApp;

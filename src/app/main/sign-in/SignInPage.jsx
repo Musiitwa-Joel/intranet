@@ -34,7 +34,9 @@ import config from "../../auth/services/jwt/jwtAuthConfig";
 import { GET_MY_PROFILE } from "app/theme-layouts/layout3/graphql/queries";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import jwtDecode from "jwt-decode";
-import { url2 } from "app/configs/apiConfig";
+import { url, url2 } from "app/configs/apiConfig";
+import api from "app/configs/api";
+import { setInitialUserProfile } from "./store/authSlice";
 
 /**
  * Form Validation Schema
@@ -49,6 +51,204 @@ const schema = yup.object().shape({
     .required("Please enter your password.")
     .min(4, "Password is too short - must be at least 4 chars."),
 });
+
+const user = {
+  data: {
+    my_profile: {
+      id: "58",
+      user_id: "7c556b82-940e-4711-a328-5c6082c5d141-1734207433413",
+      email: "judlub@gmail.com",
+      has_set_sec_qns: 0,
+      sys_gen_pwd: 1,
+      biodata: {
+        id: "7c556b82-940e-4711-a328-5c6082c5d141-1734207433413",
+        email: "judlub@gmail.com",
+        salutation: "Prof.",
+        surname: "LUBEGA",
+        other_names: "JUDE",
+        telno: "+2567766262626",
+        __typename: "Employee",
+      },
+      last_logged_in: [
+        {
+          id: "1414",
+          machine_ipaddress: "149.255.39.32",
+          logged_in: "1744320338000",
+          __typename: "UserLogin",
+        },
+      ],
+      role: {
+        id: "29",
+        role_name: "Vice Chancellor",
+        _modules: [
+          {
+            id: "3",
+            title: "Admissions",
+            route: "admissions",
+            logo: "https://tredumo.com/api/module_logos/admissions.png",
+            __typename: "Module",
+          },
+          {
+            id: "17",
+            title: "Registration",
+            route: "registration",
+            logo: "https://tredumo.com/api/module_logos/registration.png",
+            __typename: "Module",
+          },
+          {
+            id: "2",
+            title: "Photo Booth",
+            route: "photos_manager",
+            logo: "https://tredumo.com/api/module_logos/photomanage.png",
+            __typename: "Module",
+          },
+          {
+            id: "4",
+            title: "Students Information Hub",
+            route: "student_information_center",
+            logo: "https://tredumo.com/api/module_logos/studentInfo.png",
+            __typename: "Module",
+          },
+          {
+            id: "11",
+            title: "Course Administration Hub",
+            route: "programsencourses",
+            logo: "https://tredumo.com/api/module_logos/programcourses.png",
+            __typename: "Module",
+          },
+          {
+            id: "8",
+            title: "Education Monitoring And Tracking",
+            route: "student_assesment",
+            logo: "https://tredumo.com/api/module_logos/assesement.png",
+            __typename: "Module",
+          },
+          {
+            id: "13",
+            title: "Examinations",
+            route: "examinations",
+            logo: "https://tredumo.com/api/module_logos/examinations.png",
+            __typename: "Module",
+          },
+          {
+            id: "1",
+            title: "Results Management",
+            route: "results_manager",
+            logo: "https://tredumo.com/api/module_logos/results.png",
+            __typename: "Module",
+          },
+          {
+            id: "14",
+            title: "Fees Management",
+            route: "fees_management",
+            logo: "https://tredumo.com/api/module_logos/fees_module.png",
+            __typename: "Module",
+          },
+          {
+            id: "20",
+            title: "Voting",
+            route: "elections",
+            logo: "https://tredumo.com/api/module_logos/votingLogo.png",
+            __typename: "Module",
+          },
+          {
+            id: "5",
+            title: "Alumni",
+            route: "alumni",
+            logo: "https://tredumo.com/api/module_logos/alumni.png",
+            __typename: "Module",
+          },
+          {
+            id: "6",
+            title: "Finance",
+            route: "finance",
+            logo: "https://tredumo.com/api/module_logos/finance.png",
+            __typename: "Module",
+          },
+          {
+            id: "7",
+            title: "Quality Assurance",
+            route: "quality_assurance",
+            logo: "https://tredumo.com/api/module_logos/qualityAssurance.png",
+            __typename: "Module",
+          },
+          {
+            id: "15",
+            title: "Graduation",
+            route: "graduation",
+            logo: "https://tredumo.com/api/module_logos/graduation.png",
+            __typename: "Module",
+          },
+          {
+            id: "16",
+            title: "Media",
+            route: "media",
+            logo: "https://tredumo.com/api/module_logos/media.png",
+            __typename: "Module",
+          },
+          {
+            id: "9",
+            title: "Human Resource",
+            route: "hr",
+            logo: "https://tredumo.com/api/module_logos/staff.png",
+            __typename: "Module",
+          },
+          {
+            id: "10",
+            title: "System Access",
+            route: "system_access",
+            logo: "https://tredumo.com/api/module_logos/config.png",
+            __typename: "Module",
+          },
+          {
+            id: "12",
+            title: "Setup",
+            route: "setup",
+            logo: "https://tredumo.com/api/module_logos/setup.png",
+            __typename: "Module",
+          },
+          {
+            id: "19",
+            title: "User Guide",
+            route: "user_guide",
+            logo: "https://tredumo.com/api/module_logos/user_guide.png",
+            __typename: "Module",
+          },
+          {
+            id: "22",
+            title: "Elearning",
+            route: "elearning",
+            logo: "https://tredumo.com/api/module_logos/elearning.png",
+            __typename: "Module",
+          },
+          {
+            id: "23",
+            title: "Scholarships",
+            route: "scholarships",
+            logo: "https://tredumo.com/api/module_logos/scholarships.png",
+            __typename: "Module",
+          },
+          {
+            id: "26",
+            title: "Library",
+            route: "library",
+            logo: "https://tredumo.com/api/module_logos/library.png",
+            __typename: "Module",
+          },
+          {
+            id: "24",
+            title: "TredPay",
+            route: "tredpay",
+            logo: "https://tredumo.com/api/module_logos/tredpay.png",
+            __typename: "Module",
+          },
+        ],
+        __typename: "Role",
+      },
+      __typename: "User",
+    },
+  },
+};
 
 const defaultValues = {
   email: "",
@@ -73,21 +273,19 @@ const twitterClick = (e) => {
 
 function SignInPage() {
   const { signIn } = UseJwtAuth();
-  const [loginUser, { data, loading, error }] = useMutation(LOGIN_USER, {
-    errorPolicy: "all",
-  });
+  const [loading, setLoading] = useState(false);
 
-  const [
-    loadMyProfile,
-    { data: myProfileRes, error: myProfileErr, loading: myProfileLoading },
-  ] = useLazyQuery(GET_MY_PROFILE, {
-    fetchPolicy: "network-only",
-  });
+  // const [
+  //   loadMyProfile,
+  //   { data: myProfileRes, error: myProfileErr, loading: myProfileLoading },
+  // ] = useLazyQuery(GET_MY_PROFILE, {
+  //   fetchPolicy: "network-only",
+  // });
 
-  // const [error, setError] = useState(null)
+  const [error, setError] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { control, formState, handleSubmit, setError, setValue } = useForm({
+  const { control, formState, handleSubmit, setValue } = useForm({
     mode: "onChange",
     defaultValues,
     resolver: yupResolver(schema),
@@ -95,64 +293,51 @@ function SignInPage() {
 
   const { isValid, dirtyFields, errors } = formState;
 
-  useEffect(() => {
-    if (myProfileErr) {
-      dispatch(
-        showMessage({
-          message: myProfileErr.message,
-          variant: "error",
-        })
-      );
-    }
-  }, [myProfileErr]);
-
   async function onSubmit({ email, password }) {
-    const res = await loginUser({
-      variables: {
-        email: email,
-        pwd: password,
-      },
-    });
+    try {
+      setError(null);
+      setLoading(true);
+      const response = await api.post("/api/auth/login", {
+        email,
+        password,
+      });
 
-    dispatch(setToken(res.data?.login?.token));
+      if (response.data?.success) {
+        localStorage.setItem('jwt_access_token', response.data.token);
+        dispatch(setToken(response.data.token));
+        dispatch(setInitialUserProfile(response.data.user));
 
-    // lets decode the token to get the user permissions
-    const decoded = jwtDecode(res.data?.login?.token);
+        try {
+          const profileResponse = await api.get('/api/users/myProfile');
+          
+          if (profileResponse.data?.success) {
+            dispatch(userLogin(profileResponse.data.result));
 
-    // console.log(decoded);
-    dispatch(setUserPermissions(decoded.permissions));
-    dispatch(setUserDetails(decoded));
-
-    if (res.data?.login) {
-      //make another query for the user profile
-      const res2 = await loadMyProfile();
-
-      // console.log("myProfile", res2.data);
-
-      dispatch(userLogin(res2.data.my_profile));
-
-      dispatch(updateApps(res2.data.my_profile.role._modules));
-
-      navigate("/example");
+            if (response.data.requirePasswordChange) {
+              navigate("/otp-verification");
+            } else {
+              navigate("/example");
+            }
+          }
+        } catch (profileError) {
+          console.error("Profile fetch error:", profileError);
+          dispatch(
+            showMessage({
+              message: "Failed to load user profile",
+              variant: "error",
+            })
+          );
+        }
+      }
+    } catch (error) {
+      console.log("error", error);
+      setError({
+        type: "manual",
+        message: error.response?.data?.error,
+      });
+    } finally {
+      setLoading(false);
     }
-
-    // if (data) {
-    //   // console.log("data", data);
-    //   if (data.login.sys_gen_pwd === 1) {
-    //     navigate("/change-pwd");
-    //   } else if (data.login.has_set_sec_qns === 0) {
-    //     // hasnot yet set security qns
-    //     navigate("/security_qns");
-    //   } else {
-    //     navigate("/example");
-    //     // console.log("the role", data.login.role._modules);
-    //     dispatch(updateApps(data.login.role._modules));
-    //   }
-    //   // console.log("loggged in", data.login);
-    //   dispatch(userLogin(data.login));
-    // }
-
-    // navigate("/change-pwd");
   }
 
   return (
@@ -160,8 +345,8 @@ function SignInPage() {
       <Paper className="h-full sm:h-auto md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-16 sm:p-48 md:p-64 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none ltr:border-r-1 rtl:border-l-1">
         <div className="w-full max-w-320 sm:w-320 mx-auto sm:mx-0">
           <img
-            className="w-50"
-            src={`${url2}/university/nkumba-university.png`}
+            className="w-80"
+            src={`${url}/imgs/ruforum.png`}
             alt="logo"
             style={{
               width: 220,
@@ -254,14 +439,19 @@ function SignInPage() {
 
             <Button
               variant="contained"
-              color="secondary"
+              // color="secondary"
               className=" w-full mt-16"
               aria-label="Sign in"
               disabled={_.isEmpty(dirtyFields) || !isValid}
               type="submit"
               size="large"
+              style={{
+                backgroundColor:
+                  _.isEmpty(dirtyFields) || !isValid ? "" : "#9b4005",
+                color: _.isEmpty(dirtyFields) || !isValid ? "" : "#fff",
+              }}
             >
-              {loading || myProfileLoading ? (
+              {loading ? (
                 <CircularProgress
                   variant="indeterminate"
                   disableShrink
@@ -323,7 +513,7 @@ function SignInPage() {
 
       <Box
         className="relative hidden md:flex flex-auto items-center justify-center h-full p-64 lg:px-112 overflow-hidden"
-        sx={{ backgroundColor: "primary.main" }}
+        sx={{ backgroundColor: "#513503" }}
       >
         <svg
           className="absolute inset-0 pointer-events-none"
@@ -335,7 +525,7 @@ function SignInPage() {
         >
           <Box
             component="g"
-            sx={{ color: "primary.light" }}
+            sx={{ color: "#609645" }}
             className="opacity-20"
             fill="none"
             stroke="currentColor"
@@ -376,12 +566,12 @@ function SignInPage() {
         <div className="z-10 relative w-full max-w-2xl">
           <div className="text-7xl font-bold leading-none text-gray-100">
             <div>Welcome to</div>
-            <div>Nkumba University 🎉</div>
+            <div>Ruforum Central Identity System 🎉</div>
           </div>
           <div className="mt-24 text-lg tracking-tight leading-6 text-gray-400">
-            We are thrilled to have you as part of our community on the intranet
-            system. This platform is designed to streamline communication,
-            collaboration, and access to important resources.
+            We are thrilled to have you as part of our community on the central
+            identity system. This platform is designed to streamline
+            communication, collaboration, and access to important resources.
           </div>
           <div className="flex items-center mt-32">
             <AvatarGroup
@@ -391,10 +581,10 @@ function SignInPage() {
                 },
               }}
             >
-              <Avatar src={`${url2}/module_logos/finance.png`} />
-              <Avatar src={`${url2}/module_logos/admissions.png`} />
-              <Avatar src={`${url2}/module_logos/assesement.png`} />
-              <Avatar src={`${url2}/module_logos/qualityAssurance.png`} />
+              <Avatar src={`${url}/logos/rims.png`} />
+              <Avatar src={`${url}/logos/alumni.png`} />
+              <Avatar src={`${url}/logos/sme_hub.png`} />
+              <Avatar src={`${url}/logos/elearning.png`} />
             </AvatarGroup>
 
             <div className="ml-16 font-medium tracking-tight text-gray-400">

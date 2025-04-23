@@ -16,7 +16,7 @@ import LanguageSwitcher from "../../shared-components/LanguageSwitcher";
 import NavigationSearch from "../../shared-components/navigation/NavigationSearch";
 import UserMenu from "../../shared-components/UserMenu";
 import QuickPanelToggleButton from "../../shared-components/quickPanel/QuickPanelToggleButton";
-import { url2 } from "app/configs/apiConfig";
+import { url, url2 } from "app/configs/apiConfig";
 
 /**
  * The toolbar layout 3.
@@ -43,7 +43,7 @@ function ToolbarLayout3(props) {
           <Hidden lgDown>
             <div className={clsx("flex shrink-0 items-center")}>
               <img
-                src={`${url2}/university/nkumba-university.png`}
+                src={`${url}/imgs/ruforum.png`}
                 style={{
                   width: 120,
                 }}

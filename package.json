@@ -32,7 +32,7 @@
     "apollo-upload-client": "^18.0.1",
     "autosuggest-highlight": "3.3.4",
     "aws-amplify": "6.3.6",
-    "axios": "1.7.2",
+    "axios": "^1.8.4",
     "axios-mock-adapter": "1.22.0",
     "clsx": "2.1.1",
     "crypto-js": "4.2.0",

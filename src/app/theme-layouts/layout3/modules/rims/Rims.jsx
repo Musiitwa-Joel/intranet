@@ -1,30 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Spin } from "antd"; // Ant Design spinner (optional)
 import { useSelector } from "react-redux";
 import FuseLoading from "@fuse/core/FuseLoading";
 import { selectToken } from "app/store/tokenSlice";
 import AppNav2 from "../../components/AppNav2";
 
-const Library = () => {
+const Rims = () => {
   const [loading, setLoading] = useState(true);
   const activeApp = useSelector((state) => state.apps.activeApp);
   const token = useSelector(selectToken);
+  const iframeRef = useRef(null);
 
   console.log("token", token);
-
   useEffect(() => {
     const iframe = iframeRef.current;
     iframe.onload = () => {
       iframe.contentWindow.postMessage(
         { type: "AUTH_TOKEN", token: token },
-        "http://localhost:3000"
+        activeApp?.url
       );
     };
   }, []);
 
   return (
     <>
-      {/* Show loader while iframe is loading */}
       <div
         style={{
           position: "absolute",
@@ -51,14 +50,14 @@ const Library = () => {
             // handleTabChange={handleTabChange}
           />
         )}
-        {/* iframe with onLoad event to hide loader when loaded */}
         <iframe
-          src={`http://localhost:8005?token=${encodeURIComponent(token)}`}
+          ref={iframeRef}
+          src={activeApp?.url}
           style={{
             width: "100%",
             height: "100%",
             border: "none",
-            display: loading ? "none" : "block", // Hide until loaded
+            display: loading ? "none" : "block",
           }}
           onLoad={() => setLoading(false)}
         />
@@ -67,4 +66,4 @@ const Library = () => {
   );
 };
 
-export default Library;
+export default Rims;
