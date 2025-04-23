@@ -80,26 +80,27 @@ function StudentDetails({ panelWidth }) {
     <div
       style={{
         // marginTop: 9,
-        marginLeft: 10,
-        marginRight: 10,
+        marginLeft: 0,
+        marginRight: 0,
         // backgroundColor: "red",
       }}
     >
       <Box
         sx={{
           backgroundColor: "#fff",
-          borderColor: "lightgray",
-          borderWidth: 1,
+          borderTop: "1px solid lightgray",
+          borderLeft: "1px solid lightgray",
+          borderRight: "1px solid lightgray",
           // marginBottom: 1,
         }}
         className="p-5"
         style={{
-          paddingLeft: 15,
+          paddingLeft: 10,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          paddingRight: 15,
-          marginBottom: 7,
+          paddingRight: 10,
+          marginBottom: 0,
           // height: 32,
         }}
       >
@@ -142,7 +143,7 @@ function StudentDetails({ panelWidth }) {
         <div
           style={{
             backgroundColor: "#fff",
-            padding: 5,
+            padding: "5px 10px",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -153,34 +154,66 @@ function StudentDetails({ panelWidth }) {
           }}
         >
           <div>
-            <Space>
+            <Space size="small">
               <Search
                 placeholder="Search Student..."
                 onSearch={onSearch}
-                size="middle"
+                // size="small"
                 width={500}
                 style={{
                   width: 250,
                 }}
               />
               <Button
-                icon={<Refresh />}
+                type="text"
+                icon={
+                  <Refresh
+                    style={{
+                      fontSize: 14,
+                    }}
+                  />
+                }
                 onClick={() => {
                   dispatch(setReloadStudents(true));
                 }}
+                // size="small"
               >
                 Reload Students
               </Button>
-              <Button icon={<Download />}>Download Students</Button>
+              <Button
+                type="text"
+                icon={
+                  <Download
+                    style={{
+                      fontSize: 14,
+                    }}
+                  />
+                }
+                // size="small"
+              >
+                Download Students
+              </Button>
             </Space>
           </div>
           <div
             style={{
-              marginBottom: -8,
+              marginBottom: 0,
             }}
           >
-            <Form.Item label="Layout">
-              <Radio.Group value={layout} onChange={handleTableLayoutChange}>
+            <Form.Item
+              label="Layout"
+              style={{
+                marginBottom: 0,
+              }}
+            >
+              <Radio.Group
+                value={layout}
+                onChange={handleTableLayoutChange}
+                // size="small"
+                style={{
+                  marginBottom: 0,
+                }}
+              >
                 <Radio.Button value={"list"}>List</Radio.Button>
                 <Radio.Button value="table">Table</Radio.Button>
               </Radio.Group>

@@ -480,6 +480,7 @@ const AllCourses = ({ panelWidth }) => {
         backgroundColor: "#fff",
         borderTopColor: "lightgray",
         borderTopWidth: 1,
+        // borderBottom: "1px solid red",
         // height: "calc(100vh - 155px)",
       }}
     >

@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { Badge, Descriptions, Spin, Tooltip } from "antd";
 import PerfectScrollbar from "perfect-scrollbar";
 import { useSelector } from "react-redux";
-import { selectStudentData } from "../../../store/registrationSlice";
+import { selectStudentData } from "../../../store/financeSlice";
 
 const BioData = () => {
   const scrollContainerRef = useRef(null);

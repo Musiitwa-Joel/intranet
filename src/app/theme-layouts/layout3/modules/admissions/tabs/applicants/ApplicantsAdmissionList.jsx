@@ -1,12 +1,5 @@
-import React, { useEffect, useState } from "react";
-import {
-  Button,
-  ConfigProvider,
-  Flex,
-  Modal,
-  Progress,
-  Typography,
-} from "antd";
+import { useEffect, useMemo, useState } from "react";
+import { Button, Modal, Progress, Typography, ConfigProvider } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectApplicantsAdmissionList,
@@ -14,9 +7,9 @@ import {
   setApplicanntsAdmissionList,
   setApplicanntsAdmissionListModal,
 } from "../../admissionsSlice";
-import { Close, Thunderstorm } from "@mui/icons-material";
-
-import { Space, Table, Tag } from "antd";
+import { Close } from "@mui/icons-material";
+import DataGrid from "react-data-grid";
+import { Space } from "antd";
 import { useMutation, useSubscription } from "@apollo/client";
 import { ADMIT_STUDENTS } from "app/theme-layouts/layout3/graphql/mutations";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
@@ -41,72 +34,92 @@ const ApplicantAdmissionList = () => {
     dispatch(setApplicanntsAdmissionList(updatedList));
   };
 
-  const columns = [
-    {
-      title: "#",
-      dataIndex: "#",
-      key: "name",
-      render: (text, record, index) => index + 1,
-      width: "5%",
-    },
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      render: (text, record) =>
-        `${record.application.applicant.surname} ${record.application.applicant.other_names}`,
-      width: "30%",
-    },
-    {
-      title: "Choice",
-      dataIndex: "prog_choice",
-      key: "prog_choice",
-      render: (text, record) => record.courseDetails.choice_no,
-      width: "8%",
-    },
-    {
-      title: "Program Code",
-      dataIndex: "course_code",
-      key: "course_code",
-      render: (text, record) => record.courseDetails.course.course_code,
-    },
-    {
-      title: "Campus",
-      dataIndex: "campus",
-      key: "campus",
-      render: (text, record) => record.campusDetails.campus_title,
-    },
-    {
-      title: "Sudy Time",
-      dataIndex: "study_time",
-      key: "study_time",
-      render: (text, record) => record.studyTimeDetails.study_time_title,
-    },
-    {
-      title: "Entry Year",
-      dataIndex: "entry_yr",
-      key: "entry_yr",
-      width: "10%",
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <Typography.Link
-            style={{
-              textDecoration: "none",
-              color: "red",
-            }}
-            onClick={() => handleRemove(record)}
-          >
-            Remove
-          </Typography.Link>
-        </Space>
-      ),
-    },
-  ];
-  // console.log("progress subscription", data);
+  const columns2 = useMemo(() => {
+    return [
+      {
+        name: "#",
+        key: "index",
+        width: 40,
+        renderCell({ row, rowIdx }) {
+          return rowIdx + 1;
+        },
+      },
+      {
+        name: "Name",
+        key: "name",
+        ellipsis: true,
+        renderCell({ row, rowIdx }) {
+          return `${row.application.applicant.surname} ${row.application.applicant.other_names}`;
+        },
+
+        width: 200,
+      },
+      {
+        name: "Choice",
+        ellipsis: true,
+        key: "prog_choice",
+        renderCell({ row, rowIdx }) {
+          return row.courseDetails.choice_no;
+        },
+        width: 120,
+      },
+
+      {
+        name: "Program Code",
+        key: "course_code",
+        width: 120,
+        renderCell({ row, rowIdx }) {
+          return row.courseDetails.course.course_code;
+        },
+      },
+      {
+        name: "Campus",
+        key: "campus",
+        width: 150,
+        ellipsis: true,
+        // render: (text, record, index) => <span>{`${record.applicant.email}`}</span>,
+        renderCell({ row, rowIdx }) {
+          return row.campusDetails.campus_title;
+        },
+      },
+      {
+        name: "Sudy Time",
+        key: "study_time",
+        width: 100,
+        ellipsis: true,
+        // render: (text, record, index) => <span>{`${record.applicant.email}`}</span>,
+        renderCell({ row, rowIdx }) {
+          return row.studyTimeDetails.study_time_title;
+        },
+      },
+      {
+        name: "Entry Year",
+        key: "entry_yr",
+        width: 100,
+        ellipsis: true,
+      },
+      {
+        name: "Action",
+        key: "action",
+        ellipsis: true,
+        renderCell({ row, rowIdx }) {
+          return (
+            <Space size="middle">
+              <Typography.Link
+                style={{
+                  textDecoration: "none",
+                  color: "red",
+                }}
+                onClick={() => handleRemove(row)}
+              >
+                Remove
+              </Typography.Link>
+            </Space>
+          );
+        },
+      },
+    ];
+  }, []);
 
   useEffect(() => {
     if (error) {
@@ -201,11 +214,7 @@ const ApplicantAdmissionList = () => {
       }}
       width={1000}
       footer={
-        <div
-        //   style={{
-        //     width: 200,
-        //   }}
-        >
+        <div>
           <Space size="large">
             <ConfigProvider
               theme={{
@@ -240,30 +249,24 @@ const ApplicantAdmissionList = () => {
         </div>
       }
     >
-      <ConfigProvider
-        theme={{
-          components: {
-            Table: {
-              borderColor: "#e0e0e0",
-              borderRadius: 0,
-              headerBorderRadius: 0,
-              headerBg: "#eee",
-              //   lineHeight: 0.8,
-            },
-          },
+      <DataGrid
+        className="rdg-light fill-grid"
+        // rowHeight={30}
+        rowKeyGetter={(row) => row.id}
+        columns={columns2}
+        rows={applicantsAdmissionList}
+        // onSortColumnsChange={setSortColumns}
+        // sortColumns={sortColumns}
+        style={{
+          border: "1px solid #ccc",
+          height: "calc(100vh - 350px)",
         }}
-      >
-        <Table
-          pagination={false}
-          size="small"
-          bordered
-          columns={columns}
-          dataSource={applicantsAdmissionList}
-          scroll={{
-            y: 500,
-          }}
-        />
-      </ConfigProvider>
+        defaultColumnOptions={{
+          sortable: true,
+          resizable: true,
+        }}
+        rowHeight={30}
+      />
     </Modal>
   );
 };

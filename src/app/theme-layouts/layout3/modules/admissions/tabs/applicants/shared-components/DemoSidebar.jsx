@@ -11,10 +11,12 @@ import "./rowStyles.css";
 import {
   selectApplicantSelectedRowKey,
   selectApplicantsSummary,
+  setApplicantsCurrentPage,
   setApplicantSelectedRowKey,
   setApplications,
   setLoadingApplications,
   setSelectedApplicantSummary,
+  setTotalApplicants,
 } from "../../../admissionsSlice";
 import { LOAD_APPLICATIONS } from "../../../graphql/queries";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
@@ -84,6 +86,8 @@ const _columns = [
   },
 ];
 
+const pageSize = 50;
+
 const DemoSidebar = React.memo(({ refetch, isRefetching }) => {
   // const [selectedRowKey, setSelectedRowKey] = useState(null);
   const selectedRowKey = useSelector(selectApplicantSelectedRowKey);
@@ -117,29 +121,32 @@ const DemoSidebar = React.memo(({ refetch, isRefetching }) => {
     dispatch(setLoadingApplications(loadingApplications));
   }, [loadingApplications]);
 
-  useEffect(() => {
-    if (data) {
-      dispatch(setApplications(data.applications));
-    }
-  }, [data]);
+  // useEffect(() => {
+  //   if (data) {
+  //     dispatch(setTotalApplicants(data.applications.total_records));
+  //     dispatch(setApplications(data.applications.applications));
+  //   }
+  // }, [data]);
 
   const handleRowClick = async (row) => {
     // setSelectedRow(row.id); // Update selected row index
-    console.log("row", row);
+    // console.log("row", row);
     dispatch(setSelectedApplicantSummary(row));
+    dispatch(setApplicantsCurrentPage(1));
 
     const res = await loadApplications({
       variables: {
         admissionsId: row.admissions_id,
         courseId: row.course_id,
         campusId: row.campus_id,
+        start: 0,
+        limit: pageSize,
       },
     });
 
-    // console.log("applications", res.data);
-
     if (res.data) {
-      dispatch(setApplications(res.data.applications));
+      dispatch(setTotalApplicants(res.data.applications.total_records));
+      dispatch(setApplications(res?.data?.applications?.applications || []));
     }
   };
 

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { Radio } from "antd";
+import { Radio, Form } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import PerfectScrollbar from "perfect-scrollbar";
 import {
@@ -10,6 +10,16 @@ import {
 import AcademicInfo from "./biodata_tabs/AcademicInfo";
 import PersonalInfo from "./biodata_tabs/PersonalInfo";
 import TranscriptSettings from "./biodata_tabs/TranscriptSettings";
+import dayjs from "dayjs";
+
+const layout = {
+  labelCol: {
+    span: 8,
+  },
+  wrapperCol: {
+    span: 16,
+  },
+};
 
 function BioData({ form }) {
   const dispatch = useDispatch();
@@ -48,6 +58,43 @@ function BioData({ form }) {
 
   if (!selectedStudent) return;
 
+  useEffect(() => {
+    if (selectedStudent) {
+      form.setFieldsValue({
+        student_no: selectedStudent.student_no,
+        reg_no: selectedStudent.registration_no,
+        intake: selectedStudent.intake_id,
+        entry_acc_yr: selectedStudent.entry_acc_yr,
+        // course_code: selectedStudent.course.course_code,
+        course_title: selectedStudent.course.id,
+        course_version: selectedStudent.course_details.id,
+        entry_study_yr: selectedStudent.entry_study_yr,
+        level: selectedStudent.course.level_details.level_title,
+        campus: selectedStudent.campus_id,
+        status: selectedStudent.status == 1 ? "Active" : "Inactive",
+        sponsorhip: selectedStudent.sponsorhip,
+        study_time: selectedStudent.study_time_id,
+        current_yr: selectedStudent.study_yr,
+        sem: selectedStudent.current_sem,
+        college: selectedStudent.course.school.college.id,
+        school: selectedStudent.course.school.id,
+        surname: selectedStudent.biodata.surname,
+        othernames: selectedStudent.biodata.other_names,
+        email: selectedStudent.biodata.email,
+        phoneNo: selectedStudent.biodata.phone_no,
+        religion: selectedStudent.biodata.religion?.toUpperCase(),
+        national_id: selectedStudent.biodata.nin?.toUpperCase(),
+        gender: selectedStudent.biodata.gender?.toUpperCase(),
+        marital_status: selectedStudent.biodata.marital_status?.toUpperCase(),
+        date_of_birth: dayjs(parseInt(selectedStudent.biodata.date_of_birth)),
+        nationality:
+          selectedStudent.biodata.nationality.nationality_title?.toUpperCase(),
+        billing_nationality:
+          selectedStudent.biodata.nationality.nationality_category?.toUpperCase(),
+      });
+    }
+  }, [selectedStudent]);
+
   return (
     <div>
       <Radio.Group value={activeBioDataTab} onChange={handleTabChange}>
@@ -68,9 +115,12 @@ function BioData({ form }) {
           overflow: "hidden", // Hide default scrollbars
         }}
       >
+        <Form form={form} {...layout}>
         {activeBioDataTab == "academic_info" && <AcademicInfo form={form} />}
-        {activeBioDataTab == "personal_info" && <PersonalInfo />}
+        {activeBioDataTab == "personal_info" && <PersonalInfo form={form} />}
         {activeBioDataTab == "transcript_settings" && <TranscriptSettings />}
+
+        </Form>
       </div>
     </div>
   );

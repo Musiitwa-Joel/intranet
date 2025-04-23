@@ -98,26 +98,6 @@ const AcademicInfo = ({ form }) => {
       });
 
       // console.log("selected", selectedStudent);
-
-      form.setFieldsValue({
-        student_no: selectedStudent.student_no,
-        reg_no: selectedStudent.registration_no,
-        intake: selectedStudent.intake_id,
-        entry_acc_yr: selectedStudent.entry_acc_yr,
-        // course_code: selectedStudent.course.course_code,
-        course_title: selectedStudent.course.id,
-        course_version: selectedStudent.course_details.id,
-        entry_study_yr: selectedStudent.entry_study_yr,
-        level: selectedStudent.course.level_details.level_title,
-        campus: selectedStudent.campus_id,
-        status: selectedStudent.status == 1 ? "Active" : "Inactive",
-        sponsorhip: selectedStudent.sponsorhip,
-        study_time: selectedStudent.study_time_id,
-        current_yr: selectedStudent.study_yr,
-        sem: selectedStudent.current_sem,
-        college: selectedStudent.course.school.college.id,
-        school: selectedStudent.course.school.id,
-      });
     }
   }, [selectedStudent, data]);
 
@@ -126,7 +106,7 @@ const AcademicInfo = ({ form }) => {
   // }, [selectedStudent]);
   return (
     <>
-      <Form
+      {/* <Form
         {...layout}
         form={form}
         name="control-hooks"
@@ -134,7 +114,7 @@ const AcademicInfo = ({ form }) => {
         //   style={{
         //     maxWidth: 600,
         //   }}
-      >
+      > */}
         <Row gutter={0}>
           <Col className="gutter-row" span={12}>
             <Form.Item
@@ -549,7 +529,7 @@ const AcademicInfo = ({ form }) => {
             </Button>
           </Space>
         </Form.Item> */}
-      </Form>
+      {/* </Form> */}
     </>
   );
 };

@@ -27,7 +27,6 @@ import {
   useMutation,
   useQuery,
 } from "@apollo/client";
-import "../myStyles.css";
 import extractIds from "../../../utilities/extractIDs";
 import {
   selectAddVersionModalOpen,

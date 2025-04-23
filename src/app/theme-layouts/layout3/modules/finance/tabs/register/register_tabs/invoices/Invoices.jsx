@@ -28,7 +28,7 @@ import {
   setInvoiceDetailsModalVisible,
   setPaymentModalVisible,
   setSelectedInvoice,
-} from "../../../../store/registrationSlice";
+} from "../../../../store/financeSlice";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import InvoiceDetailsModal from "./InvoiceDetailsModal";
 

@@ -241,18 +241,21 @@ function CourseUnitsDatable({ panelWidth }) {
       <Box
         sx={{
           backgroundColor: "#fff",
-          borderColor: "lightgray",
-          borderWidth: 1,
+          borderTop: "1px solid lightgray",
+          borderLeft: "1px solid lightgray",
+          borderRight: "1px solid lightgray",
+          // borderColor: "lightgray",
+          // borderWidth: 1,
           // marginBottom: 1,
         }}
         className="p-5"
         style={{
-          paddingLeft: 15,
+          paddingLeft: 5,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          paddingRight: 15,
-          marginBottom: 7,
+          paddingRight: 5,
+          marginBottom: 0,
         }}
       >
         {selectedCourseVersion ? (
@@ -341,6 +344,7 @@ function CourseUnitsDatable({ panelWidth }) {
             padding: 7,
             display: "flex",
             justifyContent: "space-between",
+
             borderColor: "lightgray",
             backgroundColor: "#fff",
             borderWidth: 1,

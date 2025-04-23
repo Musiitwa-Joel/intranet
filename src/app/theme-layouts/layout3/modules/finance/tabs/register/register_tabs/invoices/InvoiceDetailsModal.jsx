@@ -13,7 +13,7 @@ import {
   selectInvoiceDetailsModalVisible,
   selectSelectedInvoice,
   setInvoiceDetailsModalVisible,
-} from "../../../../store/registrationSlice";
+} from "../../../../store/financeSlice";
 import PerfectScrollbar from "perfect-scrollbar";
 import convertTimestampToDate from "app/theme-layouts/layout3/utils/convertTimestampToDate";
 import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";

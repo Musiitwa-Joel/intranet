@@ -143,21 +143,28 @@ function StudentRecords() {
       <PanelGroup direction="horizontal">
         <Panel
           minSize={25}
-          defaultSize={30}
+          defaultSize={25}
           onResize={(size) => {
             setContentWidth(size);
             setRightContentWidth(90 - size);
+          }}
+          style={{
+            backgroundColor: "#fff",
+            height: "calc(100vh - 158px)",
+            borderBottom: "1px solid lightgray",
           }}
         >
           {/* <AllProgrammes panelWidth={contentWidth} /> */}
           <AllCourses panelWidth={contentWidth} />
         </Panel>
         <PanelResizeHandle
-          style={{
-            width: 1.5,
-            backgroundColor: "lightgray",
-            opacity: 0.6,
-          }}
+          style={
+            {
+              // width: 1.5,
+              // backgroundColor: "lightgray",
+              // opacity: 0.6,
+            }
+          }
         />
         <Panel minSize={60} defaultSize={60}>
           {/* <ModulesDataTable /> */}

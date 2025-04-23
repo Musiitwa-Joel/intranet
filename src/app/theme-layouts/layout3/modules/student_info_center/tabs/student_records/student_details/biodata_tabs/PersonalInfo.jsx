@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Button, Form, Input, Select, Space, Row, Col, DatePicker } from "antd";
 import { useSelector } from "react-redux";
 import { selectSelectedStudent } from "../../../../store/infoCenterSlice";
-import dayjs from "dayjs";
+
 const { Option } = Select;
 const layout = {
   labelCol: {
@@ -18,9 +18,8 @@ const layout = {
 //     span: 16,
 //   },
 // };
-const PersonalInfo = () => {
+const PersonalInfo = ({form}) => {
   const selectedStudent = useSelector(selectSelectedStudent);
-  const [form] = Form.useForm();
 
   const onFinish = (values) => {
     console.log(values);
@@ -39,30 +38,14 @@ const PersonalInfo = () => {
 
   // }, [selectedStudent]);
 
-  if (selectedStudent) {
-    form.setFieldsValue({
-      surname: selectedStudent.biodata.surname,
-      othernames: selectedStudent.biodata.other_names,
-      email: selectedStudent.biodata.email,
-      phoneNo: selectedStudent.biodata.phone_no,
-      religion: selectedStudent.biodata.religion?.toUpperCase(),
-      national_id: selectedStudent.biodata.nin?.toUpperCase(),
-      gender: selectedStudent.biodata.gender?.toUpperCase(),
-      marital_status: selectedStudent.biodata.marital_status?.toUpperCase(),
-      date_of_birth: dayjs(parseInt(selectedStudent.biodata.date_of_birth)),
-      nationality:
-        selectedStudent.biodata.nationality.nationality_title?.toUpperCase(),
-      billing_nationality:
-        selectedStudent.biodata.nationality.nationality_category?.toUpperCase(),
-    });
-  }
+  
 
   // console.log("selected std", selectedStudent);
 
   if (!selectedStudent) return;
   return (
     <>
-      <Form
+      {/* <Form
         {...layout}
         form={form}
         name="control-hooks"
@@ -70,7 +53,7 @@ const PersonalInfo = () => {
         //   style={{
         //     maxWidth: 600,
         //   }}
-      >
+      > */}
         <Row gutter={0}>
           <Col className="gutter-row" span={12}>
             <Form.Item
@@ -301,7 +284,7 @@ const PersonalInfo = () => {
             </Button>
           </Space>
         </Form.Item> */}
-      </Form>
+      {/* </Form> */}
     </>
   );
 };
