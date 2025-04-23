@@ -280,7 +280,7 @@ const TestTable2 = ({ panelWidth, deletingUnit }) => {
           borderRadius: 8,
         }}
         scroll={{
-          y: "calc(100vh - 260px)",
+          y: "calc(100vh - 230px)",
         }}
       />
     </ConfigProvider>

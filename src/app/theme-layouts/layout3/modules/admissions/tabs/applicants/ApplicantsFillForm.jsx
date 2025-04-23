@@ -229,7 +229,6 @@ const ApplicantsFillForm = () => {
               htmlType="submit"
               disabled={loadingSummary}
               loading={loadingSummary}
-              size="small"
             >
               Load
             </Button>

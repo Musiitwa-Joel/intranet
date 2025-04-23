@@ -44,7 +44,7 @@ import {
   setSpecificEnrollmentStatuses,
   setStudentData,
   setStudentNo,
-} from "../../store/registrationSlice";
+} from "../../store/financeSlice";
 import { ENROLL_STUDENT } from "../../gql/mutations";
 import PaymentModal from "./register_tabs/transactions/PaymentModal";
 import PaymentSlip from "./register_tabs/transactions/prt/PaymentSlip";
@@ -415,7 +415,8 @@ function Register() {
                         <Avatar
                           sx={{ borderColor: studentFile ? "red" : "purple" }}
                           className="w-200 h-200 border-4"
-                          src={`http://localhost:2222/api/student_image/${studentFile?.student_no}`}
+                          // src={`http://localhost:2222/api/student_image/${studentFile?.student_no}`}
+                          src={` https://student1.zeevarsity.com:8001/get_photo.yaws?ic=nkumba&stdno=${studentFile?.student_no}`}
                           alt="User avatar"
                         />
                       </motion.div>

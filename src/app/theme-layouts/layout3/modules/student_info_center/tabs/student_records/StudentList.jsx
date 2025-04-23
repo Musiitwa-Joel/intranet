@@ -77,9 +77,12 @@ const StudentList = () => {
   return (
     <div
       style={{
-        borderWidth: 1,
-        borderColor: "lightgray",
-        marginTop: 7,
+        // borderWidth: 1,
+        // borderColor: "lightgray",
+        marginTop: 0,
+        borderBottom: "1px solid lightgray",
+        borderLeft: "1px solid lightgray",
+        borderRight: "1px solid lightgray",
       }}
     >
       <div
@@ -87,7 +90,7 @@ const StudentList = () => {
         onWheel={handleWheel}
         style={{
           position: "relative",
-          height: "calc(100vh - 260px)",
+          height: "calc(100vh - 228px)",
           backgroundColor: "#fff",
           padding: "10px",
           overflow: "hidden",

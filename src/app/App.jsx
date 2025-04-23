@@ -9,9 +9,14 @@ import themeLayouts from "app/theme-layouts/themeLayouts";
 import { selectMainTheme } from "@fuse/core/FuseSettings/fuseSettingsSlice";
 import MockAdapterProvider from "@mock-api/MockAdapterProvider";
 import { useAppSelector } from "app/store/hooks";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import withAppProviders from "./withAppProviders";
 import AuthenticationProvider from "./auth/AuthenticationProvider";
+import { useEffect } from "react";
+import { setToken } from "./store/tokenSlice";
+import { addAppToTaskBar } from "./store/appSlice";
+import { userLoggedOut } from "./store/userSlice";
+import { useApolloClient } from "@apollo/client";
 // import axios from 'axios';
 /**
  * Axios HTTP Request defaults
@@ -36,14 +41,28 @@ const emotionCacheOptions = {
  * The main App component.
  */
 function App() {
-  /**
-   * The language direction from the Redux store.
-   */
+  const dispatch = useDispatch();
+  const client = useApolloClient();
   const langDirection = useAppSelector(selectCurrentLanguageDirection);
-  /**
-   * The main theme from the Redux store.
-   */
+
   const mainTheme = useSelector(selectMainTheme);
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.origin !== "http://localhost:8005") return;
+
+      if (event.data.type === "LOGOUT") {
+        dispatch(setToken(null)); // remove token
+        dispatch(addAppToTaskBar([])); // close all apps
+        dispatch(userLoggedOut()); // remove the user profile
+        client.resetStore(); // reset all queries
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
   return (
     // <MockAdapterProvider>
     <CacheProvider value={createCache(emotionCacheOptions[langDirection])}>

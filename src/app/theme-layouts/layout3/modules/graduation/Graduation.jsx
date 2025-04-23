@@ -1,60 +1,93 @@
-import React, { useState } from "react";
-import { Spin } from "antd"; // Ant Design spinner (optional)
-import { useSelector } from "react-redux";
+import React, { useMemo } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import FuseLoading from "@fuse/core/FuseLoading";
-import { selectToken } from "app/store/tokenSlice";
+import Box from "@mui/material/Box";
 import AppNav2 from "../../components/AppNav2";
+// import GraduationClearance from "./tabs/graduation_clearance/GraduationClearance";
+import { selectActiveTab, setActiveTab } from "./store/graduationSlice";
+import { ConfigProvider, theme } from "antd";
+import GraduationClearance from "./tabs/graduation_clearance/GraduationClearance";
+import Reports from "./tabs/reports/Reports";
 
-const Gradduation = () => {
-  const [loading, setLoading] = useState(true);
+function Graduation() {
+  const dispatch = useDispatch();
+  const appExistsInTaskBar = useSelector((state) => state.apps.exists);
+  const [loading, setLoading] = useState(!appExistsInTaskBar ? true : false);
   const activeApp = useSelector((state) => state.apps.activeApp);
-  const token = useSelector(selectToken);
+  const activeTab = useSelector(selectActiveTab);
 
-  console.log("token", token);
+  const tabs = [
+    {
+      label: "Graduation Clearance",
+      value: "graduation_clearance",
+    },
+    {
+      label: "Gowns",
+      value: "gowns",
+    },
+    {
+      label: "Transcripts",
+      value: "transcripts",
+    },
+    {
+      label: "Reports",
+      value: "reports",
+    },
+    {
+      label: "Settings",
+      value: "settings",
+    },
+  ];
 
-  return (
+  const firstVisibleTab = tabs.find((tab) => tab.visible !== false)?.value;
+
+  useEffect(() => {
+    if (firstVisibleTab) {
+      dispatch(setActiveTab(firstVisibleTab));
+    }
+  }, [firstVisibleTab]);
+
+  useEffect(() => {
+    if (!appExistsInTaskBar) {
+      setLoading(true);
+    }
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  }, []);
+
+  function handleTabChange(event, value) {
+    // setSelectedTab(value);
+    // console.log("value", value);
+    dispatch(setActiveTab(value));
+  }
+
+  return loading ? (
+    <FuseLoading logo={activeApp?.logo} />
+  ) : (
     <>
-      {/* Show loader while iframe is loading */}
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
-      >
-        {loading && <FuseLoading logo={activeApp?.logo} />}
-      </div>
-
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          height: "calc(100vh - 100px)",
-        }}
-      >
-        {!loading && (
+      <Suspense fallback={<FuseLoading logo={activeApp?.logo} />}>
+        <Box sx={{ flexGrow: 1 }}>
           <AppNav2
-            tabs={[]}
+            tabs={tabs}
             activeApp={activeApp}
-            // activeTab={activeTab}
-            // handleTabChange={handleTabChange}
+            activeTab={activeTab}
+            handleTabChange={handleTabChange}
           />
-        )}
-        {/* iframe with onLoad event to hide loader when loaded */}
-        <iframe
-          src={`http://localhost:8002?token=${encodeURIComponent(token)}`}
-          style={{
-            width: "100%",
-            height: "100%",
-            border: "none",
-            display: loading ? "none" : "block", // Hide until loaded
-          }}
-          onLoad={() => setLoading(false)}
-        />
-      </div>
+          <ConfigProvider
+            theme={{
+              algorithm: theme.compactAlgorithm,
+            }}
+          >
+            {activeTab === "graduation_clearance" && <GraduationClearance />}
+            {activeTab === "reports" && <Reports />}
+          </ConfigProvider>
+        </Box>
+      </Suspense>
     </>
   );
-};
+}
 
-export default Gradduation;
+export default Graduation;

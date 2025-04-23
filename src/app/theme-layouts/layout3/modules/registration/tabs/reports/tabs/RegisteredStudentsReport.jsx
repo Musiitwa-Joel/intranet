@@ -202,7 +202,7 @@ function RegisteredStudentsReport() {
                   rules={[
                     {
                       required: true,
-                      message: "Select a scheme",
+                      message: "Select acc yr",
                     },
                   ]}
                   style={{ paddingBottom: 0, marginBottom: 0 }}

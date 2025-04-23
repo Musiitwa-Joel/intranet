@@ -27,8 +27,6 @@ function OtherFees() {
   const dispatch = useDispatch();
   const feesVersions = useSelector(selectFeesVersions);
 
-  const { selectedItem } = useSelector((state) => state.progAndCourses);
-
   // const handleSearchStudent = () => {
   //   dispatch(setStudentSearchModalVisible(true));
   // };
