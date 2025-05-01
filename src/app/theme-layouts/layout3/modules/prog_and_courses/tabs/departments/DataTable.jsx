@@ -486,9 +486,7 @@ function DataTable() {
                               fontSize: 13,
                             }}
                           >
-                            {row.added_user.title +
-                              " " +
-                              row.added_user.staff_name}
+                            {row.added_user ? row?.added_user?.surname + " " + row?.added_user?.other_names: ""}
                           </TableCell>
                           <TableCell
                             align="right"
@@ -501,7 +499,7 @@ function DataTable() {
                             }}
                           >
                             {row.modified_user
-                              ? `${row.modified_user.title} ${row.modified_user.staff_name}`
+                              ? `${row?.modified_user.surname} ${row?.modified_user?.other_names}`
                               : ""}
                           </TableCell>
                           <TableCell

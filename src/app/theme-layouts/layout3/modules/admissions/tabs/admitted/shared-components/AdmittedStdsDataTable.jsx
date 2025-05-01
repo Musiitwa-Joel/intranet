@@ -25,6 +25,8 @@ import { DownOutlined, UserOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectAdmitStdsModalVisible,
+  selectAdmittedSearchActive,
+  selectAdmittedSearchValue,
   selectAdmittedStds,
   selectAdmittedStdsCurrentPage,
   selectLoadingAdmittedStds,
@@ -34,9 +36,12 @@ import {
   selectTotalAdmittedStds,
   setAdmissionLetterModalVisible,
   setAdmissionLetters,
+  setAdmittedSearchActive,
+  setAdmittedSearchValue,
   setAdmittedStds,
   setAdmittedStdsCurrentPage,
   setEditStudentRecordsModalVisible,
+  setLoadingAdmittedStds,
   setRefetchAdmittedStudents,
   setSelectedAdmittedStds,
   setSelectedAdmittedStdsRowKeys,
@@ -272,6 +277,8 @@ function AdmittedStdsDataTable() {
   const currentPage = useSelector(selectAdmittedStdsCurrentPage);
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [sortColumns, setSortColumns] = useState([]);
+  const admittedSearchActive = useSelector(selectAdmittedSearchActive)
+  const admittedSearchValue = useSelector(selectAdmittedSearchValue)
 
   const [
     pushToStdInfoCenter,
@@ -282,7 +289,7 @@ function AdmittedStdsDataTable() {
 
   const [
     globalSearchApplications,
-    { error: globalErr, loading: searchingGlobally },
+    { error: globalErr, loading: searchingGlobally, refetch: searchRefetch },
   ] = useLazyQuery(GLOBAL_SEARCH_APPLICATIONS, {
     fetchPolicy: "network-only",
   });
@@ -293,7 +300,7 @@ function AdmittedStdsDataTable() {
       error: loadFormsErr,
       loading: loadingAdmittedStds,
       data,
-      refetch: refetchAdmittedStds,
+      refetch,
     },
   ] = useLazyQuery(LOAD_ADMITTED_STUDENTS, {
     notifyOnNetworkStatusChange: true,
@@ -594,6 +601,9 @@ function AdmittedStdsDataTable() {
       return;
     }
 
+    dispatch(setAdmittedSearchActive(true))
+    dispatch(setAdmittedSearchValue(value))
+
     const response = await globalSearchApplications({
       variables: {
         searchCriteria: selectedCriteria,
@@ -601,6 +611,7 @@ function AdmittedStdsDataTable() {
         admissionsId: null,
         start: 0,
         limit: pageSize,
+        admitted: true
       },
     });
 
@@ -822,6 +833,73 @@ function AdmittedStdsDataTable() {
     dispatch(setAdmittedStdsCurrentPage(page));
   };
 
+
+  const handleReload = async () => {
+    try {
+      // Set loading state
+      dispatch(setLoadingAdmittedStds(true));
+      
+      if (admittedSearchActive && admittedSearchValue) {
+        // If search was active and we have a search value
+        const response = await searchRefetch({
+          searchCriteria: selectedCriteria,
+          searchValue: admittedSearchValue,
+          admissionsId: null,
+          admitted: true,
+          start: 0,
+          limit: pageSize
+        });
+        
+        if (response?.data?.global_search_applications) {
+          dispatch(
+            setTotalAdmittedStds(
+              response.data.global_search_applications.total_records
+            )
+          );
+          dispatch(
+            setAdmittedStds(
+              response.data.global_search_applications.students || []
+            )
+          );
+        }
+      } else {
+        // If no search or no search value, use regular fetch
+        if (!selectedCourseGroup?.admissions_id) {
+          dispatch(
+            showMessage({
+              message: "No course group selected",
+              variant: "error",
+            })
+          );
+          return;
+        }
+        
+        const res = await refetch({
+          admissionsId: selectedCourseGroup.admissions_id,
+          courseId: selectedCourseGroup.course_id,
+          campusId: selectedCourseGroup.campus_id,
+          start: (currentPage - 1) * pageSize,
+          limit: pageSize
+        });
+        
+        if (res?.data?.admitted_students) {
+          dispatch(setTotalAdmittedStds(res.data.admitted_students.total_records));
+          dispatch(setAdmittedStds(res.data.admitted_students.students || []));
+        }
+      }
+    } catch (error) {
+      dispatch(
+        showMessage({
+          message: error.message || "Failed to reload data",
+          variant: "error",
+        })
+      );
+    } finally {
+      // Reset loading state
+      dispatch(setLoadingAdmittedStds(false));
+    }
+  };
+
   return (
     <div
       style={{
@@ -858,9 +936,10 @@ function AdmittedStdsDataTable() {
           <Space>
             <Tooltip title="Reload">
               <Refresh
-                onClick={async () => {
-                  dispatch(setRefetchAdmittedStudents(true));
-                }}
+                // onClick={async () => {
+                //   dispatch(setRefetchAdmittedStudents(true));
+                // }}
+                onClick={handleReload}
                 fontSize=""
                 color="#000"
                 style={{
@@ -907,7 +986,7 @@ function AdmittedStdsDataTable() {
                 width: 140,
               }}
               onChange={onChange}
-              onSearch={onSearch}
+              // onSearch={onSearch}
               value={selectedCriteria}
               options={[
                 {
@@ -924,6 +1003,8 @@ function AdmittedStdsDataTable() {
             <Search
               placeholder="Global Search"
               onSearch={onSearch}
+              value={admittedSearchValue}
+              onChange={(e) => dispatch(setAdmittedSearchValue(e.target.value))} 
               size="small"
             />
 

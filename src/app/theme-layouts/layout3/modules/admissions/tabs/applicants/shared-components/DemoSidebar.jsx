@@ -15,6 +15,7 @@ import {
   setApplicantSelectedRowKey,
   setApplications,
   setLoadingApplications,
+  setSearchActive,
   setSelectedApplicantSummary,
   setTotalApplicants,
 } from "../../../admissionsSlice";
@@ -133,6 +134,7 @@ const DemoSidebar = React.memo(({ refetch, isRefetching }) => {
     // console.log("row", row);
     dispatch(setSelectedApplicantSummary(row));
     dispatch(setApplicantsCurrentPage(1));
+    dispatch(setSearchActive(false))
 
     const res = await loadApplications({
       variables: {
