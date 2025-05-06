@@ -6,12 +6,14 @@ const GET_FEES_CATEGORIES = gql`
       id
       category_name
       added_user {
-        staff_name
-        title
+        id
+        surname
+        other_names
       }
       modified_user {
-        title
-        staff_name
+        id
+        surname
+        other_names
       }
       modified_on
     }
@@ -66,13 +68,13 @@ const GET_FEES_VERSIONS = gql`
       version_description
       added_user {
         id
-        title
-        staff_name
+        surname
+        other_names
       }
       modified_user {
         id
-        staff_name
-        title
+        surname
+        other_names
       }
       modified_on
     }

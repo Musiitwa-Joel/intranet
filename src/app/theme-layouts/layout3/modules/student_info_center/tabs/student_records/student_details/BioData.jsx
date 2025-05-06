@@ -95,6 +95,9 @@ function BioData({ form }) {
     }
   }, [selectedStudent]);
 
+
+
+
   return (
     <div>
       <Radio.Group value={activeBioDataTab} onChange={handleTabChange}>
@@ -109,17 +112,22 @@ function BioData({ form }) {
         ref={scrollContainerRef}
         style={{
           position: "relative",
-          height: 360, // Adjust this height as needed
+          height: "calc(100vh - 250px)", // Adjust this height as needed
           marginTop: 10,
           // backgroundColor: "red",
           overflow: "hidden", // Hide default scrollbars
         }}
       >
-        <Form form={form} {...layout}>
-        {activeBioDataTab == "academic_info" && <AcademicInfo form={form} />}
-        {activeBioDataTab == "personal_info" && <PersonalInfo form={form} />}
-        {activeBioDataTab == "transcript_settings" && <TranscriptSettings />}
-
+       <Form form={form} {...layout}>
+          <div style={{ display: activeBioDataTab === "academic_info" ? "block" : "none" }}>
+            <AcademicInfo form={form} />
+          </div>
+          <div style={{ display: activeBioDataTab === "personal_info" ? "block" : "none" }}>
+            <PersonalInfo form={form} />
+          </div>
+          <div style={{ display: activeBioDataTab === "transcript_settings" ? "block" : "none" }}>
+            <TranscriptSettings />
+          </div>
         </Form>
       </div>
     </div>

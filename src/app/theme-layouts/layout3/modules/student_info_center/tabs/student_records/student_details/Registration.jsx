@@ -1,11 +1,15 @@
 import React, { useRef, useEffect } from "react";
 import { SmileOutlined } from "@ant-design/icons";
-import { Timeline, Badge, Card } from "antd";
+import { Timeline, Badge, Card, ConfigProvider, Descriptions, theme, Typography } from "antd";
 import PerfectScrollbar from "perfect-scrollbar";
+import { useSelector } from "react-redux";
+import { selectStudentDetails } from "../../../store/infoCenterSlice";
+import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";
 
 const Registration = () => {
   const scrollContainerRef = useRef(null);
   const psRef = useRef(null);
+  const studentDetails = useSelector(selectStudentDetails)
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -51,380 +55,138 @@ const Registration = () => {
           overflow: "hidden", // Hide default scrollbars
         }}
       >
-        <Timeline
-          // style={{
-          //   paddingTop: 10,
-          // }}
-          items={[
-            {
-              color: "green",
-              children: (
-                <Badge.Ribbon text="Fully Registered" color="green">
-                  <Card
-                    title="Year 1, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
+          <ConfigProvider
+            key={"registration"}
+            theme={{
+              algorithm: theme.compactAlgorithm,
+              components: {
+                Timeline: {
+                  tailColor: "lightgray",
+                },
+                Card: {
+                  headerBg: "#f4f4f4",
+                  // headerHeightSM: 38,
+                },
+              },
+            }}
+          >
+            <Timeline
+              items={studentDetails?.registration_history.map((reg) => ({
+                color: reg.provisional ? "green" : "blue",
+                dot:
+                  reg.study_yr == "1" && reg.sem == "1" ? (
+                    <SmileOutlined />
+                  ) : null,
+                children: (
+                  <Badge.Ribbon
+                    text={
+                      reg.provisional
+                        ? "Provisionally Registered"
+                        : "Fully Registered"
+                    }
+                    color={reg.provisional ? "green" : "blue"}
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                          // backgroundColor: "red",
-                        }}
-                      >
-                        Registered By:
-                      </span>
-                      <span>Self</span>
-                    </div>
+                    <Card
+                      key={"registration"}
+                      title={
+                        <Typography.Text strong>
+                          {`Year ${reg.study_yr}, Semester ${reg.sem} (${reg.acc_yr_title})`}
 
-                    <div
+                        </Typography.Text>
+                      }
+                      size="small"
                       style={{
-                        display: "flex",
-                        marginBottom: 5,
+                        borderColor: "lightgray",
+                        borderWidth: 1,
                       }}
                     >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Provisional Expiry:
-                      </span>
-                      <span>{""}</span>
-                    </div>
+                    
+                          <Descriptions
+                            className="custom-descriptions"
+                            bordered
+                            size="small"
+                            items={[
+                              {
+                                key: "1",
+                                label: "Registered By",
+                                children: reg?.registered_by_user ? reg?.registered_by_user : "SYSTEM",
+                                span: 2,
+                              },
+                              {
+                                key: "6",
+                                label: "Registration Date",
+                                children: formatDateString(parseInt(reg.date)),
+                                span: 2,
+                              },
+                              ...(reg.provisional
+                                ? [
+                                    {
+                                      key: "3",
+                                      label: "Provisional Expiry",
+                                      children: (
+                                        <span
+                                          style={{
+                                            color:
+                                              new Date() <
+                                              new Date(reg.provisional_expiry)
+                                                ? "green"
+                                                : "red",
+                                          }}
+                                        >
+                                          {formatCustomDate(
+                                            reg.provisional_expiry
+                                          )}
+                                        </span>
+                                      ),
+                                      span: 2,
+                                    },
+                                    {
+                                      key: "3",
+                                      label: "Provisional Reason",
+                                      children: reg.provisional_reason,
+                                      span: 2,
+                                    },
+                                  ]
+                                : [
+                                    {
+                                      key: "6",
+                                      label: "Registration Token",
+                                      children: reg.registration_token,
+                                      span: 2,
+                                    },
 
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Registration Date:
-                      </span>
-                      <span>{"MON 10 AUGUST 2024, 01:45 AM"}</span>
-                    </div>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-            {
-              color: "green",
-              children: (
-                <Badge.Ribbon text="Not Registered" color="red">
-                  <Card
-                    title="Year 3, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                          // backgroundColor: "red",
-                        }}
-                      >
-                        Registered By:
-                      </span>
-                      <span>Self</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Provisional Expiry:
-                      </span>
-                      <span>{""}</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Registration Date:
-                      </span>
-                      <span>{"MON 10 AUGUST 2024, 01:45 AM"}</span>
-                    </div>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-            {
-              color: "red",
-              children: (
-                <Badge.Ribbon text="Partially Registered" color="green">
-                  <Card
-                    title="Year 3, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                          // backgroundColor: "red",
-                        }}
-                      >
-                        Registered By:
-                      </span>
-                      <span>Self</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Provisional Expiry:
-                      </span>
-                      <span>{""}</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Registration Date:
-                      </span>
-                      <span>{"MON 10 AUGUST 2024, 01:45 AM"}</span>
-                    </div>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-            {
-              children: (
-                <Badge.Ribbon text="Partially Registered" color="green">
-                  <Card
-                    title="Year 3, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                          // backgroundColor: "red",
-                        }}
-                      >
-                        Registered By:
-                      </span>
-                      <span>Self</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Provisional Expiry:
-                      </span>
-                      <span>{""}</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Registration Date:
-                      </span>
-                      <span>{"MON 10 AUGUST 2024, 01:45 AM"}</span>
-                    </div>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-            {
-              color: "gray",
-              children: (
-                <Badge.Ribbon text="Partially Registered" color="green">
-                  <Card
-                    title="Year 3, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                          // backgroundColor: "red",
-                        }}
-                      >
-                        Registered By:
-                      </span>
-                      <span>Self</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Provisional Expiry:
-                      </span>
-                      <span>{""}</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Registration Date:
-                      </span>
-                      <span>{"MON 10 AUGUST 2024, 01:45 AM"}</span>
-                    </div>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-
-            {
-              color: "#00CCFF",
-              dot: <SmileOutlined />,
-              children: (
-                <Badge.Ribbon text="Fully Registered" color="green">
-                  <Card
-                    title="Year 3, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                          // backgroundColor: "red",
-                        }}
-                      >
-                        Registered By:
-                      </span>
-                      <span>Self</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Provisional Expiry:
-                      </span>
-                      <span>{""}</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Registration Date:
-                      </span>
-                      <span>{"MON 10 AUGUST 2024, 01:45 AM"}</span>
-                    </div>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-          ]}
-        />
+                                    {
+                                      key: "4",
+                                      label: "Comment",
+                                      children: reg.reg_comments,
+                                      span: 2,
+                                    },
+                                  ]),
+                            ]}
+                            style={{
+                              borderColor: "lightgray",
+                              borderWidth: 0.2,
+                              borderRadius: 10,
+                            }}
+                            labelStyle={{
+                              width: "40%",
+                              backgroundColor: "#e7edfe",
+                              color: "#0832b7",
+                              fontWeight: "bold",
+                            }}
+                            contentStyle={{
+                              borderBottomColor: "red",
+                              textAlign: "left",
+                            }}
+                            column={2}
+                          />
+                      
+                    </Card>
+                  </Badge.Ribbon>
+                ),
+              }))}
+            />
+          </ConfigProvider>
       </div>
     </>
   );

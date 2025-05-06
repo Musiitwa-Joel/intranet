@@ -209,7 +209,7 @@ function AdmissionsDataTable() {
   const [loadApplications, { error: loadFormsErr, loading: loadingForms, refetch: refetchForms }] =
     useLazyQuery(LOAD_APPLICATIONS, {
       notifyOnNetworkStatusChange: true, // Essential for accurate loading state
-      fetchPolicy: "network-only",
+      fetchPolicy: "no-cache",
     });
 
   const [
@@ -443,7 +443,7 @@ function AdmissionsDataTable() {
           },
           {
             name: "Alias",
-            key: "code",
+            key: "alias",
             renderCell({ row, rowIdx }) {
               return renderRow(row, row.program_choices[0].course.course_code);
             },
@@ -501,8 +501,6 @@ function AdmissionsDataTable() {
     const response = await globalSearchApplications({
       variables: payload,
     });
-
-    console.log("response", response.data);
 
     if (response.data) {
       dispatch(setTotalApplicants(response.data.global_search.total_records));
@@ -692,19 +690,9 @@ function AdmissionsDataTable() {
           );
           return;
         }
-        
-        response = await refetchForms({
-          admissionsId: selectedCourseGroup.admissions_id,
-          courseId: selectedCourseGroup.course_id,
-          campusId: selectedCourseGroup.campus_id,
-          start: (currentPage - 1) * pageSize,
-          limit: pageSize,
-        });
-        
-        if (response?.data?.applications) {
-          dispatch(setTotalApplicants(response.data.applications.total_records));
-          dispatch(setApplications(response.data.applications.applications));
-        }
+
+        await fetchApplications(currentPage);
+      
       }
     } catch (error) {
       dispatch(

@@ -11,10 +11,12 @@ import "./rowStyles.css";
 import {
   selectApplicantSelectedRowKey,
   selectApplicantsSummary,
+  selectRefetchApplicants,
   setApplicantsCurrentPage,
   setApplicantSelectedRowKey,
   setApplications,
   setLoadingApplications,
+  setRefetchApplicants,
   setSearchActive,
   setSelectedApplicantSummary,
   setTotalApplicants,
@@ -96,6 +98,7 @@ const DemoSidebar = React.memo(({ refetch, isRefetching }) => {
   const dispatch = useDispatch();
   const uniqueCampuses = getUniqueCampuses(applicantsSummary);
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
+  const refetchApplicants = useSelector(selectRefetchApplicants)
 
   useEffect(() => {
     setExpandedRowKeys(uniqueCampuses.map((c) => c.campus_id));
@@ -103,7 +106,7 @@ const DemoSidebar = React.memo(({ refetch, isRefetching }) => {
 
   const [
     loadApplications,
-    { error: loadErr, loading: loadingApplications, data },
+    { error: loadErr, loading: loadingApplications, data, refetch: refetchData },
   ] = useLazyQuery(LOAD_APPLICATIONS, {
     notifyOnNetworkStatusChange: true, // Essential for accurate loading state
   });
@@ -120,7 +123,12 @@ const DemoSidebar = React.memo(({ refetch, isRefetching }) => {
 
   useEffect(() => {
     dispatch(setLoadingApplications(loadingApplications));
-  }, [loadingApplications]);
+
+    if (refetchApplicants) {
+      refetchData()
+      dispatch(setRefetchApplicants(false))
+    }
+  }, [loadingApplications, refetchApplicants]);
 
   // useEffect(() => {
   //   if (data) {

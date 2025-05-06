@@ -304,6 +304,7 @@ function AdmittedStdsDataTable() {
     },
   ] = useLazyQuery(LOAD_ADMITTED_STUDENTS, {
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: "no-cache",
   });
 
   const columns2 = useMemo(() => {
@@ -873,19 +874,9 @@ function AdmittedStdsDataTable() {
           );
           return;
         }
+
+       await fetchAdmittedStds(currentPage)
         
-        const res = await refetch({
-          admissionsId: selectedCourseGroup.admissions_id,
-          courseId: selectedCourseGroup.course_id,
-          campusId: selectedCourseGroup.campus_id,
-          start: (currentPage - 1) * pageSize,
-          limit: pageSize
-        });
-        
-        if (res?.data?.admitted_students) {
-          dispatch(setTotalAdmittedStds(res.data.admitted_students.total_records));
-          dispatch(setAdmittedStds(res.data.admitted_students.students || []));
-        }
       }
     } catch (error) {
       dispatch(

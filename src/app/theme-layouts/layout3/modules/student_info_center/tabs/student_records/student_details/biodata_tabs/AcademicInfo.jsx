@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Form, Input, Select, Space, Row, Col } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { selectSelectedStudent } from "../../../../store/infoCenterSlice";
+import { selectSelectedStudent, selectStudentDetails } from "../../../../store/infoCenterSlice";
 import { gql, useQuery } from "@apollo/client";
 const { Option } = Select;
 const layout = {
@@ -66,6 +66,9 @@ const AcademicInfo = ({ form }) => {
   const selectedStudent = useSelector(selectSelectedStudent);
   const { loading, error, data } = useQuery(LOAD_REQS);
   const [selectedCourse, setSelectedCourse] = useState();
+  const studentDetails = useSelector(selectStudentDetails)
+
+  console.log("studentDetails", studentDetails);
   // const [form] = Form.useForm();
 
   useEffect(() => {
@@ -83,7 +86,6 @@ const AcademicInfo = ({ form }) => {
     console.log(values);
   };
 
-  if (!selectedStudent) return;
 
   useEffect(() => {
     if (selectedStudent) {
@@ -101,9 +103,8 @@ const AcademicInfo = ({ form }) => {
     }
   }, [selectedStudent, data]);
 
-  // useEffect(() => {
+  if (!selectedStudent || !studentDetails || !data) return;
 
-  // }, [selectedStudent]);
   return (
     <>
       {/* <Form

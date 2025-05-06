@@ -107,6 +107,7 @@ const initialState = {
   applicantSearchValue: "",
   admittedSearchActive: false,
   admittedSearchValue: "",
+  refetchApplicants: false,
 };
 /**
  * The File Manager App slice.
@@ -310,6 +311,9 @@ export const admissionsAppSlice = createSlice({
     },
     setAdmittedSearchValue: (state, action) => {
       state.admittedSearchValue = action.payload;
+    },
+    setRefetchApplicants: (state, action) => {
+      state.refetchApplicants = action.payload;
     }
   },
   selectors: {
@@ -393,6 +397,7 @@ export const admissionsAppSlice = createSlice({
     selectApplicantSearchValue: (state) => state.applicantSearchValue,
     selectAdmittedSearchActive: (state) => state.admittedSearchActive,
     selectAdmittedSearchValue: (state) => state.admittedSearchValue,
+    selectRefetchApplicants: (state) => state.refetchApplicants,
   },
 });
 /**
@@ -464,6 +469,7 @@ export const {
   setApplicantSearchValue,
   setAdmittedSearchActive,
   setAdmittedSearchValue,
+  setRefetchApplicants,
 } = admissionsAppSlice.actions;
 export const {
   selectSchemes,
@@ -529,5 +535,6 @@ export const {
   selectApplicantSearchValue,
   selectAdmittedSearchActive,
   selectAdmittedSearchValue,
+  selectRefetchApplicants,
 } = injectedSlice.selectors;
 export default admissionsAppSlice.reducer;
