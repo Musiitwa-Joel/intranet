@@ -138,8 +138,18 @@ const GET_STUDENT_DETAILS = gql`
         phone_no
         place_of_residence
         religion
+        nin
       }
+      next_of_kin {
+          full_name
+          email
+          relation
+          phone_no
+          address
+        }
       intake_id
+      campus_id
+      study_time_id
       intake_title
       campus_title
       study_time_title
@@ -151,6 +161,9 @@ const GET_STUDENT_DETAILS = gql`
           course_code
           course_duration
           course_title
+          level_details {
+            level_title
+          }
           school {
             id
             school_code
@@ -165,6 +178,7 @@ const GET_STUDENT_DETAILS = gql`
       }
       entry_acc_yr_title
       entry_study_yr
+      entry_acc_yr
       enrollment_history {
         id
         enrollment_token
@@ -223,6 +237,7 @@ const GET_STUDENT_DETAILS = gql`
       }
       status
       is_on_sponsorship
+      sponsorship
       is_resident
     }
   }

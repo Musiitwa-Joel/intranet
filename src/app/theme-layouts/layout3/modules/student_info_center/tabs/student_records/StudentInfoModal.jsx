@@ -180,7 +180,6 @@ const StudentInfoModal = () => {
         entry_study_yr: parseInt(values?.entry_study_yr) || null,
         intake_id: values?.intake || null,
         reg_no: values?.reg_no || null,
-        sponsorship: values?.sponsorship || null,
         student_no: values.student_no || null,
         study_time_id: values.study_time || null,
         surname: values.surname || null,
@@ -188,10 +187,8 @@ const StudentInfoModal = () => {
         gender: values.gender || null,
         email: values.email || null,
         phone_no:  values.phoneNo || null,
-        // sponsorship: values?.sponsorship || null,
-        // residence_status: Int,
-        // study_time_id: String,
-        // completed: Int,
+        date_of_birth: values.date_of_birth || null,
+        
       },
     };
 
@@ -259,11 +256,12 @@ const StudentInfoModal = () => {
         style={{
           //   backgroundColor: "red",
           padding: 0,
-          height: 300,
-          top: 20,
+          // height: 300,
+          // top: 50,
         }}
         maskClosable={false}
         zIndex={9999}
+        centered
       >
         <Layout
           style={{

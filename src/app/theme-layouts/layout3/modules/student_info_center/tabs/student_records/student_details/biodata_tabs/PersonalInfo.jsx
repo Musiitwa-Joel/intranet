@@ -116,7 +116,7 @@ const PersonalInfo = ({form}) => {
             </Form.Item>
 
             <Form.Item
-              name="note"
+              name="guardian_name"
               label="Guardian's Name"
               rules={[
                 {
@@ -128,7 +128,7 @@ const PersonalInfo = ({form}) => {
             </Form.Item>
 
             <Form.Item
-              name="note"
+              name="guardian_phone"
               label="Guardian's PhoneNo"
               rules={[
                 {
@@ -140,7 +140,7 @@ const PersonalInfo = ({form}) => {
             </Form.Item>
 
             <Form.Item
-              name="national_id"
+              name="nin"
               label="National ID"
               rules={[
                 {
@@ -227,8 +227,20 @@ const PersonalInfo = ({form}) => {
               </Form.Item>
 
               <Form.Item
-                name="note"
+                name="guardian_relation"
                 label={`Guardian's Relation`}
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                name="guardian_email"
+                label={`Guardian's Email`}
                 rules={[
                   {
                     required: true,
