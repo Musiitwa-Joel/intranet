@@ -1,41 +1,98 @@
-import React, { useState } from "react";
-import { Spin } from "antd"; // Ant Design spinner (optional)
-import { useSelector } from "react-redux";
+import React, { Suspense, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import FuseLoading from "@fuse/core/FuseLoading";
+import { useLocation } from "react-router-dom";
+import Box from "@mui/material/Box";
+import useThemeMediaQuery from "@fuse/hooks/useThemeMediaQuery";
+import Dashboard from "./tabs/dashboard/Dashboard";
+import Events from "./tabs/events/Events";
+import Jobs from "./tabs/jobs/Jobs";
+import Resourses from "./tabs/resources_components/Resourses";
+import Messages from "./tabs/messages/Messages";
+import Forums from "./tabs/forums/Forums";
+import Mentorship from "./tabs/mentorship/Mentorship";
+import Donation from "./tabs/fundraising_components/Donation";
+import AlumniDirectory from "./tabs/alumni_directory/AlumniDirectory";
+import { selectActiveTab, updateActiveTab } from "./store/alumniSlice";
+import AppNav from "../../components/AppNav";
 
-const Alumni = () => {
-  const [loading, setLoading] = useState(true);
+const tabs = [
+  "Dashboard",
+  "Alumni Directory",
+  "Events",
+  "Jobs",
+  "Resources",
+  "Messages",
+  "Forums",
+  "Mentorship",
+  "Fundraising",
+  "Graduation Clearance",
+];
+
+const Setup = React.memo(function Setup() {
+  const appExistsInTaskBar = useSelector((state) => state.apps.exists);
   const activeApp = useSelector((state) => state.apps.activeApp);
+  const [loading, setLoading] = useState(!appExistsInTaskBar ? true : false);
+  const isMobile = useThemeMediaQuery((theme) => theme.breakpoints.down("lg"));
+  const location = useLocation();
+  const [leftSidebarOpen, setLeftSidebarOpen] = useState(!isMobile);
+
+  const dispatch = useDispatch();
+  const activeTab = useSelector(selectActiveTab);
+
+  useEffect(() => {
+    setLeftSidebarOpen(!isMobile);
+  }, [isMobile]);
+
+  useEffect(() => {
+    if (isMobile) {
+      setLeftSidebarOpen(false);
+    }
+  }, [location, isMobile]);
+
+  function handleTabChange(event, value) {
+    dispatch(updateActiveTab(value));
+  }
+
+  useEffect(() => {
+    if (!appExistsInTaskBar) {
+      setLoading(true);
+    }
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  }, []);
 
   return (
     <>
-      {/* Show loader while iframe is loading */}
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-        }}
-      >
-        {loading && <FuseLoading logo={activeApp?.logo} />}
-      </div>
+      {loading ? (
+        <FuseLoading logo={activeApp?.logo} />
+      ) : (
+        <Suspense fallback={<FuseLoading logo={activeApp?.logo} />}>
+          <Box sx={{ flexGrow: 1 }}>
+            <AppNav
+              tabs={tabs}
+              activeApp={activeApp}
+              activeTab={activeTab}
+              handleTabChange={handleTabChange}
+            />
 
-      <div style={{ position: "relative", width: "100%", height: "100vh" }}>
-        {/* iframe with onLoad event to hide loader when loaded */}
-        <iframe
-          src="http://tredumo.com/alumni"
-          style={{
-            width: "100%",
-            height: "100%",
-            border: "none",
-            display: loading ? "none" : "block", // Hide until loaded
-          }}
-          onLoad={() => setLoading(false)}
-        />
-      </div>
+            {activeTab === 0 && <Dashboard />}
+            {activeTab === 1 && <AlumniDirectory />}
+            {activeTab === 2 && <Events />}
+            {activeTab === 3 && <Jobs />}
+            {activeTab === 4 && <Resourses />}
+            {activeTab === 5 && <Messages />}
+            {activeTab === 6 && <Forums />}
+            {activeTab === 7 && <Mentorship />}
+            {activeTab === 8 && <Donation />}
+            {activeTab === 9 && <div>Graduation Clearance</div>}
+          </Box>
+        </Suspense>
+      )}
     </>
   );
-};
+});
 
-export default Alumni;
+export default Setup;

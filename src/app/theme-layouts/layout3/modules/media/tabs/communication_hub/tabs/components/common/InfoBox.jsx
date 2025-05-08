@@ -1,6 +1,10 @@
-"use client"
-
-const InfoBox = ({ children, title, borderColor = "#4B0082", bgColor = "#f9f5ff", icon = null }) => {
+const InfoBox = ({
+  children,
+  title,
+  borderColor = "#4B0082",
+  bgColor = "#f9f5ff",
+  icon = null,
+}) => {
   return (
     <div
       className="my-4 p-4 rounded-md"
@@ -20,13 +24,18 @@ const InfoBox = ({ children, title, borderColor = "#4B0082", bgColor = "#f9f5ff"
 
       <style jsx>{`
         @keyframes slideIn {
-          from { transform: translateX(-10px); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
+          from {
+            transform: translateX(-10px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
         }
       `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default InfoBox
-
+export default InfoBox;

@@ -16,7 +16,7 @@ const initialState = {
 };
 
 export const systemAccessSlice = createSlice({
-  name: "systemAccess",
+  name: "media",
   initialState,
   reducers: {
     setActiveTab: (state, action) => {

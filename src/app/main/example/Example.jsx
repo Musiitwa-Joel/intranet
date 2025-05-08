@@ -2,6 +2,7 @@ import { styled } from "@mui/material/styles";
 // import { useTranslation } from "react-i18next";
 import FusePageSimple from "@fuse/core/FusePageSimple";
 import ProjectDashboardAppHeader from "./ProjectDashboardAppHeader";
+import HomePage from "./Homepage";
 
 const Root2 = styled(FusePageSimple)(({ theme }) => ({
   "& .FusePageSimple-header": {
@@ -18,8 +19,8 @@ function Example(props) {
       <Root2
         header={<ProjectDashboardAppHeader />}
         content={
-          <div className="w-full p-12 pt-16 sm:pt-24 lg:ltr:pr-0 lg:rtl:pl-0">
-            Home
+          <div className="">
+            <HomePage />
           </div>
         }
       />
