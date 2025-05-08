@@ -10,6 +10,7 @@ import Testimonials from "./tabs/testimonials/Testimonials";
 import Migration from "./tabs/migration/Migration";
 import ResultsSubmission from "./tabs/results_submission/ResultsSubmission";
 import { ConfigProvider, theme } from "antd";
+import { selectUserPermissions } from "app/store/userSlice";
 
 function ResultsMgt() {
   const dispatch = useDispatch();
@@ -17,17 +18,37 @@ function ResultsMgt() {
   const [loading, setLoading] = useState(!appExistsInTaskBar ? true : false);
   const activeApp = useSelector((state) => state.apps.activeApp);
   const activeTab = useSelector(selectActiveTab);
+  const permissions = useSelector(selectUserPermissions);
+
+  const { can_view_results, can_upload_results, can_upload_migrated_results } =
+    permissions;
 
   const tabs = [
     {
       label: "Results Display",
       value: "results_view",
-      //   visible: can_view_employees ? true : false,
+      visible: can_view_results ? true : false,
     },
     { label: "Testmonials", value: "testimonials" },
-    { label: "Results Submission", value: "results_submission" },
-    { label: "Migration", value: "migration" },
+    {
+      label: "Results Submission",
+      value: "results_submission",
+      visible: can_upload_results ? true : false,
+    },
+    {
+      label: "Migration",
+      value: "migration",
+      visible: can_upload_migrated_results ? true : false,
+    },
   ];
+
+  const firstVisibleTab = tabs.find((tab) => tab.visible !== false)?.value;
+
+  useEffect(() => {
+    if (firstVisibleTab) {
+      dispatch(setActiveTab(firstVisibleTab));
+    }
+  }, [firstVisibleTab]);
 
   useEffect(() => {
     if (!appExistsInTaskBar) {

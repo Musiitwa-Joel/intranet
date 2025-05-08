@@ -14,11 +14,13 @@ import {
   selectAdmittedStdsSummary,
   selectRefetchAdmittedStudents,
   setAdmittedStds,
+  setAdmittedStdsCurrentPage,
   setAdmittedStdsSelectedRowKey,
   setLoadingAdmittedStds,
   setRefetchAdmittedStudents,
   setSelectedAdmittedStdsRowKeys,
   setSelectedAdmittedStdsSummary,
+  setTotalAdmittedStds,
 } from "../../../admissionsSlice";
 
 import {
@@ -93,6 +95,8 @@ const _columns = [
   },
 ];
 
+const pageSize = 50;
+
 const DemoSidebar = React.memo(({ refetch, isRefetching }) => {
   // const [selectedRowKey, setSelectedRowKey] = useState(null);
   const selectedRowKey = useSelector(selectAdmittedStdsSelectedRowKey);
@@ -147,30 +151,34 @@ const DemoSidebar = React.memo(({ refetch, isRefetching }) => {
     dispatch(setLoadingAdmittedStds(loadingAdmittedStds));
   }, [loadingAdmittedStds]);
 
-  useEffect(() => {
-    if (data) {
-      dispatch(setAdmittedStds(data.admitted_students));
-    }
-  }, [data]);
+  // useEffect(() => {
+  //   if (data) {
+  //     dispatch(setAdmittedStds(data.admitted_students));
+  //   }
+  // }, [data]);
 
   const handleRowClick = async (row) => {
     // setSelectedRow(row.id); // Update selected row index
     // console.log("row", row);
     // dispatch(setSelectedAdmittedStdsRowKeys(row));
+    dispatch(setSelectedAdmittedStdsSummary(row));
+    dispatch(setAdmittedStdsCurrentPage(1));
 
     const res = await loadAdmittedStudents({
       variables: {
         admissionsId: row.admissions_id,
         courseId: row.course_id,
         campusId: row.campus_id,
+        start: 0,
+        limit: pageSize,
       },
     });
 
     // console.log("applications", res.data);
 
     if (res.data) {
-      dispatch(setSelectedAdmittedStdsSummary(row));
-      dispatch(setAdmittedStds(res.data.admitted_students));
+      dispatch(setTotalAdmittedStds(res.data.admitted_students.total_records));
+      dispatch(setAdmittedStds(res?.data?.admitted_students?.students || []));
     }
   };
 
@@ -390,7 +398,7 @@ const DemoSidebar = React.memo(({ refetch, isRefetching }) => {
         pagination={false}
         // bordered
         scroll={{
-          y: "calc(100vh - 260px)",
+          y: "calc(100vh - 250px)",
         }}
       />
     </div>

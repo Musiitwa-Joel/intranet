@@ -231,6 +231,12 @@ const StudentDataTable = ({ panelWidth }) => {
     <ConfigProvider
       theme={{
         algorithm: theme.compactAlgorithm,
+        components: {
+          Table: {
+            headerBg: "#f9f9f9",
+            headerBorderRadius: 0,
+          },
+        },
       }}
     >
       <Table
@@ -257,12 +263,13 @@ const StudentDataTable = ({ panelWidth }) => {
         rowKey={`study_yr`}
         style={{
           width: "100%",
-          borderColor: "lightgray",
-          // borderWidth: 1,
+          borderBottom: "1px solid lightgray",
+          borderLeft: "1px solid lightgray",
+          borderRight: "1px solid lightgray",
         }}
         pagination={false}
         scroll={{
-          y: "calc(100vh - 245px)",
+          y: "calc(100vh - 229px)",
         }}
       />
     </ConfigProvider>

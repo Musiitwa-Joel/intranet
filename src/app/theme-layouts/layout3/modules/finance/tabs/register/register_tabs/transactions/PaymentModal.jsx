@@ -5,7 +5,7 @@ import {
   selectPaymentModalVisible,
   selectStudentData,
   setPaymentModalVisible,
-} from "../../../../store/registrationSlice";
+} from "../../../../store/financeSlice";
 import { CaretRightOutlined } from "@ant-design/icons";
 import GenerateTable from "./prt/GenerateTable";
 import PartialPayment from "./prt/PartialPayment";

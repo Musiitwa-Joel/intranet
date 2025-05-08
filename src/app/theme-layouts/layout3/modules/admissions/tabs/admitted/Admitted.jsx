@@ -31,7 +31,6 @@ import AdmittedFillForm from "./AdmittedFillForm";
 import AdmittedStdsDataTable from "./shared-components/AdmittedStdsDataTable";
 
 const Admitted = React.memo(function Admitted() {
-  const appExistsInTaskBar = useSelector((state) => state.apps.exists);
   const [
     getProgramChoices,
     {
@@ -42,13 +41,6 @@ const Admitted = React.memo(function Admitted() {
     },
   ] = useLazyQuery(GET_PROGRAM_CHOICES);
 
-  // const [acc_yr, setAccYr] = React.useState("");
-  // const [scheme, setScheme] = React.useState("");
-  // const [intake, setIntake] = React.useState("");
-
-  const { scheme, acc_yr, intake } = useSelector(
-    (state) => state.admissions.module_state
-  );
   const isMobile = useThemeMediaQuery((theme) => theme.breakpoints.down("lg"));
   const location = useLocation();
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(!isMobile);
@@ -90,7 +82,7 @@ const Admitted = React.memo(function Admitted() {
       </div>
       <div
         style={{
-          height: "calc(100vh - 152px)",
+          height: "calc(100vh - 145px)",
         }}
       >
         <PanelGroup direction="horizontal">
@@ -99,9 +91,12 @@ const Admitted = React.memo(function Admitted() {
             minSize={15}
             style={{
               backgroundColor: "#fff",
-              marginLeft: 10,
-              borderColor: "lightgray",
-              borderWidth: 1,
+              marginLeft: 0,
+              // borderColor: "lightgray",
+              // borderWidth: 1,
+              borderTop: "1px solid lightgray",
+              borderLeft: "1px solid lightgray",
+              borderBottom: "1px solid lightgray",
             }}
           >
             <DemoSidebar isRefetching={progChoiceLoading} />
@@ -109,13 +104,12 @@ const Admitted = React.memo(function Admitted() {
           <PanelResizeHandle
             style={{
               // width: 1,
-              backgroundColor: "lightgray",
+              backgroundColor: "transparent",
               // opacity: 0.6,
             }}
           />
           <Panel minSize={65}>
             <AdmittedStdsDataTable />
-            {/* <TestTable /> */}
           </Panel>
         </PanelGroup>
       </div>

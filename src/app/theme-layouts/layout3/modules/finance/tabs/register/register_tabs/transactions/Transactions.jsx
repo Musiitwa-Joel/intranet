@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectStudentData,
   setPaymentModalVisible,
-} from "../../../../store/registrationSlice";
+} from "../../../../store/financeSlice";
 import { useLazyQuery } from "@apollo/client";
 import { LOAD_STUDENT_TRANSACTIONS } from "app/theme-layouts/layout3/modules/setup/gql/queries";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
