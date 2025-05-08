@@ -89,10 +89,9 @@ const leaveRequests = [
 ];
 
 function App() {
-  const [selectedDate, setSelectedDate] = (useState < Dayjs) | (null > null);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [showConflictModal, setShowConflictModal] = useState(false);
-  const [selectedView, setSelectedView] =
-    (useState < "calendar") | ("table" > "calendar");
+  const [selectedView, setSelectedView] = useState("calendar");
 
   const columns = [
     {
@@ -296,7 +295,7 @@ function App() {
         padding: "0px",
       }}
     >
-      <Card style={{ maxWidth: "1200px", margin: "0 auto" }}>
+      <Card style={{ maxWidth: "1300px", margin: "0 auto" }}>
         <div
           style={{
             display: "flex",

@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import _ from "@lodash";
 import Button from "@mui/material/Button";
 import FuseSvgIcon from "@fuse/core/FuseSvgIcon";
+import { Icon } from "@iconify/react";
+
 // import { getProjects, selectProjects } from "./store/projectsSlice";
 
 const formatDateString = (timestamp) => {
@@ -139,9 +141,7 @@ function ProjectDashboardAppHeader(props) {
             className="whitespace-nowrap"
             variant="contained"
             color="primary"
-            startIcon={
-              <FuseSvgIcon size={20}>heroicons-solid:mail</FuseSvgIcon>
-            }
+            startIcon={<Icon icon="pajamas:messages" width="16" height="16" />}
           >
             Messages
           </Button>
@@ -149,7 +149,13 @@ function ProjectDashboardAppHeader(props) {
             className="whitespace-nowrap"
             variant="contained"
             color="secondary"
-            startIcon={<FuseSvgIcon size={20}>heroicons-solid:cog</FuseSvgIcon>}
+            startIcon={
+              <Icon
+                icon="material-symbols:settings-outline-rounded"
+                width="16"
+                height="16"
+              />
+            }
           >
             Settings
           </Button>

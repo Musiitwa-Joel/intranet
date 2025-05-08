@@ -89,6 +89,10 @@ const SystemAccess = lazy(
   () => import("app/theme-layouts/layout3/modules/system_access/SystemAccess")
 );
 
+const Media = lazy(
+  () => import("app/theme-layouts/layout3/modules/media/Media")
+);
+
 const HR = lazy(() => import("app/theme-layouts/layout3/modules/hr/HR"));
 
 const ResultsMgt = lazy(
@@ -142,6 +146,8 @@ const MemoizedVoting = memo(Voting);
 const MemoizedCounselling = memo(Counselling);
 const MemoizedGraduation = memo(Graduation);
 const MemoizedLibrary = memo(Library);
+
+const MemoizedMedia = memo(Media);
 const MemoizedTimetable = memo(Timetable);
 const MemoizedExaminations= memo(Examinations);
 
@@ -270,6 +276,14 @@ const routes = [
     element: (
       <ProtectedRoute>
         <MemoizedSystemAccess />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "media",
+    element: (
+      <ProtectedRoute>
+        <MemoizedMedia />
       </ProtectedRoute>
     ),
   },

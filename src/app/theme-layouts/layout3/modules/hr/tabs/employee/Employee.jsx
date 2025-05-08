@@ -94,6 +94,7 @@ const EmployeeManagement = () => {
       return "NOT PROVIDED";
     }
   };
+
   // Fetch all employees for the list
   const {
     loading: allEmployeesLoading,
@@ -109,6 +110,8 @@ const EmployeeManagement = () => {
     variables: { employeeId: selectedEmployeeId || "" },
     skip: !selectedEmployeeId, // Skip this query if no employee is selected
   });
+  // console.log("Father Deceased:", selectedEmployee.parentInfo?.fatherDeceased);
+  // console.log("Mother Deceased:", selectedEmployee.parentInfo?.motherDeceased);
 
   // Transform GraphQL employee data to the format needed by the UI
   const transformEmployeeData = (employee) => {
@@ -176,12 +179,23 @@ const EmployeeManagement = () => {
         maritalStatus: employee.marital_status || "NOT PROVIDED",
         joinedDate: "NOT PROVIDED",
       },
+      parentInfo: {
+        fatherName: employee.fathers_name || "NOT PROVIDED",
+        fatherEmail: employee.fathers_email || "N/A",
+        fatherNIN: employee.fathers_nin || "N/A",
+        fatherTel: employee.fathers_telno || "N/A",
+        fatherDeceased: employee.father_deceased === true, // No need for conversion, as it's already a boolean
+        motherName: employee.mothers_name || "NOT PROVIDED",
+        motherEmail: employee.mothers_email || "N/A",
+        motherNIN: employee.mothers_nin || "N/A",
+        motherTel: employee.mothers_telno || "N/A",
+        motherDeceased: employee.mother_deceased === true, // No need for conversion, as it's already a boolean
+      },
 
       // Store all original data for debugging
       originalData: { ...employee },
     };
   };
-
   // Process all employees data
   useEffect(() => {
     if (allEmployeesData) {
@@ -1022,6 +1036,7 @@ const EmployeeManagement = () => {
                       backgroundColor: "white",
                       padding: "10px",
                       borderRadius: "8px",
+                      marginBottom: "12px",
                     }}
                   >
                     <SectionHeader
@@ -1052,6 +1067,90 @@ const EmployeeManagement = () => {
                         label="Manager"
                         value={selectedEmployee.jobDetails.manager}
                       />
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      backgroundColor: "white",
+                      padding: "10px",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <SectionHeader
+                      title="Parent Details"
+                      onEdit={() => console.log("Edit Parent Details")}
+                    />
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(120px, 1fr))",
+                        gap: "12px",
+                      }}
+                    >
+                      {/* Father Details */}
+                      {selectedEmployee.parentInfo?.fatherName && (
+                        <>
+                          <CopyableField
+                            label="Father's Name"
+                            value={
+                              selectedEmployee.parentInfo.fatherName +
+                              (selectedEmployee.parentInfo.fatherDeceased
+                                ? " ⚰️"
+                                : "")
+                            }
+                          />
+                          {/* Only show additional details if father is NOT deceased */}
+                          {!selectedEmployee.parentInfo.fatherDeceased && (
+                            <>
+                              <CopyableField
+                                label="Father's Email"
+                                value={selectedEmployee.parentInfo.fatherEmail}
+                              />
+                              <CopyableField
+                                label="Father's NIN"
+                                value={selectedEmployee.parentInfo.fatherNIN}
+                              />
+                              <CopyableField
+                                label="Father's Contact"
+                                value={selectedEmployee.parentInfo.fatherTel}
+                              />
+                            </>
+                          )}
+                        </>
+                      )}
+
+                      {/* Mother Details */}
+                      {selectedEmployee.parentInfo?.motherName && (
+                        <>
+                          <CopyableField
+                            label="Mother's Name"
+                            value={
+                              selectedEmployee.parentInfo.motherName +
+                              (selectedEmployee.parentInfo.motherDeceased
+                                ? " ⚰️"
+                                : "")
+                            }
+                          />
+                          {/* Only show additional details if mother is NOT deceased */}
+                          {!selectedEmployee.parentInfo.motherDeceased && (
+                            <>
+                              <CopyableField
+                                label="Mother's Email"
+                                value={selectedEmployee.parentInfo.motherEmail}
+                              />
+                              <CopyableField
+                                label="Mother's NIN"
+                                value={selectedEmployee.parentInfo.motherNIN}
+                              />
+                              <CopyableField
+                                label="Mother's Contact"
+                                value={selectedEmployee.parentInfo.motherTel}
+                              />
+                            </>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
                 </Tabs.TabPane>

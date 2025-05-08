@@ -11,6 +11,8 @@ import Dashboard from "./tabs/dashboard/Dashboard";
 import Travel from "./tabs/travel/Travel";
 import Payroll from "./tabs/payroll/Payroll";
 import ComplianceLegal from "./tabs/compliance_legal/ComplianceLegal";
+import Leave from "./tabs/leave/Leave";
+import HRManagement from "./tabs/management_modules/Management";
 import AppNav2 from "../../components/AppNav2";
 import { ConfigProvider, theme } from "antd";
 
@@ -24,12 +26,13 @@ function HR() {
   const tabs = [
     { label: "Dashboard", value: "dashboard" },
     { label: "Employees", value: "employees" },
-    { label: "Appraisals", value: "appraisals" },
-    { label: "Travel", value: "travel" },
-    { label: "Payroll", value: "payroll" },
-    { label: "Leave", value: "leave" },
-    { label: "Compliance & Legal", value: "compliance_legal" },
-    { label: "Designations", value: "designations" },
+    // { label: "Appraisals", value: "appraisals" },
+    // { label: "Travel", value: "travel" },
+    // { label: "Payroll", value: "payroll" },
+    // { label: "Leave", value: "leave" },
+    // { label: "Compliance & Legal", value: "compliance_legal" },
+    // { label: "Designations", value: "designations" },
+    // { label: "Management", value: "management" },
   ];
 
   useEffect(() => {
@@ -67,10 +70,12 @@ function HR() {
             {activeTab === "employees" && <Employee />}{" "}
             {/* Always renders Employee */}
             {activeTab === "appraisals" && <Appraisals />}
-            {activeTab === "designations" && <Designations />}
+            {/* {activeTab === "designations" && <Designations />}
             {activeTab === "travel" && <Travel />}
             {activeTab === "payroll" && <Payroll />}
+            {activeTab === "leave" && <Leave />}
             {activeTab === "compliance_legal" && <ComplianceLegal />}
+            {activeTab === "management" && <HRManagement />} */}
           </Box>
         </Suspense>
       </ConfigProvider>

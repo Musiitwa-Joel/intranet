@@ -165,7 +165,7 @@ const CompactAdminLeaveManagement = () => {
   const [activeTab, setActiveTab] = useState("1");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState < any > null;
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [form] = Form.useForm();
 
   const showModal = () => {

@@ -35,6 +35,7 @@ import { GET_MY_PROFILE } from "app/theme-layouts/layout3/graphql/queries";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import jwtDecode from "jwt-decode";
 import { url2 } from "app/configs/apiConfig";
+import Footer from "./Footer";
 
 /**
  * Form Validation Schema
@@ -167,7 +168,6 @@ function SignInPage() {
               width: 220,
             }}
           />
-
           <Typography className="mt-32 text-4xl font-extrabold tracking-tight leading-tight">
             Sign in
           </Typography>
@@ -177,7 +177,6 @@ function SignInPage() {
               Sign up
             </Link>
           </div> */}
-
           <form
             name="loginForm"
             noValidate
@@ -291,9 +290,12 @@ function SignInPage() {
                 className="flex-auto"
                 onClick={facebookClick}
               >
-                <FuseSvgIcon size={20} color="action">
-                  feather:facebook
-                </FuseSvgIcon>
+                <Icon
+                  color="action"
+                  icon="uil:facebook-f"
+                  width="20"
+                  height="20"
+                />
               </Button>
               <Button
                 variant="outlined"
@@ -312,12 +314,16 @@ function SignInPage() {
                 className="flex-auto"
                 onClick={instagramClick}
               >
-                <FuseSvgIcon size={20} color="action">
-                  feather:instagram
-                </FuseSvgIcon>
+                <Icon
+                  icon="line-md:instagram"
+                  width="20"
+                  height="20"
+                  color="action"
+                />
               </Button>
             </div>
           </form>
+          <Footer />
         </div>
       </Paper>
 

@@ -3,11 +3,12 @@ import { rootReducer } from "app/store/lazyLoadedSlices";
 
 const initialState = {
   activeBooth: null,
+  activeTab: "booth", // Use string identifiers instead of numbers
   options: [],
   selectedOption: {
     student_no: "",
   },
-  imagePreview: `http://localhost:2222/api/student_image/0`,
+  imagePreview: `http://tredumo.com/api/student_image/0`,
   imageToUpload: null,
   recentUploads: [],
   selectedRow: null,
@@ -21,6 +22,11 @@ export const photosSlice = createSlice({
   reducers: {
     setActiveBooth: (state, action) => {
       state.activeBooth = action.payload;
+      // Reset activeTab when changing booth
+      state.activeTab = "booth"; // Reset to the first tab
+    },
+    setActiveTab: (state, action) => {
+      state.activeTab = action.payload;
     },
     setStdOptions: (state, action) => {
       state.options = action.payload;
@@ -43,6 +49,7 @@ export const photosSlice = createSlice({
   },
   selectors: {
     selectActiveBooth: (state) => state.activeBooth,
+    selectActiveTab: (state) => state.activeTab,
     selectOptions: (state) => state.options,
     selectSelectedOption: (state) => state.selectedOption,
     selectImagePreview: (state) => state.imagePreview,
@@ -58,6 +65,7 @@ rootReducer.inject(photosSlice);
 const injectedSlice = photosSlice.injectInto(rootReducer);
 export const {
   setActiveBooth,
+  setActiveTab,
   setStdOptions,
   setSelectedOption,
   setImagePreview,
@@ -67,6 +75,7 @@ export const {
 } = photosSlice.actions;
 export const {
   selectActiveBooth,
+  selectActiveTab,
   selectOptions,
   selectSelectedOption,
   selectImagePreview,

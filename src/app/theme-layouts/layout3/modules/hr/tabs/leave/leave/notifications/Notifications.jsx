@@ -54,12 +54,12 @@ const { Search } = Input;
 function App() {
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isViewModalVisible, setIsViewModalVisible] = useState(false);
-  const [selectedNotification, setSelectedNotification] = useState < any > null;
+  const [selectedNotification, setSelectedNotification] = useState(null);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
-  const [selectedDateRange, setSelectedDateRange] = useState < any > null;
+  const [selectedDateRange, setSelectedDateRange] = useState(null);
   const [form] = Form.useForm();
 
   const cardStyle = {
