@@ -134,6 +134,8 @@ const StudentInfoModal = () => {
 
     const values = form.getFieldsValue();
 
+    console.log('values', values)
+
     const payload = {
       payload: {
         applicant_id: selectedStudent?.biodata.id,
@@ -335,6 +337,7 @@ const StudentInfoModal = () => {
                     algorithm: theme.compactAlgorithm,
                   }}
                 >
+                 
                   {activeMenuItem == "1" && <BioData form={form} />}
                   {activeMenuItem == "2" && <Enrollment />}
                   {activeMenuItem == "3" && <Registration />}

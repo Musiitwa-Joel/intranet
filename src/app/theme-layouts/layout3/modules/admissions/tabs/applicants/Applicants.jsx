@@ -153,9 +153,10 @@ const Applicants = React.memo(function Applicants() {
             minSize={15}
             style={{
               backgroundColor: "#fff",
-              marginLeft: 10,
-              borderColor: "lightgray",
-              borderWidth: 1,
+              marginLeft: 0,
+              borderTop: "1px solid lightgray",
+              borderLeft: "1px solid lightgray",
+              borderBottom: "1px solid lightgray",
             }}
           >
             <DemoSidebar isRefetching={progChoiceLoading} />

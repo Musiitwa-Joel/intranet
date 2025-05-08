@@ -8,17 +8,16 @@ import {
   Send,
 } from "@mui/icons-material";
 import {
-  Form,
   Select,
-  Table,
   Input,
   Row,
   Col,
   Space,
   Dropdown,
   Button,
-  ConfigProvider,
   Typography as AntTypography,
+  Pagination,
+  Spin,
 } from "antd";
 import Papa from "papaparse";
 import { saveAs } from "file-saver";
@@ -27,42 +26,43 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectAdmitStdsModalVisible,
   selectAdmittedStds,
-  selectAdmittedStdsSummary,
-  selectApplicationPreviewModalOpen,
-  selectApplications,
+  selectAdmittedStdsCurrentPage,
   selectLoadingAdmittedStds,
   selectSelectedAdmittedStds,
   selectSelectedAdmittedStdsRowKeys,
   selectSelectedAdmittedStdsSummary,
+  selectTotalAdmittedStds,
   setAdmissionLetterModalVisible,
   setAdmissionLetters,
   setAdmittedStds,
-  setApplicationForm,
-  setApplicationPreviewModalOpen,
+  setAdmittedStdsCurrentPage,
   setEditStudentRecordsModalVisible,
   setRefetchAdmittedStudents,
   setSelectedAdmittedStds,
   setSelectedAdmittedStdsRowKeys,
   setSelectedAdmittedStudent,
-  setSelectedRowKeys,
+  setTotalAdmittedStds,
 } from "../../../admissionsSlice";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import {
   GLOBAL_SEARCH_APPLICATIONS,
-  LOAD_APPLICATION_DETAILS,
+  LOAD_ADMITTED_STUDENTS,
   PRINT_ADMISSION_LETTERS,
 } from "../../../graphql/queries";
 import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";
-import {
-  ADMIT_STDS,
-  PUSH_TO_STD_INFO_CENTER,
-} from "../../../graphql/mutations";
+import { PUSH_TO_STD_INFO_CENTER } from "../../../graphql/mutations";
 import { selectUser } from "app/store/userSlice";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import AdmissionLetterPreview from "./AdmissionLetterPreview";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import EditStudentRecordsModal from "./EditStudentRecordsModal";
 import { Check, CircleCheck } from "lucide-react";
+import "react-data-grid/lib/styles.css";
+import "./mystyles.css";
+
+import DataGrid, { SelectColumn, Row as GridRow } from "react-data-grid";
+import { CellExpanderFormatter } from "./CellExpanderFormatter";
+import { useDirection } from "./DirectionContext";
 
 const { Search } = Input;
 
@@ -70,127 +70,6 @@ const renderRow = (record, text) => {
   const color = parseInt(record.is_std_verified) ? "blue" : "black"; // Conditional color based on `verified` field
 
   return <span style={{ color }}>{text}</span>;
-};
-
-const columns = [
-  {
-    title: "#",
-    dataIndex: "no",
-    key: "index",
-    width: 40,
-    render: (text, record, index) => renderRow(record, index + 1),
-  },
-  {
-    title: "Date",
-    dataIndex: "admitted_on",
-    ellipsis: true,
-    // render: (text, record, index) => (
-    //   <span>{formatDateString(parseInt(text))}</span>
-    // ),
-    render: (text, record, index) =>
-      renderRow(record, formatDateString(parseInt(text))),
-    width: 150,
-  },
-  {
-    title: "Form No",
-    ellipsis: true,
-    dataIndex: "form_no",
-    render: (text, record, index) => renderRow(record, text),
-    width: 140,
-  },
-  {
-    title: "Student No",
-    ellipsis: true,
-    dataIndex: "student_no",
-    render: (text, record, index) => renderRow(record, text),
-    width: 110,
-  },
-  {
-    title: "Name",
-    width: 210,
-    dataIndex: "full_name",
-    ellipsis: true,
-    sorter: (a, b) => {
-      const nameA = a.biodata
-        ? `${a.biodata.surname || ""} ${a.biodata.other_names || ""}`
-        : "";
-      const nameB = b.biodata
-        ? `${b.biodata.surname || ""} ${b.biodata.other_names || ""}`
-        : "";
-      return nameA.localeCompare(nameB);
-    },
-    render: (text, record) =>
-      renderRow(
-        record,
-        record.biodata
-          ? `${record.biodata.surname} ${record.biodata.other_names}`
-          : ""
-      ),
-  },
-  {
-    title: "Sex",
-    dataIndex: "gender",
-    width: 50,
-    // rener: (text, record, index) => <>{`${record.applicant.gender}`}</>,
-    render: (text, record, index) => renderRow(record, record.biodata.gender),
-    // sorter: (a, b) => a.age - b.age,
-  },
-  {
-    title: "Course Code",
-    dataIndex: "course_code",
-    width: 100,
-    // rener: (text, record, index) => <>{`${record.applicant.gender}`}</>,
-    render: (text, record, index) =>
-      renderRow(record, record.course.course_code),
-    // sorter: (a, b) => a.age - b.age,
-  },
-  {
-    title: "Campus",
-    dataIndex: "campus_title",
-    width: 80,
-    render: (text, record, index) => renderRow(record, text),
-  },
-  {
-    title: "Study Time",
-    dataIndex: "study_time_title",
-    width: 100,
-    render: (text, record, index) => renderRow(record, text),
-    sorter: (a, b) => {
-      return a.study_time_title.localeCompare(b.study_time_title);
-    },
-  },
-  {
-    title: "Intake",
-    dataIndex: "intake_title",
-    width: 80,
-    // rener: (text, record, index) => <>{`${record.applicant.gender}`}</>,
-    render: (text, record, index) => renderRow(record, text),
-    // sorter: (a, b) => a.age - b.age,
-  },
-  {
-    title: "Nationality",
-    dataIndex: "nationality",
-    width: 120,
-    // rener: (text, record, index) => <>{`${record.applicant.gender}`}</>,
-    render: (text, record, index) =>
-      renderRow(record, record.biodata.nationality.nationality_title),
-    ellipsis: true,
-    // sorter: (a, b) => a.age - b.age,
-  },
-
-  {
-    title: "Entry Study Year",
-    dataIndex: "entry_study_yr",
-    width: 130,
-    // rener: (text, record, index) => <>{`${record.applicant.gender}`}</>,
-    render: (text, record, index) => renderRow(record, text),
-    // sorter: (a, b) => a.age - b.age,
-  },
-];
-
-const handleButtonClick = (e) => {
-  // message.info("Click on left button.");
-  console.log("click left button", e);
 };
 
 const items = [
@@ -260,86 +139,125 @@ const filterItems = [
   },
 ];
 
-const defaultExpandable = {
-  expandedRowRender: (record) => (
-    <>
-      <Row
-        gutter={24}
-        style={{
-          padding: 5,
-        }}
-      >
-        <Col>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <Space
-              style={{
-                padding: "5px 0px",
-              }}
-            >
-              <AntTypography.Text strong>ADMITTED BY:</AntTypography.Text>
-              <AntTypography.Text>{record.admitted_by_user}</AntTypography.Text>
-            </Space>
+// const defaultExpandable = {
+//   expandedRowRender: (record) => (
+//     <>
+//       <Row
+//         gutter={24}
+//         style={{
+//           padding: 5,
+//         }}
+//       >
+//         <Col>
+//           <div
+//             style={{
+//               display: "flex",
+//               flexDirection: "column",
+//             }}
+//           >
+//             <Space
+//               style={{
+//                 padding: "5px 0px",
+//               }}
+//             >
+//               <AntTypography.Text strong>ADMITTED BY:</AntTypography.Text>
+//               <AntTypography.Text>{record.admitted_by_user}</AntTypography.Text>
+//             </Space>
 
-            <Space>
-              <AntTypography.Text strong>ADMITTED ON:</AntTypography.Text>
-              <AntTypography.Text>
-                {formatDateString(parseInt(record.admitted_on))}
-              </AntTypography.Text>
-            </Space>
-          </div>
-        </Col>
-        {/* <Col>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <Space
-              style={{
-                padding: "5px 0px",
-              }}
-            >
-              <AntTypography.Text strong>REGISTERED BY:</AntTypography.Text>
-              <AntTypography.Text></AntTypography.Text>
-            </Space>
+//             <Space>
+//               <AntTypography.Text strong>ADMITTED ON:</AntTypography.Text>
+//               <AntTypography.Text>
+//                 {formatDateString(parseInt(record.admitted_on))}
+//               </AntTypography.Text>
+//             </Space>
+//           </div>
+//         </Col>
+//         {/* <Col>
+//           <div
+//             style={{
+//               display: "flex",
+//               flexDirection: "column",
+//             }}
+//           >
+//             <Space
+//               style={{
+//                 padding: "5px 0px",
+//               }}
+//             >
+//               <AntTypography.Text strong>REGISTERED BY:</AntTypography.Text>
+//               <AntTypography.Text></AntTypography.Text>
+//             </Space>
 
-            <Space>
-              <AntTypography.Text strong>RESGISTERED ON:</AntTypography.Text>
-              <AntTypography.Text>""</AntTypography.Text>
-            </Space>
-          </div>
-        </Col> */}
-        <Col>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <Space
-              style={{
-                padding: "5px 0px",
-              }}
-            >
-              <AntTypography.Text strong>REGISTRATION NO:</AntTypography.Text>
-              <AntTypography.Text>{record.registration_no}</AntTypography.Text>
-            </Space>
-          </div>
-        </Col>
-      </Row>
-    </>
-  ),
-};
+//             <Space>
+//               <AntTypography.Text strong>RESGISTERED ON:</AntTypography.Text>
+//               <AntTypography.Text>""</AntTypography.Text>
+//             </Space>
+//           </div>
+//         </Col> */}
+//         <Col>
+//           <div
+//             style={{
+//               display: "flex",
+//               flexDirection: "column",
+//             }}
+//           >
+//             <Space
+//               style={{
+//                 padding: "5px 0px",
+//               }}
+//             >
+//               <AntTypography.Text strong>REGISTRATION NO:</AntTypography.Text>
+//               <AntTypography.Text>{record.registration_no}</AntTypography.Text>
+//             </Space>
+//           </div>
+//         </Col>
+//       </Row>
+//     </>
+//   ),
+// };
+
+function getComparator(sortColumn) {
+  switch (sortColumn) {
+    case "index":
+    case "admitted_on":
+    case "form_no":
+    case "student_no":
+    case "gender":
+    case "expander":
+    case "full_name":
+      return (a, b) => {
+        const nameA = a.biodata
+          ? `${a.biodata.surname || ""} ${a.biodata.other_names || ""}`
+          : "";
+        const nameB = b.biodata
+          ? `${b.biodata.surname || ""} ${b.biodata.other_names || ""}`
+          : "";
+        return nameA.localeCompare(nameB);
+      };
+    case "available":
+      return (a, b) => {
+        return a[sortColumn] === b[sortColumn] ? 0 : a[sortColumn] ? 1 : -1;
+      };
+    case "Sex":
+    case "course_code":
+    case "campus_title":
+    case "study_time_title":
+      return (a, b) => {
+        return a.study_time_title.localeCompare(b.study_time_title);
+      };
+    case "nationality":
+    case "intake_title":
+      return (a, b) => {
+        return a[sortColumn] - b[sortColumn];
+      };
+    default:
+      throw new Error(`unsupported sortColumn: "${sortColumn}"`);
+  }
+}
 
 function AdmittedStdsDataTable() {
-  // const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [pageSize, setPageSize] = useState(20);
+  const direction = useDirection();
+  const [pageSize, setPageSize] = useState(50);
   const [current, setCurrent] = useState(1);
   const dispatch = useDispatch();
   const userObj = useSelector(selectUser);
@@ -348,9 +266,13 @@ function AdmittedStdsDataTable() {
   const applications = useSelector(selectAdmittedStds);
   const [admittedStudents, setAdmittedStudents] = useState([]);
   const selectedAdmittedStds = useSelector(selectSelectedAdmittedStds);
-  const selectedRowKeys = useSelector(selectSelectedAdmittedStdsRowKeys);
   const [searchResults, setSearchResults] = useState([]);
   const [selectedCriteria, setSelectedCriteria] = useState("name");
+  const totalRecords = useSelector(selectTotalAdmittedStds);
+  const currentPage = useSelector(selectAdmittedStdsCurrentPage);
+  const [selectedRows, setSelectedRows] = useState(new Set());
+  const [sortColumns, setSortColumns] = useState([]);
+
   const [
     pushToStdInfoCenter,
     { error: pushErr, loading: pushingStds, data: pushRes },
@@ -365,9 +287,300 @@ function AdmittedStdsDataTable() {
     fetchPolicy: "network-only",
   });
 
+  const [
+    loadAdmittedStudents,
+    {
+      error: loadFormsErr,
+      loading: loadingAdmittedStds,
+      data,
+      refetch: refetchAdmittedStds,
+    },
+  ] = useLazyQuery(LOAD_ADMITTED_STUDENTS, {
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const columns2 = useMemo(() => {
+    return [
+      {
+        ...SelectColumn,
+        cellClass(row) {
+          return row.type === "DETAIL" ? "hidden-select" : "";
+        },
+      },
+      {
+        key: "expander",
+        name: "",
+        width: 40,
+        // frozen: true,
+        colSpan(args) {
+          return args.type === "ROW" && args.row.type === "DETAIL"
+            ? 13
+            : undefined;
+        },
+        renderCell: ({ row, onRowChange, tabIndex }) => {
+          // console.log("row", row);
+          if (row.type === "DETAIL") {
+            return (
+              <Row
+                gutter={24}
+                style={{
+                  padding: 5,
+                }}
+              >
+                <Col>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Space
+                      style={{
+                        padding: "5px 0px",
+                      }}
+                    >
+                      <AntTypography.Text strong>
+                        ADMITTED BY:
+                      </AntTypography.Text>
+                      <AntTypography.Text>
+                        {row.admitted_by_user}
+                      </AntTypography.Text>
+                    </Space>
+
+                    <Space>
+                      <AntTypography.Text strong>
+                        ADMITTED ON:
+                      </AntTypography.Text>
+                      <AntTypography.Text>
+                        {formatDateString(parseInt(row.admitted_on))}
+                      </AntTypography.Text>
+                    </Space>
+                  </div>
+                </Col>
+
+                <Col>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Space
+                      style={{
+                        padding: "5px 0px",
+                      }}
+                    >
+                      <AntTypography.Text strong>
+                        REGISTRATION NO:
+                      </AntTypography.Text>
+                      <AntTypography.Text>
+                        {row.registration_no}
+                      </AntTypography.Text>
+                    </Space>
+                  </div>
+                </Col>
+              </Row>
+            );
+          }
+          return (
+            <CellExpanderFormatter
+              expanded={row.expanded}
+              tabIndex={tabIndex}
+              onCellExpand={() => {
+                onRowChange({ ...row, expanded: !row.expanded });
+              }}
+            />
+          );
+        },
+      },
+
+      {
+        name: "#",
+        key: "index",
+        width: 40,
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, rowIdx + 1);
+        },
+      },
+      {
+        name: "Date",
+        key: "admitted_on",
+        ellipsis: true,
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, formatDateString(parseInt(row.admitted_on)));
+        },
+
+        width: 160,
+      },
+      {
+        name: "Form No",
+        ellipsis: true,
+        key: "form_no",
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, row.form_no);
+        },
+        width: 140,
+      },
+      {
+        name: "Student No",
+        ellipsis: true,
+        key: "student_no",
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, row.student_no);
+        },
+        width: 110,
+      },
+      {
+        name: "Name",
+        width: 210,
+        key: "full_name",
+        sortable: true,
+        ellipsis: true,
+        sorter: (a, b) => {
+          const nameA = a.biodata
+            ? `${a.biodata.surname || ""} ${a.biodata.other_names || ""}`
+            : "";
+          const nameB = b.biodata
+            ? `${b.biodata.surname || ""} ${b.biodata.other_names || ""}`
+            : "";
+          return nameA.localeCompare(nameB);
+        },
+        renderCell({ row, rowIdx }) {
+          return renderRow(
+            row,
+            row.biodata
+              ? `${row.biodata.surname} ${row.biodata.other_names}`
+              : ""
+          );
+        },
+      },
+      {
+        name: "Sex",
+        key: "gender",
+        width: 50,
+        // rener: (text, record, index) => <>{`${record.applicant.gender}`}</>,
+
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, row.biodata.gender);
+        },
+        // sorter: (a, b) => a.age - b.age,
+      },
+      {
+        name: "Course Code",
+        key: "course_code",
+        width: 100,
+
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, row.course.course_code);
+        },
+        // sorter: (a, b) => a.age - b.age,
+      },
+      {
+        name: "Campus",
+        key: "campus_title",
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, row.campus_title);
+        },
+        width: 80,
+      },
+      {
+        name: "Study Time",
+        key: "study_time_title",
+        width: 100,
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, row.study_time_title);
+        },
+        sorter: (a, b) => {
+          return a.study_time_title.localeCompare(b.study_time_title);
+        },
+      },
+      {
+        name: "Intake",
+        key: "intake_title",
+        width: 80,
+
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, row.intake_title);
+        },
+      },
+      {
+        name: "Nationality",
+        key: "nationality",
+        width: 120,
+
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, row.biodata.nationality.nationality_title);
+        },
+        ellipsis: true,
+        // sorter: (a, b) => a.age - b.age,
+      },
+
+      {
+        name: "Entry Study Year",
+        key: "entry_study_yr",
+        width: 130,
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, row.entry_study_yr);
+        },
+        // rener: (text, record, index) => <>{`${record.applicant.gender}`}</>,
+
+        // sorter: (a, b) => a.age - b.age,
+      },
+    ];
+  }, [direction]);
+
+  function onRowsChange(rows, { indexes }) {
+    const row = rows[indexes[0]];
+    if (row.type === "MASTER") {
+      if (row.expanded) {
+        rows.splice(indexes[0] + 1, 0, {
+          type: "DETAIL",
+          id: row.std_id + 100,
+          parentId: row.std_id,
+          admitted_by_user: row.admitted_by_user,
+          admitted_on: row.admitted_on,
+          registration_no: row.registration_no,
+        });
+      } else {
+        rows.splice(indexes[0] + 1, 1);
+      }
+      console.log("output rows", rows);
+      setAdmittedStudents(rows);
+    }
+  }
+
+  function rowKeyGetter(row) {
+    return row.std_id;
+  }
+
+  const sortedRows = useMemo(() => {
+    const _rows = searchResults.length > 0 ? searchResults : admittedStudents;
+    if (sortColumns.length === 0) return _rows;
+
+    return [..._rows].sort((a, b) => {
+      for (const sort of sortColumns) {
+        const comparator = getComparator(sort.columnKey);
+        const compResult = comparator(a, b);
+        if (compResult !== 0) {
+          return sort.direction === "ASC" ? compResult : -compResult;
+        }
+      }
+      return 0;
+    });
+  }, [searchResults, admittedStudents, sortColumns]);
+
   useEffect(() => {
+    selectedRows.clear();
     if (applications.length > 0) {
-      setAdmittedStudents(applications);
+      setAdmittedStudents(
+        applications.map((student) => ({
+          ...student,
+          expanded: false,
+          type: "MASTER",
+        }))
+      );
+    } else {
+      setAdmittedStudents([]);
     }
   }, [applications]);
 
@@ -386,22 +599,24 @@ function AdmittedStdsDataTable() {
         searchCriteria: selectedCriteria,
         searchValue: value,
         admissionsId: null,
+        start: 0,
+        limit: pageSize,
       },
     });
 
-    // console.log("response", response.data);
-    dispatch(setAdmittedStds(response.data.global_search_applications));
+    if (response.data) {
+      dispatch(
+        setTotalAdmittedStds(
+          response.data.global_search_applications.total_records
+        )
+      );
+      dispatch(
+        setAdmittedStds(
+          response?.data?.global_search_applications?.students || []
+        )
+      );
+    }
   };
-
-  // console.log("applications----", applications);
-  const [
-    loadApplicationDetails,
-    {
-      error: loadErr,
-      data: applicationRes,
-      loading: loadingApplicationDetails,
-    },
-  ] = useLazyQuery(LOAD_APPLICATION_DETAILS);
 
   const [printAdmissionLetters, { error: printErr, loading: printingLetters }] =
     useLazyQuery(PRINT_ADMISSION_LETTERS, {
@@ -409,18 +624,32 @@ function AdmittedStdsDataTable() {
       fetchPolicy: "network-only",
     });
 
-  // console.log("print error", printErr?.message);
+  const fetchAdmittedStds = async (page) => {
+    const payload = {
+      admissionsId: selectedCourseGroup.admissions_id,
+      courseId: selectedCourseGroup.course_id,
+      campusId: selectedCourseGroup.campus_id,
+      start: (page - 1) * pageSize, // Calculate offset based on page
+      limit: pageSize, // Number of records per page
+    };
+
+    const res = await loadAdmittedStudents({
+      variables: payload,
+    });
+
+    if (res.data) {
+      dispatch(setTotalAdmittedStds(res.data.admitted_students.total_records));
+      dispatch(setAdmittedStds(res?.data?.admitted_students?.students || []));
+    }
+  };
 
   useEffect(() => {
-    if (loadErr) {
-      dispatch(
-        showMessage({
-          message: loadErr.message,
-          variant: "error",
-        })
-      );
+    if (applications.length > 0) {
+      fetchAdmittedStds(currentPage);
     }
+  }, [currentPage]);
 
+  useEffect(() => {
     if (pushErr) {
       dispatch(
         showMessage({
@@ -447,24 +676,33 @@ function AdmittedStdsDataTable() {
         })
       );
     }
-  }, [printErr, pushErr, loadErr, globalErr]);
+
+    if (loadFormsErr) {
+      dispatch(
+        showMessage({
+          message: loadFormsErr.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [printErr, pushErr, globalErr, loadFormsErr]);
 
   const handleMenuClick = async (e) => {
-    // message.info("Click on menu item.");
-
     if (e.key == "push_std_to_sic") {
       // Push to student information center
-
-      if (selectedAdmittedStds.length == 0)
+      if (selectedRows.size == 0)
         return dispatch(
           showMessage({
             message: "Please select at least one student",
             variant: "info",
           })
         );
-      const std_ids = selectedAdmittedStds.map((std) => std.std_id);
 
-      // console.log("the ids", std_ids);
+      const selectedStds = admittedStudents.filter((obj) =>
+        selectedRows.has(obj.std_id)
+      );
+
+      const std_ids = selectedStds.map((std) => std.std_id);
 
       const res = await pushToStdInfoCenter({
         variables: {
@@ -482,9 +720,11 @@ function AdmittedStdsDataTable() {
     }
 
     if (e.key == "edit_student_details") {
-      if (selectedAdmittedStds.length > 0) {
-        let latestStudentSelected =
-          selectedAdmittedStds[selectedAdmittedStds.length - 1];
+      if (selectedRows.size > 0) {
+        const selectedStds = admittedStudents.filter((obj) =>
+          selectedRows.has(obj.std_id)
+        );
+        let latestStudentSelected = selectedStds[selectedStds.length - 1];
 
         dispatch(setSelectedAdmittedStudent(latestStudentSelected));
         dispatch(setEditStudentRecordsModalVisible(true));
@@ -529,20 +769,11 @@ function AdmittedStdsDataTable() {
     onClick: handleFilterMenuClick,
   };
 
-  const onSelectChange = (newSelectedRowKeys, selectedRows) => {
-    // console.log("selectedRowKeys changed: ", newSelectedRowKeys, selectedRows);
-    // setSelectedRowKeys(newSelectedRowKeys);
-    dispatch(setSelectedAdmittedStdsRowKeys(newSelectedRowKeys));
-    dispatch(setSelectedAdmittedStds(selectedRows));
-  };
-
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
-
   const handleOpenPreview = async () => {
-    const stds = selectedAdmittedStds.map((std) => ({
+    const selectedStds = admittedStudents.filter((obj) =>
+      selectedRows.has(obj.std_id)
+    );
+    const stds = selectedStds.map((std) => ({
       applicant_id: std.biodata.id,
       form_no: std.form_no,
     }));
@@ -556,7 +787,6 @@ function AdmittedStdsDataTable() {
       variables: payload,
     });
 
-    console.log("responsse", res.data);
     if (res.data?.print_admission_letters) {
       dispatch(setAdmissionLetters(res.data.print_admission_letters));
 
@@ -565,8 +795,6 @@ function AdmittedStdsDataTable() {
   };
 
   const handleExport = () => {
-    console.log("applications", applications);
-
     if (applications.length == 0) {
       dispatch(
         showMessage({
@@ -590,19 +818,24 @@ function AdmittedStdsDataTable() {
     saveAs(blob, "admitted-student.csv");
   };
 
+  const handlePaginationChange = (page) => {
+    dispatch(setAdmittedStdsCurrentPage(page));
+  };
+
   return (
     <div
       style={{
-        marginLeft: 10,
-        marginRight: 10,
+        marginLeft: 0,
+        marginRight: 0,
         // backgroundColor: "red",
       }}
     >
       <Box
         sx={{
           backgroundColor: "#fff",
-          borderColor: "lightgray",
-          borderWidth: 1,
+          borderTop: "1px solid lightgray",
+          borderLeft: "1px solid lightgray",
+          borderRight: "1px solid lightgray",
           // marginBottom: 1,
         }}
         className="p-5"
@@ -612,7 +845,7 @@ function AdmittedStdsDataTable() {
           justifyContent: "space-between",
           alignItems: "center",
           paddingRight: 15,
-          marginBottom: 7,
+          marginBottom: 0,
         }}
       >
         <AntTypography.Text strong>
@@ -643,8 +876,11 @@ function AdmittedStdsDataTable() {
       <div
         style={{
           // backgroundColor: "#fff",
-          maxHeight: "calc(100vh - 188px)",
-          minHeight: "calc(100vh - 188px)",
+          // maxHeight: "calc(100vh - 185px)",
+          minHeight: "calc(100vh - 179px)",
+          display: "flex",
+          flexDirection: "column",
+          height: "100%", // Ensure it takes full height
           //   height: 600,
         }}
       >
@@ -654,11 +890,11 @@ function AdmittedStdsDataTable() {
             padding: 8,
             display: "flex",
             justifyContent: "space-between",
-            borderColor: "lightgray",
-
-            borderWidth: 1,
+            borderTop: "1px solid lightgray",
+            borderLeft: "1px solid lightgray",
+            borderRight: "1px solid lightgray",
             // marginTop: 5,
-            marginBottom: 8,
+            marginBottom: 0,
           }}
         >
           <Space size="middle">
@@ -715,7 +951,7 @@ function AdmittedStdsDataTable() {
           </Space>
 
           <Button
-            disabled={selectedAdmittedStds.length == 0 || printingLetters}
+            disabled={selectedRows.size == 0 || printingLetters}
             loading={printingLetters}
             onClick={handleOpenPreview}
             size="small"
@@ -723,53 +959,88 @@ function AdmittedStdsDataTable() {
             Print Admission Letter(s)
           </Button>
         </div>
-        <ConfigProvider
-          theme={{
-            components: {
-              Table: {
-                borderColor: "lightgray",
-                borderRadius: 0,
-                headerBorderRadius: 0,
-                // lineHeight: 0.8,
-              },
-            },
+
+        <div
+          style={{
+            flexGrow: 1,
+            overflow: "auto",
+            backgroundColor: "#fff",
+            // borderRight: "1px solid lightgray",
+            // borderLeft: "1px solid lightgray",
           }}
         >
-          <Table
-            columns={columns}
-            dataSource={
-              searchResults.length > 0 ? searchResults : admittedStudents
+          <Spin
+            spinning={
+              loadingApplications ||
+              pushingStds ||
+              searchingGlobally ||
+              loadingAdmittedStds
             }
-            loading={loadingApplications || pushingStds || searchingGlobally}
-            rowKey="std_id"
-            bordered
-            sticky
-            rowSelection={rowSelection}
-            onRow={(record, index) => ({
-              onDoubleClick: () => {
-                dispatch(setSelectedAdmittedStudent(record));
+          >
+            <DataGrid
+              className="rdg-light fill-grid"
+              // rowHeight={30}
+              rowKeyGetter={rowKeyGetter}
+              columns={columns2}
+              rows={sortedRows}
+              onSortColumnsChange={setSortColumns}
+              sortColumns={sortColumns}
+              style={{
+                border: "1px solid #ccc",
+                height: "calc(100vh - 257px)",
+              }}
+              onSelectedRowsChange={setSelectedRows}
+              selectedRows={selectedRows}
+              defaultColumnOptions={{
+                sortable: true,
+                resizable: true,
+              }}
+              onRowsChange={onRowsChange}
+              onCellDoubleClick={(args) => {
+                // console.log("args", args);
+                dispatch(setSelectedAdmittedStudent(args.row));
                 dispatch(setEditStudentRecordsModalVisible(true));
-              },
-            })}
-            expandable={defaultExpandable}
-            showHeader={true}
-            tableLayout="fixed"
-            size="small"
-            pagination={{
-              position: ["bottomLeft"],
-              pageSize: pageSize,
-              // current: current,
-              onShowSizeChange: (current, pageSize) => {
-                setCurrent(current);
-                setPageSize(pageSize);
-              },
-            }}
-            scroll={{
-              y: "calc(100vh - 305px)", // Set the same height as in the style to ensure content scrolls
-              // x: "100vw",
-            }}
-          />
-        </ConfigProvider>
+              }}
+              direction={direction}
+              onCellKeyDown={(_, event) => {
+                if (event.isDefaultPrevented()) {
+                  // skip parent grid keyboard navigation if nested grid handled it
+                  event.preventGridDefault();
+                }
+              }}
+              rowHeight={(row) => (row.type === "DETAIL" ? 65 : 30)}
+            />
+          </Spin>
+        </div>
+
+        <div
+          style={{
+            borderLeft: "1px solid lightgray",
+            borderRight: "1px solid lightgray",
+            borderBottom: "1px solid lightgray",
+            background: "#fff",
+            padding: "5px 10px",
+            backgroundColor: "#fafafa",
+            height: 39,
+            // textAlign: "right",
+          }}
+        >
+          {totalRecords > 0 ? (
+            <div>
+              <Space size="middle">
+                <Pagination
+                  simple
+                  current={currentPage}
+                  total={totalRecords}
+                  pageSize={pageSize}
+                  pageSizeOptions={[50]}
+                  onChange={handlePaginationChange}
+                />
+                <AntTypography.Text>{totalRecords} Records</AntTypography.Text>
+              </Space>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <AdmissionLetterPreview />

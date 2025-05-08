@@ -215,56 +215,63 @@ const LOAD_APPLICATIONS = gql`
     $courseId: String
     $campusId: String
     $isCompleted: Boolean
+    $start: Int!
+    $limit: Int!
   ) {
     applications(
       admissions_id: $admissionsId
       course_id: $courseId
       campus_id: $campusId
       is_completed: $isCompleted
+      start: $start
+      limit: $limit
     ) {
-      id
-      form_no
-      is_admitted
-      is_completed
-      running_admissions {
+      total_records
+      applications {
         id
-        scheme {
-          scheme_title
-        }
-        intake {
-          intake_title
-        }
-        acc_yr {
-          acc_yr_title
-        }
-        admission_level {
+        form_no
+        is_admitted
+        is_completed
+        running_admissions {
           id
-          admission_level_title
+          scheme {
+            scheme_title
+          }
+          intake {
+            intake_title
+          }
+          acc_yr {
+            acc_yr_title
+          }
+          admission_level {
+            id
+            admission_level_title
+          }
+          start_date
+          end_date
         }
-        start_date
-        end_date
-      }
-      status
-      is_paid
-      creation_date
-      application_fee
-      applicant {
-        id
-        surname
-        other_names
-        gender
-        email
-      }
-      program_choices {
-        id
-        choice_no
-        course {
-          course_code
-          course_title
+        status
+        is_paid
+        creation_date
+        application_fee
+        applicant {
+          id
+          surname
+          other_names
+          gender
+          email
         }
-        course_id
+        program_choices {
+          id
+          choice_no
+          course {
+            course_code
+            course_title
+          }
+          course_id
+        }
+        std_id
       }
-      std_id
     }
   }
 `;
@@ -465,43 +472,50 @@ const LOAD_ADMITTED_STUDENTS = gql`
     $admissionsId: String
     $courseId: String
     $campusId: String
+    $start: Int!
+    $limit: Int!
   ) {
     admitted_students(
       admissions_id: $admissionsId
       course_id: $courseId
       campus_id: $campusId
+      start: $start
+      limit: $limit
     ) {
-      std_id
-      student_no
-      registration_no
-      form_no
-      campus_id
-      campus_title
-      study_time_id
-      study_time_title
-      intake_id
-      intake_title
-      biodata {
-        id
-        surname
-        other_names
-        email
-        nationality {
+      total_records
+      students {
+        std_id
+        student_no
+        registration_no
+        form_no
+        campus_id
+        campus_title
+        study_time_id
+        study_time_title
+        intake_id
+        intake_title
+        biodata {
           id
-          nationality_title
-          nationality_category
+          surname
+          other_names
+          email
+          nationality {
+            id
+            nationality_title
+            nationality_category
+          }
+          gender
         }
-        gender
+        course {
+          id
+          course_code
+        }
+        entry_study_yr
+        admitted_on
+        admitted_by_user
+        is_std_verified
+        is_resident
       }
-      course {
-        id
-        course_code
-      }
-      entry_study_yr
-      admitted_on
-      admitted_by_user
-      is_std_verified
-      is_resident
     }
   }
 `;
@@ -545,45 +559,119 @@ const GLOBAL_SEARCH_APPLICATIONS = gql`
     $searchCriteria: String!
     $searchValue: String!
     $admissionsId: String
-    $admitted: String
+    $admitted: Boolean
+    $start: Int!
+    $limit: Int!
   ) {
     global_search_applications(
       search_criteria: $searchCriteria
       search_value: $searchValue
       admissions_id: $admissionsId
       admitted: $admitted
+      start: $start
+      limit: $limit
     ) {
-      std_id
-      student_no
-      registration_no
-      form_no
-      campus_id
-      campus_title
-      study_time_id
-      study_time_title
-      intake_id
-      intake_title
-      biodata {
-        id
-        surname
-        other_names
-        email
-        nationality {
+      total_records
+      students {
+        std_id
+        student_no
+        registration_no
+        form_no
+        campus_id
+        campus_title
+        study_time_id
+        study_time_title
+        intake_id
+        intake_title
+        biodata {
           id
-          nationality_title
-          nationality_category
+          surname
+          other_names
+          email
+          nationality {
+            id
+            nationality_title
+            nationality_category
+          }
+          gender
         }
-        gender
+        course {
+          id
+          course_code
+        }
+        entry_study_yr
+        admitted_on
+        admitted_by_user
+        is_std_verified
+        is_resident
       }
-      course {
+    }
+  }
+`;
+
+const GLOBAL_SEARCH = gql`
+  query global_search(
+    $searchCriteria: String!
+    $searchValue: String!
+    $admissionsId: String
+    $admitted: Boolean
+    $start: Int!
+    $limit: Int!
+  ) {
+    global_search(
+      search_criteria: $searchCriteria
+      search_value: $searchValue
+      admissions_id: $admissionsId
+      admitted: $admitted
+      start: $start
+      limit: $limit
+    ) {
+      total_records
+      applications {
         id
-        course_code
+        form_no
+        is_admitted
+        is_completed
+        running_admissions {
+          id
+          scheme {
+            scheme_title
+          }
+          intake {
+            intake_title
+          }
+          acc_yr {
+            acc_yr_title
+          }
+          admission_level {
+            id
+            admission_level_title
+          }
+          start_date
+          end_date
+        }
+        status
+        is_paid
+        creation_date
+        application_fee
+        applicant {
+          id
+          surname
+          other_names
+          gender
+          email
+        }
+        program_choices {
+          id
+          choice_no
+          course {
+            course_code
+            course_title
+          }
+          course_id
+        }
+        std_id
       }
-      entry_study_yr
-      admitted_on
-      admitted_by_user
-      is_std_verified
-      is_resident
     }
   }
 `;
@@ -604,4 +692,5 @@ export {
   LOAD_ADMISSION_LETTERS,
   PRINT_ADMISSION_LETTERS,
   GLOBAL_SEARCH_APPLICATIONS,
+  GLOBAL_SEARCH,
 };

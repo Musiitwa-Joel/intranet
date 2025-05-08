@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectAddVersionModalOpen,
   selectCourseVersionToEdit,
+  selectSelectedCourseVersion,
   selectSelectedItem,
   updateAddVersionModalOpen,
 } from "../../store/progAndCoursesSlice";
@@ -19,7 +20,7 @@ const CreateVersionModal = () => {
   const dispatch = useDispatch();
   // const { addVersionModalOpen, selectedItem, courseVersionToEdit } =
   //   useSelector((state) => state.progAndCourses);
-
+  const selectedCourseVersion = useSelector(selectSelectedCourseVersion);
   const addVersionModalOpen = useSelector(selectAddVersionModalOpen);
   const selectedItem = useSelector(selectSelectedItem);
   const courseVersionToEdit = useSelector(selectCourseVersionToEdit);
@@ -53,14 +54,12 @@ const CreateVersionModal = () => {
   };
 
   const onFinish = async (values) => {
-    console.log("Success:", values);
-    console.log("selected Item", selectedItem.key);
     let payload = null;
 
     if (courseVersionToEdit) {
       payload = {
         saveCourseVersionId: courseVersionToEdit.id,
-        courseId: courseVersionToEdit.course.id,
+        courseId: selectedCourseVersion?.parent?.id,
         versionTitle: values.version_title,
         addedBy: user.biodata.id,
       };

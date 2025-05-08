@@ -12,12 +12,15 @@ import {
   Space,
   Table,
   ConfigProvider,
+  Pagination,
+  Typography,
 } from "antd";
 import { Download, Trash } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { GET_COURSE_UNITS } from "../../../prog_and_courses/gql/queries";
 import { LOAD_RESULTS_HISTORY } from "../../gql/queries";
+import { saveAs } from "file-saver";
 
 const LOAD_REQS = gql`
   query loadReqs {
@@ -47,6 +50,8 @@ const LOAD_REQS = gql`
   }
 `;
 
+const pageSize = 50;
+
 function SubmissionHistory() {
   const dispatch = useDispatch();
   const { token } = theme.useToken();
@@ -55,7 +60,7 @@ function SubmissionHistory() {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [courseVersions, setCourseVersions] = useState([]);
   const [courseUnits, setCoursUnits] = useState([]);
-  const [uploadType, setUploadType] = useState(null);
+  const [uploadType, setUploadType] = useState("course_work");
   const [resultsHist, setResultsHist] = useState([]);
   const [getCourseUnits, { error: loadErr, loading: loadingCourseUnits }] =
     useLazyQuery(GET_COURSE_UNITS, {
@@ -69,6 +74,10 @@ function SubmissionHistory() {
     notifyOnNetworkStatusChange: true,
     fetchPolicy: "network-only",
   });
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const columns = [
     {
@@ -203,7 +212,7 @@ function SubmissionHistory() {
   }, [error, loadErr, loadHistErr]);
 
   const onFinish = async (values) => {
-    console.log("values", values);
+    // console.log("values", values);
 
     const payload = {
       payload: {
@@ -216,8 +225,9 @@ function SubmissionHistory() {
         sem: values.sem || null,
         uploaded_by_id: values.uploaded_by || null,
         version_id: values.version || null,
+        submission: true,
         start: 0,
-        limit: 200,
+        limit: pageSize,
       },
     };
 
@@ -226,8 +236,8 @@ function SubmissionHistory() {
     });
 
     // console.log("response", res.data);
-
-    setResultsHist(res.data?.load_results_history);
+    setTotalRecords(res.data?.load_results_history?.total_records);
+    setResultsHist(res.data?.load_results_history?.student_marks);
   };
 
   const handleVersionChange = async (value) => {
@@ -257,6 +267,32 @@ function SubmissionHistory() {
     // backgroundColor: "red",
   };
 
+  // Function to load data from server
+  const fetchResultsHistory = async (page) => {
+    const values = form.getFieldsValue();
+    const payload = {
+      payload: {
+        acc_yr_id: values.acc_yr,
+        course_id: values.course,
+        course_unit_id: values.course_unit || null,
+        entry_acc_yr: values.entry_acc_yr || null,
+        student_no: values.student_no || null,
+        study_yr: values.study_yr || null,
+        sem: values.sem || null,
+        uploaded_by_id: values.uploaded_by || null,
+        version_id: values.version || null,
+        start: (page - 1) * pageSize, // Calculate offset based on page
+        limit: pageSize, // Number of records per page
+      },
+    };
+
+    const res = await loadResultsHistory({ variables: payload });
+
+    // console.log("response", res.data);
+    setTotalRecords(res.data?.load_results_history?.total_records);
+    setResultsHist(res.data?.load_results_history?.student_marks || []);
+  };
+
   const exportToCSV = () => {
     const data = resultsHist.map((result) => ({
       "Student No": result.student_no,
@@ -284,6 +320,26 @@ function SubmissionHistory() {
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     saveAs(blob, "student-marks.csv");
   };
+
+  const handleDelete = () => {
+    const result_ids = selectedRows.map((result) => result.result_id);
+    // console.log("result ids", result_ids);
+  };
+
+  const onSelectChange = (newSelectedRowKeys, selectedRows) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+    setSelectedRows(selectedRows);
+  };
+
+  const handlePaginationChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  useEffect(() => {
+    if (resultsHist.length > 0) {
+      fetchResultsHistory(currentPage);
+    }
+  }, [currentPage]);
 
   return (
     <div>
@@ -470,12 +526,12 @@ function SubmissionHistory() {
             <Form.Item
               name={`upload_type`}
               //   label={`Uploaded By`}
+              initialValue={"course_work"}
             >
               <Select
                 showSearch
                 loading={loading}
                 placeholder="Uploaded Type"
-                allowClear
                 options={[
                   { label: "Course Work", value: "course_work" },
                   { label: "Exam Mark", value: "exam_mark" },
@@ -613,10 +669,39 @@ function SubmissionHistory() {
             loading={loadingResultsHistory}
             rowSelection={{
               type: "checkbox",
+              selectedRowKeys: selectedRowKeys,
+              onChange: onSelectChange,
             }}
+            pagination={false}
             scroll={{
               y: "calc(100vh - 330px)",
             }}
+            footer={
+              totalRecords > 0
+                ? () => (
+                    <div
+                      style={{
+                        padding: 0,
+                      }}
+                    >
+                      <Space size="middle">
+                        <Pagination
+                          simple
+                          current={currentPage}
+                          total={totalRecords}
+                          pageSize={pageSize}
+                          pageSizeOptions={[100]}
+                          onChange={handlePaginationChange}
+                        />
+
+                        <Typography.Text>
+                          {totalRecords} Records
+                        </Typography.Text>
+                      </Space>
+                    </div>
+                  )
+                : null
+            }
           />
         </ConfigProvider>
       </div>

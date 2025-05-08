@@ -119,6 +119,14 @@ const Library = lazy(
   () => import("app/theme-layouts/layout3/modules/library/Library")
 );
 
+const Timetable = lazy(
+  () => import("app/theme-layouts/layout3/modules/timetable/Timetable")
+);
+
+const Examinations = lazy(
+  () => import("app/theme-layouts/layout3/modules/examinations/Examinations")
+);
+
 const MemoizedProgramsAndCourses = memo(ProgramsAndCourses);
 const MemoizedAdmissions = memo(Admissions);
 const MemoizedSetup = memo(Setup);
@@ -138,7 +146,10 @@ const MemoizedVoting = memo(Voting);
 const MemoizedCounselling = memo(Counselling);
 const MemoizedGraduation = memo(Graduation);
 const MemoizedLibrary = memo(Library);
+
 const MemoizedMedia = memo(Media);
+const MemoizedTimetable = memo(Timetable);
+const MemoizedExaminations= memo(Examinations);
 
 const routeConfigs = [ExampleConfig, SignOutConfig, SignInConfig, SignUpConfig];
 /**
@@ -177,6 +188,14 @@ const routes = [
     element: (
       <ProtectedRoute>
         <MemoizedAdmissions />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "examinations",
+    element: (
+      <ProtectedRoute>
+        <MemoizedExaminations />
       </ProtectedRoute>
     ),
   },
@@ -329,6 +348,14 @@ const routes = [
     element: (
       <ProtectedRoute>
         <MemoizedLibrary />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "timetable",
+    element: (
+      <ProtectedRoute>
+        <MemoizedTimetable />
       </ProtectedRoute>
     ),
   },

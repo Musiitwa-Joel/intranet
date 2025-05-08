@@ -168,29 +168,33 @@ const LOAD_STDS_RESULTS = gql`
 const LOAD_RESULTS_HISTORY = gql`
   query Load_results_history($payload: ResultsHistoryInput!) {
     load_results_history(payload: $payload) {
-      student_no
-      student_info {
-        registration_no
-        biodata {
-          surname
-          other_names
-          gender
+      total_records
+      student_marks {
+        result_id
+        student_no
+        student_info {
+          registration_no
+          biodata {
+            surname
+            other_names
+            gender
+          }
+          course_details {
+            version_title
+          }
         }
-        course_details {
-          version_title
-        }
+        course_unit_code
+        course_unit_title
+        coursework
+        exam
+        final_mark
+        retake_count
+        credit_units
+        uploaded_by_user
+        cw_uploaded_by_user
+        cw_uploaded_at
+        date_time
       }
-      course_unit_code
-      course_unit_title
-      coursework
-      exam
-      final_mark
-      retake_count
-      credit_units
-      uploaded_by_user
-      cw_uploaded_by_user
-      cw_uploaded_at
-      date_time
     }
   }
 `;

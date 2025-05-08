@@ -1,55 +1,57 @@
 import { Box, Tooltip } from "@mui/material";
 import {
-  AccessTimeFilledSharp,
   AddCircleSharp,
-  DownloadDone,
-  EditNoteSharp,
   GetAppSharp,
-  HouseSidingSharp,
   PublishSharp,
   Refresh,
 } from "@mui/icons-material";
 import {
   Form,
   Select,
-  Table,
   Input,
   Row,
   Col,
   Space,
   Dropdown,
   Button,
-  ConfigProvider,
   Modal,
   Typography,
   FloatButton,
+  Pagination,
+  Spin,
 } from "antd";
 import { DownOutlined, UserOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectAdmitStdsModalVisible,
   selectApplicantsAdmissionList,
+  selectApplicantsCurrentPage,
   selectApplicationPreviewModalOpen,
   selectApplications,
   selectLoadingApplications,
   selectSelectedApplicantSummary,
   selectSelectedApplications,
   selectSelectedRowKeys,
+  selectTotalApplicants,
   setAdmitStdsModalVisible,
   setApplicanntsAdmissionListModal,
+  setApplicantsCurrentPage,
   setApplicationForm,
   setApplicationPreviewModalOpen,
+  setApplications,
   setImportApplicantsModalVisible,
   setSelectedApplications,
   setSelectedRowKeys,
+  setTotalApplicants,
 } from "../../../admissionsSlice";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import {
+  GLOBAL_SEARCH,
   LOAD_APPLICATIONS,
   LOAD_APPLICATION_DETAILS,
 } from "../../../graphql/queries";
 import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Add from "@mui/icons-material/Add";
 import AdmitStudentsModal from "./AdmitStudentsModal";
 import { ADMIT_STDS } from "../../../graphql/mutations";
@@ -60,6 +62,9 @@ import FormPreview from "./FormPreview";
 import AddStdToAdmissionModal from "./AddStdToAdmissionModal";
 import ApplicantAdmissionList from "../ApplicantsAdmissionList";
 import ImportApplicants from "../ImportApplicants";
+import DataGrid, { SelectColumn, Row as GridRow } from "react-data-grid";
+import { useDirection } from "../../admitted/shared-components/DirectionContext";
+import { CellExpanderFormatter } from "../../admitted/shared-components/CellExpanderFormatter";
 
 const { Search } = Input;
 
@@ -72,145 +77,6 @@ const renderRow = (record, text) => {
 
   return <span style={{ color }}>{text}</span>;
 };
-const columns = [
-  {
-    title: "#",
-    dataIndex: "no",
-    key: "index",
-    width: 40,
-    render: (text, record, index) => renderRow(record, index + 1),
-  },
-  {
-    title: "Date",
-    dataIndex: "creation_date",
-    ellipsis: true,
-    // render: (text, record, index) => (
-    //   <span>{formatDateString(parseInt(text))}</span>
-    // ),
-    render: (text, record, index) =>
-      renderRow(record, formatDateString(parseInt(text))),
-    width: 150,
-  },
-  {
-    title: "Form No",
-    ellipsis: true,
-    dataIndex: "form_no",
-    render: (text, record, index) => renderRow(record, text),
-    width: 140,
-  },
-  {
-    title: "Name",
-    width: 210,
-    dataIndex: "full_name",
-    ellipsis: true,
-    sorter: (a, b) => {
-      const nameA = a.biodata
-        ? `${a.biodata.surname || ""} ${a.biodata.other_names || ""}`
-        : "";
-      const nameB = b.biodata
-        ? `${b.biodata.surname || ""} ${b.biodata.other_names || ""}`
-        : "";
-      return nameA.localeCompare(nameB);
-    },
-    render: (text, record, index) =>
-      renderRow(
-        record,
-        `${record.applicant.surname} ${record.applicant.other_names}`
-      ),
-  },
-  {
-    title: "Sex",
-    dataIndex: "gender",
-    width: 50,
-    // rener: (text, record, index) => <>{`${record.applicant.gender}`}</>,
-    render: (text, record, index) => renderRow(record, record.applicant.gender),
-    // sorter: (a, b) => a.age - b.age,
-  },
-  {
-    title: "Email",
-    dataIndex: "email",
-    width: 150,
-    ellipsis: true,
-    // render: (text, record, index) => <span>{`${record.applicant.email}`}</span>,
-    render: (text, record, index) => renderRow(record, record.applicant.email),
-  },
-  {
-    title: "Paid",
-    dataIndex: "is_paid",
-    ellipsis: true,
-    width: 50,
-    render: (text, record, index) => {
-      if (Boolean(parseInt(text))) {
-        return (
-          <CheckIcon
-            style={{
-              color: record.is_admitted
-                ? "blue"
-                : parseInt(record.is_paid)
-                  ? "green"
-                  : "red",
-            }}
-          />
-        );
-      } else {
-        return renderRow(record, "...");
-      }
-    },
-    // render: (text, record, index) => <>{`${record.applicant.email}`}</>,
-  },
-  {
-    title: "Admitted",
-    dataIndex: "admitted",
-    ellipsis: true,
-    // render: (text, record, index) => <>{`_`}</>,
-    render: (text, record, index) => {
-      if (record.is_admitted) {
-        return (
-          <CheckIcon
-            style={{
-              color: "blue",
-            }}
-          />
-        );
-      } else {
-        return renderRow(record, "...");
-      }
-    },
-    width: 80,
-  },
-  {
-    title: "1st Choice",
-    // dataIndex: "",
-    ellipsis: true,
-    width: 100,
-    children: [
-      {
-        title: "Progcode",
-        dataIndex: "street",
-        key: "code",
-        ellipsis: true,
-        // render: (text, record, index) => (
-        //   <>{`${record.program_choices[0].course.course_code}`}</>
-        // ),
-        render: (text, record, index) =>
-          renderRow(record, record.program_choices[0].course.course_code),
-        width: 100,
-      },
-      {
-        title: "Alias",
-        dataIndex: "street",
-        ellipsis: true,
-        key: "street",
-        // render: (text, record, index) => (
-        //   <>{`${record.program_choices[0].course.course_code}`}</>
-        // ),
-        render: (text, record, index) =>
-          renderRow(record, record.program_choices[0].course.course_code),
-        width: 100,
-      },
-    ],
-  },
-];
 
 const data = [];
 for (let i = 0; i < 100; i++) {
@@ -313,9 +179,10 @@ const defaultExpandable = {
 };
 
 function AdmissionsDataTable() {
+  const direction = useDirection();
   // const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const dispatch = useDispatch();
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(50);
   const [current, setCurrent] = useState(1);
   const [selectedCriteria, setSelectedCriteria] = useState("name");
   const userObj = useSelector(selectUser);
@@ -327,41 +194,315 @@ function AdmissionsDataTable() {
   const admitStdsModalVisible = useSelector(selectAdmitStdsModalVisible);
   const selectedRowKeys = useSelector(selectSelectedRowKeys);
   const [searchResults, setSearchResults] = useState([]);
+  const totalRecords = useSelector(selectTotalApplicants);
+  const currentPage = useSelector(selectApplicantsCurrentPage);
+  const [selectedRows, setSelectedRows] = useState(new Set());
+  const [sortColumns, setSortColumns] = useState([]);
+
+  const [loadApplications, { error: loadFormsErr, loading: loadingForms }] =
+    useLazyQuery(LOAD_APPLICATIONS, {
+      notifyOnNetworkStatusChange: true, // Essential for accurate loading state
+    });
+
+  const [
+    globalSearchApplications,
+    { error: globalErr, loading: searchingGlobally },
+  ] = useLazyQuery(GLOBAL_SEARCH, {
+    fetchPolicy: "network-only",
+  });
 
   const onChange = (value) => {
     // console.log(`selected ${value}`);
     setSelectedCriteria(value);
   };
 
-  const onSearch = (value) => {
+  const columns2 = useMemo(() => {
+    return [
+      {
+        ...SelectColumn,
+        cellClass(row) {
+          return row.type === "DETAIL" ? "hidden-select" : "";
+        },
+      },
+      // {
+      //   key: "expander",
+      //   name: "",
+      //   width: 40,
+      //   // frozen: true,
+      //   colSpan(args) {
+      //     return args.type === "ROW" && args.row.type === "DETAIL"
+      //       ? 13
+      //       : undefined;
+      //   },
+      //   renderCell: ({ row, onRowChange, tabIndex }) => {
+      //     // console.log("row", row);
+      //     if (row.type === "DETAIL") {
+      //       return (
+      //         <Row
+      //           gutter={24}
+      //           style={{
+      //             padding: 5,
+      //           }}
+      //         >
+      //           <Col>
+      //             <div
+      //               style={{
+      //                 display: "flex",
+      //                 flexDirection: "column",
+      //               }}
+      //             >
+      //               <Space
+      //                 style={{
+      //                   padding: "5px 0px",
+      //                 }}
+      //               >
+      //                 <AntTypography.Text strong>
+      //                   ADMITTED BY:
+      //                 </AntTypography.Text>
+      //                 <AntTypography.Text>
+      //                   {row.admitted_by_user}
+      //                 </AntTypography.Text>
+      //               </Space>
+
+      //               <Space>
+      //                 <AntTypography.Text strong>
+      //                   ADMITTED ON:
+      //                 </AntTypography.Text>
+      //                 <AntTypography.Text>
+      //                   {formatDateString(parseInt(row.admitted_on))}
+      //                 </AntTypography.Text>
+      //               </Space>
+      //             </div>
+      //           </Col>
+
+      //           <Col>
+      //             <div
+      //               style={{
+      //                 display: "flex",
+      //                 flexDirection: "column",
+      //               }}
+      //             >
+      //               <Space
+      //                 style={{
+      //                   padding: "5px 0px",
+      //                 }}
+      //               >
+      //                 <AntTypography.Text strong>
+      //                   REGISTRATION NO:
+      //                 </AntTypography.Text>
+      //                 <AntTypography.Text>
+      //                   {row.registration_no}
+      //                 </AntTypography.Text>
+      //               </Space>
+      //             </div>
+      //           </Col>
+      //         </Row>
+      //       );
+      //     }
+      //     return (
+      //       <CellExpanderFormatter
+      //         expanded={row.expanded}
+      //         tabIndex={tabIndex}
+      //         onCellExpand={() => {
+      //           onRowChange({ ...row, expanded: !row.expanded });
+      //         }}
+      //       />
+      //     );
+      //   },
+      // },
+      {
+        name: "#",
+        key: "index",
+        width: 40,
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, rowIdx + 1);
+        },
+      },
+      {
+        name: "Date",
+        key: "creation_date",
+        ellipsis: true,
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, formatDateString(parseInt(row.creation_date)));
+        },
+
+        width: 180,
+      },
+      {
+        name: "Form No",
+        ellipsis: true,
+        key: "form_no",
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, row.form_no);
+        },
+        width: 140,
+      },
+      {
+        name: "Name",
+        width: 210,
+        key: "full_name",
+        sortable: true,
+        ellipsis: true,
+        sorter: (a, b) => {
+          const nameA = a.applicant
+            ? `${a.applicant.surname || ""} ${a.applicant.other_names || ""}`
+            : "";
+          const nameB = b.applicant
+            ? `${b.applicant.surname || ""} ${b.applicant.other_names || ""}`
+            : "";
+          return nameA.localeCompare(nameB);
+        },
+        renderCell({ row, rowIdx }) {
+          return renderRow(
+            row,
+            row.applicant
+              ? `${row.applicant.surname} ${row.applicant.other_names}`
+              : ""
+          );
+        },
+      },
+      {
+        name: "Sex",
+        key: "gender",
+        width: 50,
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, row.applicant.gender);
+        },
+      },
+      {
+        name: "Email",
+        key: "email",
+        width: 180,
+        ellipsis: true,
+        // render: (text, record, index) => <span>{`${record.applicant.email}`}</span>,
+        renderCell({ row, rowIdx }) {
+          return renderRow(row, row.applicant.email);
+        },
+      },
+      {
+        name: "Paid",
+        key: "is_paid",
+        ellipsis: true,
+        width: 50,
+        renderCell({ row, rowIdx }) {
+          if (Boolean(parseInt(row.is_paid))) {
+            return (
+              <CheckIcon
+                style={{
+                  color: row.is_admitted
+                    ? "blue"
+                    : parseInt(row.is_paid)
+                      ? "green"
+                      : "red",
+                }}
+              />
+            );
+          } else {
+            return renderRow(row, "...");
+          }
+        },
+      },
+      {
+        name: "Admitted",
+        key: "admitted",
+        ellipsis: true,
+        renderCell({ row, rowIdx }) {
+          if (row.is_admitted) {
+            return (
+              <CheckIcon
+                style={{
+                  color: "blue",
+                }}
+              />
+            );
+          } else {
+            return renderRow(row, "...");
+          }
+        },
+        width: 80,
+      },
+      {
+        name: "1st Choice",
+        children: [
+          {
+            name: "Progcode",
+            key: "code",
+            ellipsis: true,
+            renderCell({ row, rowIdx }) {
+              return renderRow(row, row.program_choices[0].course.course_code);
+            },
+            width: 100,
+          },
+          {
+            name: "Alias",
+            key: "code",
+            renderCell({ row, rowIdx }) {
+              return renderRow(row, row.program_choices[0].course.course_code);
+            },
+            width: 100,
+          },
+        ],
+      },
+    ];
+  }, [direction]);
+
+  const handlePaginationChange = (page) => {
+    dispatch(setApplicantsCurrentPage(page));
+  };
+
+  const fetchApplications = async (page) => {
+    const payload = {
+      admissionsId: selectedCourseGroup.admissions_id,
+      courseId: selectedCourseGroup.course_id,
+      campusId: selectedCourseGroup.campus_id,
+      start: (page - 1) * pageSize, // Calculate offset based on page
+      limit: pageSize, // Number of records per page
+    };
+
+    const res = await loadApplications({
+      variables: payload,
+    });
+
+    if (res.data) {
+      dispatch(setTotalApplicants(res.data.applications.total_records));
+      dispatch(setApplications(res.data.applications.applications));
+    }
+  };
+
+  const onSearch = async (value) => {
     if (!value) {
-      setSearchResults([]);
       return;
     }
 
-    let filteredResults = [];
+    dispatch(setApplicantsCurrentPage(1));
 
-    if (selectedCriteria === "name") {
-      filteredResults = applications.filter((app) => {
-        const fullName = `${app.applicant.surname} ${app.applicant.other_names}`;
-        return fullName.toLowerCase().includes(value.toLowerCase());
-      });
-    } else if (selectedCriteria === "program_code") {
-      filteredResults = applications.filter((app) =>
-        app.program_choices.some((choice) =>
-          choice.course.course_code.toLowerCase().includes(value.toLowerCase())
-        )
+    const payload = {
+      searchCriteria: selectedCriteria,
+      searchValue: value,
+      admissionsId: null,
+      admitted: false,
+      start: 0,
+      limit: pageSize,
+    };
+
+    const response = await globalSearchApplications({
+      variables: payload,
+    });
+
+    console.log("response", response.data);
+
+    if (response.data) {
+      dispatch(setTotalApplicants(response.data.global_search.total_records));
+      dispatch(
+        setApplications(response?.data?.global_search?.applications || [])
       );
     }
-
-    setSearchResults(filteredResults);
   };
 
   const [admitStudents, { error, loading, data }] = useMutation(ADMIT_STDS, {
     refetchQueries: ["loadApplications"],
   });
 
-  // console.log("applications", applications);
   const completedApplications = applications.filter(
     (form) => form.is_completed
   );
@@ -378,19 +519,41 @@ function AdmissionsDataTable() {
     },
   ] = useLazyQuery(LOAD_APPLICATION_DETAILS);
 
-  if (loadErr) {
-    dispatch({
-      message: loadErr.message,
-      variant: "error",
-    });
-  }
+  useEffect(() => {
+    if (loadErr) {
+      dispatch({
+        message: loadErr.message,
+        variant: "error",
+      });
+    }
 
-  if (error) {
-    dispatch({
-      message: error.message,
-      variant: "error",
-    });
-  }
+    if (error) {
+      dispatch({
+        message: error.message,
+        variant: "error",
+      });
+    }
+
+    if (loadFormsErr) {
+      dispatch({
+        message: loadFormsErr.message,
+        variant: "error",
+      });
+    }
+
+    if (globalErr) {
+      dispatch({
+        message: globalErr.message,
+        variant: "error",
+      });
+    }
+  }, [loadFormsErr, loadErr, error, globalErr]);
+
+  useEffect(() => {
+    if (applications.length > 0) {
+      fetchApplications(currentPage);
+    }
+  }, [currentPage]);
 
   const handleMenuClick = (e) => {
     // message.info("Click on menu item.");
@@ -454,10 +617,11 @@ function AdmissionsDataTable() {
   };
 
   const handleOpenPreview = async () => {
-    // console.log("selected app", selectedApplications);
-    if (selectedApplications.length > 0) {
-      let latestAppSelected =
-        selectedApplications[selectedApplications.length - 1];
+    const selectedApplicants = applications.filter((obj) =>
+      selectedRows.has(obj.id)
+    );
+    if (selectedApplicants.length > 0) {
+      let latestAppSelected = selectedApplicants[selectedApplicants.length - 1];
       // console.log("application", latestAppSelected);
       const payload = {
         admissionsId: latestAppSelected.running_admissions.id,
@@ -476,20 +640,26 @@ function AdmissionsDataTable() {
       dispatch(setApplicationForm(res.data));
       dispatch(setApplicationPreviewModalOpen(true));
     }
-    // setIsOpen(true);
   };
+
+  useEffect(() => {
+    selectedRows.clear();
+  }, [applications]);
 
   return (
     <div
       style={{
-        marginLeft: 10,
-        marginRight: 10,
+        marginLeft: 0,
+        marginRight: 0,
         // backgroundColor: "red",
       }}
     >
       <Box
         sx={{
           backgroundColor: "#2f405d",
+          borderTop: "1px solid lightgray",
+          borderLeft: "1px solid lightgray",
+          borderRight: "1px solid lightgray",
         }}
         className="p-5"
         style={{
@@ -548,11 +718,12 @@ function AdmissionsDataTable() {
             padding: 8,
             display: "flex",
             justifyContent: "space-between",
-            borderColor: "lightgray",
-
-            borderWidth: 1,
-            // marginTop: 5,
-            marginBottom: 8,
+            // borderColor: "lightgray",
+            borderTop: "1px solid lightgray",
+            borderLeft: "1px solid lightgray",
+            borderRight: "1px solid lightgray",
+            // borderWidth: 1,
+            marginBottom: 0,
           }}
         >
           <Space size="large">
@@ -565,7 +736,7 @@ function AdmissionsDataTable() {
                 width: 200,
               }}
               onChange={onChange}
-              onSearch={onSearch}
+              // onSearch={onSearch}
               value={selectedCriteria}
               options={[
                 {
@@ -604,9 +775,7 @@ function AdmissionsDataTable() {
           </Space>
 
           <Button
-            disabled={
-              selectedApplications.length == 0 || loadingApplicationDetails
-            }
+            disabled={selectedRows.size == 0 || loadingApplicationDetails}
             loading={loadingApplicationDetails}
             onClick={handleOpenPreview}
             size="small"
@@ -614,67 +783,98 @@ function AdmissionsDataTable() {
             View Form
           </Button>
         </div>
-        <ConfigProvider
-          theme={{
-            components: {
-              Table: {
-                // headerBg: "rgba(0, 0, 0, 0.04)",
-                borderColor: "lightgray",
-                // borderWidth: 10,
-                // headerColor: "dodgerblue",
-                borderRadius: 0,
-                headerBorderRadius: 0,
-                // colorBorderBg: "black",
-                // cellFontSize: 10,
-                // fontSize: 13,
-                // controlHeight: 12
-                lineHeight: 0.8,
-
-                // backgroundColor: "red",
-
-                // headerColor: "red",
-                // headerSplitColor: "red",
-                // borderColor: "red",
-                // padding: 0,
-              },
-            },
+        <div
+          style={{
+            // backgroundColor: "#fff",
+            // maxHeight: "calc(100vh - 185px)",
+            minHeight: "calc(100vh - 225px)",
+            display: "flex",
+            flexDirection: "column",
+            height: "100%", // Ensure it takes full height
+            //   height: 600,
           }}
         >
-          <Table
-            columns={columns}
-            dataSource={
-              searchResults.length > 0 ? searchResults : completedApplications
-            }
-            loading={loadingApplications}
-            rowKey="id"
-            bordered
-            sticky
-            rowSelection={rowSelection}
-            expandable={defaultExpandable}
-            showHeader={true}
-            tableLayout="fixed"
-            size="small"
-            pagination={{
-              position: ["bottomLeft"],
-              pageSize: pageSize,
-              // current: current,
-
-              onShowSizeChange: (current, pageSize) => {
-                setCurrent(current);
-                setPageSize(pageSize);
-              },
+          <div
+            style={{
+              flexGrow: 1,
+              overflow: "auto",
+              backgroundColor: "#fff",
             }}
-            scroll={{
-              y: "calc(100vh - 302px)", // Set the same height as in the style to ensure content scrolls
-              // x: "100vw",
-            }}
+          >
+            <Spin
+              spinning={
+                loadingApplications || loadingForms || searchingGlobally
+              }
+            >
+              <DataGrid
+                className="rdg-light fill-grid"
+                // rowHeight={30}
+                rowKeyGetter={(row) => row.id}
+                columns={columns2}
+                rows={
+                  searchResults.length > 0
+                    ? searchResults
+                    : completedApplications
+                }
+                onSortColumnsChange={setSortColumns}
+                sortColumns={sortColumns}
+                style={{
+                  border: "1px solid #ccc",
+                  height: "calc(100vh - 265px)",
+                }}
+                onSelectedRowsChange={setSelectedRows}
+                selectedRows={selectedRows}
+                defaultColumnOptions={{
+                  sortable: true,
+                  resizable: true,
+                }}
+                // onRowsChange={onRowsChange}
+                // onCellDoubleClick={(args) => {
+                //   // console.log("args", args);
+                //   dispatch(setSelectedAdmittedStudent(args.row));
+                //   dispatch(setEditStudentRecordsModalVisible(true));
+                // }}
+                direction={direction}
+                onCellKeyDown={(_, event) => {
+                  if (event.isDefaultPrevented()) {
+                    // skip parent grid keyboard navigation if nested grid handled it
+                    event.preventGridDefault();
+                  }
+                }}
+                rowHeight={(row) => (row.type === "DETAIL" ? 65 : 30)}
+              />
+            </Spin>
+          </div>
 
-            // scroll={{
-            //   y: "calc(100vh - 370px)",
-            //   x: "100vw",
-            // }}
-          />
-        </ConfigProvider>
+          <div
+            style={{
+              borderLeft: "1px solid lightgray",
+              borderRight: "1px solid lightgray",
+              borderBottom: "1px solid lightgray",
+              background: "#fff",
+              padding: "5px 10px",
+              backgroundColor: "#fafafa",
+              height: 40,
+              // textAlign: "right",
+            }}
+          >
+            {totalRecords > 0 ? (
+              <div>
+                <Space size="middle">
+                  <Pagination
+                    simple
+                    current={currentPage}
+                    total={totalRecords}
+                    pageSize={pageSize}
+                    pageSizeOptions={[50]}
+                    onChange={handlePaginationChange}
+                  />
+                  <Typography.Text>{totalRecords} Records</Typography.Text>
+                </Space>
+              </div>
+            ) : null}
+          </div>
+        </div>
       </div>
 
       <FormPreview />
@@ -709,7 +909,7 @@ function AdmissionsDataTable() {
         shape="circle"
         style={{
           insetInlineEnd: 30,
-          insetBlockEnd: 70,
+          insetBlockEnd: 66,
         }}
       >
         <FloatButton

@@ -7,7 +7,7 @@ import {
   selectStudentData,
   setEditEnrollmentVisible,
   setSelectedEnrollment,
-} from "../../../../store/registrationSlice";
+} from "../../../../store/financeSlice";
 import { gql, useMutation } from "@apollo/client";
 import { selectAccYrs } from "app/theme-layouts/layout3/modules/setup/store/setUpSlice";
 import { EDIT_ENROLLMENT } from "../../../../gql/mutations";

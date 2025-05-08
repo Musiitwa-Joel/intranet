@@ -23,7 +23,7 @@ import {
   setHideInconsistences,
   setSelectedEnrollment,
   setEditEnrollmentVisible,
-} from "../../../../store/registrationSlice";
+} from "../../../../store/financeSlice";
 import formatDateToYYYYMMDD from "app/theme-layouts/layout3/utils/convertDateToYYMMDD";
 import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";
 import {

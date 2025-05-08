@@ -7,7 +7,7 @@ import {
   selectDeletingEnrollment,
   selectLoadingStudentData,
   setActiveRegisterTab,
-} from "../../../store/registrationSlice";
+} from "../../../store/financeSlice";
 import EnrollmentTrack from "./enrollment_track/EnrollmentTrack";
 import RegistrationTrack from "./registration_track/RegistrationTrack";
 import Invoices from "./invoices/Invoices";

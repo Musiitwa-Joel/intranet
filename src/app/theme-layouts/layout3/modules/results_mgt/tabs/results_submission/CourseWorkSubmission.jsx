@@ -550,7 +550,9 @@ function CourseWorkSubmission() {
                   dataSource={sheetData}
                   showHeader={true}
                   size="small"
-                  scroll={{ y: 320 }}
+                  scroll={{
+                    y: "calc(100vh - 322px)",
+                  }}
                   bordered
                 />
               </ConfigProvider>

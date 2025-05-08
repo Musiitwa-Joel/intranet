@@ -9,24 +9,18 @@ import {
   selectActiveTab,
   setActiveTab,
   setEnrollmentStatuses,
-} from "./store/registrationSlice";
+} from "./store/financeSlice";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
 import { updateAccYrs } from "../setup/store/setUpSlice";
 import Register from "./tabs/register/Register";
 import FinanceReports from "./tabs/reports/FinanceReports";
+import { LOAD_ENROLLMENT_STATUSES } from "./gql/queries";
+import GraduationClearance from "./tabs/graduation_clearance/GraduationClearance";
 // import FinanceTransactions from "./tabs/transactions/FinanceTransactions";
 // import BatchActions from "./tabs/batchActions/BatchActions";
 // import GlobalSettings from "./tabs/globalSettings/GlobalSettings";
 
 // GraphQL Queries
-const LOAD_ENROLLMENT_STATUSES = gql`
-  query getEnrollmentStatuses {
-    enrollment_types {
-      id
-      enrollment_type
-    }
-  }
-`;
 
 const LOAD_ACC_YRS = gql`
   query getAccYrs {
@@ -50,6 +44,7 @@ function Finance() {
     { label: "Transactions", value: "transactions" },
     { label: "Batch Actions", value: "batch_actions" },
     { label: "Global", value: "global" },
+    { label: "Graduation Clearance", value: "graduation_clearance"},
   ];
 
   // GraphQL queries
@@ -135,9 +130,10 @@ function Finance() {
             />
             {activeTab === "student_view" && <Register />}
             {activeTab === "reports" && <FinanceReports />}
-            {activeTab === "transactions" && <FinanceTransactions />}
-            {activeTab === "batch_actions" && <BatchActions />}
-            {activeTab === "global" && <GlobalSettings />}
+            {activeTab === "graduation_clearance" && <GraduationClearance />}
+            {/* {activeTab === "transactions" && <FinanceTransactions />} */}
+            {/* {activeTab === "batch_actions" && <BatchActions />}
+            {activeTab === "global" && <GlobalSettings />} */}
           </Box>
         </Suspense>
       </ConfigProvider>

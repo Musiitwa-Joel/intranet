@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Divider,
@@ -11,8 +11,20 @@ import {
   Card,
   Table,
   ConfigProvider,
+  Upload,
+  Modal,
 } from "antd";
 import { Download } from "lucide-react";
+import * as XLSX from "xlsx";
+import { url2 } from "app/configs/apiConfig";
+import { useDispatch } from "react-redux";
+import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
+import { useMutation } from "@apollo/client";
+import {
+  SEND_RESULTS_UPLOAD_SECURITY_CODE,
+  UPLOAD_MIGRATED_RESULTS,
+} from "../../../gql/mutations";
+import UploadConfirmationModal from "../../UploadConfirmationModal";
 
 const { DirectoryTree } = Tree;
 
@@ -21,188 +33,424 @@ const columns = [
     title: "#",
     dataIndex: "#",
     width: 50,
-    render: (text, item, index) => index + 1,
+    render: (text, record, index) => {
+      if (record.error) {
+        return (
+          <Typography.Text
+            style={{
+              color: "red",
+            }}
+          >
+            {index + 1}
+          </Typography.Text>
+        );
+      } else {
+        return <Typography.Text>{index + 1}</Typography.Text>;
+      }
+    },
   },
   {
     title: "Student No",
     dataIndex: "student_no",
     ellipsis: true,
     width: 120,
+    render: (text, record, index) => {
+      if (record.error) {
+        return (
+          <Typography.Text
+            style={{
+              color: "red",
+            }}
+          >
+            {text}
+          </Typography.Text>
+        );
+      } else {
+        return <Typography.Text>{text}</Typography.Text>;
+      }
+    },
   },
   {
     title: "Academic Year",
-    dataIndex: "acc_yr",
+    dataIndex: "accyr",
     ellipsis: true,
     width: 120,
+    render: (text, record, index) => {
+      if (record.error) {
+        return (
+          <Typography.Text
+            style={{
+              color: "red",
+            }}
+          >
+            {text}
+          </Typography.Text>
+        );
+      } else {
+        return <Typography.Text>{text}</Typography.Text>;
+      }
+    },
   },
-  {
-    title: "Study Year",
-    dataIndex: "study_yr",
-    ellipsis: true,
-    width: 100,
-  },
-  {
-    title: "Semester",
-    dataIndex: "semester",
-    width: 100,
-  },
+
   {
     title: "Course Unit Code",
-    dataIndex: "courseunit_code",
+    dataIndex: "course_unit_code",
     width: 140,
+    render: (text, record, index) => {
+      if (record.error) {
+        return (
+          <Typography.Text
+            style={{
+              color: "red",
+            }}
+          >
+            {text}
+          </Typography.Text>
+        );
+      } else {
+        return <Typography.Text>{text}</Typography.Text>;
+      }
+    },
   },
   {
     title: "Course work Mark",
-    dataIndex: "coursework_mark",
+    dataIndex: "cw_marks",
     width: 140,
+    render: (text, record, index) => {
+      if (record.error) {
+        return (
+          <Typography.Text
+            style={{
+              color: "red",
+            }}
+          >
+            {text}
+          </Typography.Text>
+        );
+      } else {
+        return <Typography.Text>{text}</Typography.Text>;
+      }
+    },
   },
   {
     title: "Exam Mark",
-    dataIndex: "exam_mark",
+    dataIndex: "exam",
     width: 100,
+    render: (text, record, index) => {
+      if (record.error) {
+        return (
+          <Typography.Text
+            style={{
+              color: "red",
+            }}
+          >
+            {text}
+          </Typography.Text>
+        );
+      } else {
+        return <Typography.Text>{text}</Typography.Text>;
+      }
+    },
   },
   {
     title: "Final Mark",
     dataIndex: "final_mark",
     width: 100,
+    render: (text, record, index) => {
+      if (record.error) {
+        return (
+          <Typography.Text
+            style={{
+              color: "red",
+            }}
+          >
+            {text}
+          </Typography.Text>
+        );
+      } else {
+        return <Typography.Text>{text}</Typography.Text>;
+      }
+    },
   },
   {
     title: "Retake Count",
     dataIndex: "retake_count",
     width: 110,
-  },
-  {
-    title: "Pass Mark",
-    dataIndex: "pass_mark",
-    width: 100,
+    render: (text, record, index) => {
+      if (record.error) {
+        return (
+          <Typography.Text
+            style={{
+              color: "red",
+            }}
+          >
+            {text}
+          </Typography.Text>
+        );
+      } else {
+        return <Typography.Text>{text}</Typography.Text>;
+      }
+    },
   },
   {
     title: "Remark",
     dataIndex: "remark",
     width: 100,
+    render: (text, record, index) => {
+      if (record.error) {
+        return (
+          <Typography.Text
+            style={{
+              color: "red",
+            }}
+          >
+            {text}
+          </Typography.Text>
+        );
+      } else {
+        return <Typography.Text>{text}</Typography.Text>;
+      }
+    },
   },
 ];
-const data = [
-  {
-    key: "1",
-    student_no: "2000101041",
-    acc_yr: "2023/2024",
-    study_yr: "1",
-    semester: "1",
-    courseunit_code: "BSCCS",
-    coursework_mark: "20",
-    exam_mark: "30",
-    final_mark: "50",
-    retake_count: "0",
-    pass_mark: "40",
-    remark: "NP",
-  },
-  {
-    key: "2",
-    student_no: "2000101041",
-    acc_yr: "2023/2024",
-    study_yr: "1",
-    semester: "1",
-    courseunit_code: "BSCCS",
-    coursework_mark: "20",
-    exam_mark: "30",
-    final_mark: "50",
-    retake_count: "0",
-    pass_mark: "40",
-    remark: "NP",
-  },
-  {
-    key: "3",
-    student_no: "2000101041",
-    acc_yr: "2023/2024",
-    study_yr: "1",
-    semester: "1",
-    courseunit_code: "BSCCS",
-    coursework_mark: "20",
-    exam_mark: "30",
-    final_mark: "50",
-    retake_count: "0",
-    pass_mark: "40",
-    remark: "NP",
-  },
-  {
-    key: "4",
-    student_no: "2000101041",
-    acc_yr: "2023/2024",
-    study_yr: "1",
-    semester: "1",
-    courseunit_code: "BSCCS",
-    coursework_mark: "20",
-    exam_mark: "30",
-    final_mark: "50",
-    retake_count: "0",
-    pass_mark: "40",
-    remark: "NP",
-  },
-];
+
 const onChange = (pagination, filters, sorter, extra) => {
   console.log("params", pagination, filters, sorter, extra);
 };
 
-const treeData = [
-  {
-    title: "Sheets",
-    key: "0-0",
-    children: [
-      {
-        title: "leaf 0-0",
-        key: "0-0-0",
-        isLeaf: true,
-      },
-      {
-        title: "leaf 0-1",
-        key: "0-0-1",
-        isLeaf: true,
-      },
-    ],
-  },
-];
-
-const Desc = (props) => (
-  <Flex
-    justify="center"
-    align="center"
-    style={{
-      height: "100%",
-    }}
-  >
-    <Typography.Title
-      type="secondary"
-      level={5}
-      style={{
-        whiteSpace: "nowrap",
-      }}
-    >
-      {props.text}
-    </Typography.Title>
-  </Flex>
-);
 const CustomSplitter = ({ style, ...restProps }) => {
-  const onSelect = (keys, info) => {
-    console.log("Trigger Select", keys, info);
+  const dispatch = useDispatch();
+  const [workbook, setWorkbook] = useState(null);
+  const [sheetData, setSheetData] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [sheetNames, setSheetNames] = useState([]);
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
+  const [sheetError, setError] = useState(null);
+  const [selectedSheet, setSelectedSheet] = useState("");
+  const [verifyCodeModalVisible, setVerifyCodeMoodalVisible] = useState(false);
+  const [securityCode, setSecurityCode] = useState("");
+
+  const [sendResultsUploadSecurityCode, { error, loading }] = useMutation(
+    SEND_RESULTS_UPLOAD_SECURITY_CODE
+  );
+
+  const [
+    uploadMigratedResults,
+    { error: uploadErr, loading: uploadingResults },
+  ] = useMutation(UPLOAD_MIGRATED_RESULTS);
+
+  useEffect(() => {
+    if (error) {
+      dispatch(
+        showMessage({
+          message: error.message,
+          variant: "error",
+        })
+      );
+    }
+
+    if (uploadErr) {
+      dispatch(
+        showMessage({
+          message: uploadErr.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [error, uploadErr]);
+
+  const onSelect = (selectedKeys, info) => {
+    setLoadingData(true); // Set loading state immediately
+    setError(null);
+
+    const sheetName = info.node.title;
+    setSelectedSheet(sheetName);
+
+    setTimeout(() => {
+      // Delay processing slightly to allow UI update
+      try {
+        if (workbook && workbook.Sheets && workbook.Sheets[sheetName]) {
+          const sheet = workbook.Sheets[sheetName];
+
+          const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+          console.log("jsonData", jsonData);
+          let _data;
+          let data;
+
+          const newArr = jsonData.map((record) => {
+            // figure out records with the wrong data
+            // the records we need
+            const {
+              stdno,
+              accyr,
+              module_code,
+              cswk,
+              exam,
+              final_mark,
+              remark,
+              retake_count,
+            } = record;
+
+            data = {
+              student_no: stdno,
+              course_unit_code: module_code,
+              cw_marks: cswk,
+              exam,
+              final_mark,
+              remark,
+              retake_count,
+              accyr,
+            };
+
+            if ((!stdno || !module_code || !accyr, !exam)) {
+              _data = { ...data, error: true };
+            } else {
+              _data = { ...data, error: false };
+            }
+
+            return _data;
+          });
+
+          setSheetData(newArr);
+        } else {
+          throw new Error("Sheet not found");
+        }
+      } catch (err) {
+        setError("Failed to load sheet data. Please try again.");
+        console.error(err);
+      } finally {
+        setLoadingData(false);
+      }
+    }, 100); // Small delay to let loading state render
   };
-  const onExpand = (keys, info) => {
-    console.log("Trigger Expand", keys, info);
+
+  const treeData = [
+    {
+      title: "Sheets",
+      key: "0-0",
+      children: sheetNames.map((sheet_name, i) => ({
+        title: sheet_name,
+        key: i,
+        isLeaf: true,
+      })),
+    },
+  ];
+
+  const handleDownload = () => {
+    const downloadUrl = `${url2}/templates/activeStudentsTemplate.xlsx`;
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.setAttribute("download", "activeStudentsTemplate.xlsx"); // Optional, browser may still download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleFileUpload = (file) => {
+    const reader = new FileReader();
+
+    reader.readAsArrayBuffer(file);
+    setSelectedFile(file);
+    return false; // Prevent default upload behavior
+  };
+
+  const handleUpload = async () => {
+    // send code to user's email/sms
+    const res = await sendResultsUploadSecurityCode();
+
+    if (res.data?.sendResultsUploadVerificationCode?.success) {
+      setVerifyCodeMoodalVisible(true);
+    }
+  };
+
+  const handleConfirm = async (securityCode) => {
+    const results = sheetData
+      .filter((record) => record.error === false)
+      .map((mk) => ({
+        acc_yr: mk.accyr,
+        course_unit_code: mk.course_unit_code,
+        course_work: mk.cw_marks || null,
+        exam: mk.exam || null,
+        final_mark: mk.final_mark || null,
+        remark: mk.remark || null,
+        retake_count: mk.retake_count || 0,
+        student_no: `${mk.student_no}`,
+      }));
+
+    const payload = {
+      securityCode: parseInt(securityCode),
+      migrationType: "active",
+      payload: results,
+    };
+
+    const res = await uploadMigratedResults({
+      variables: payload,
+    });
+
+    if (res.data?.uploadMigratedResults?.success) {
+      Modal.success({
+        content: res.data?.uploadMigratedResults?.message,
+        centered: true,
+      });
+      setSheetData([]);
+    } else {
+      Modal.error({
+        title: "Results Upload Error",
+        content: res.data?.uploadMigratedResults?.message,
+        centered: true,
+      });
+    }
+    setVerifyCodeMoodalVisible(false);
+    setSecurityCode("");
+  };
+
+  const handleExtract = async () => {
+    if (!selectedFile) {
+      dispatch(
+        showMessage({
+          message: "No File Selected!",
+          variant: "info",
+        })
+      );
+      return;
+    }
+
+    setIsExtracting(true);
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(selectedFile);
+
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      setWorkbook(workbook);
+
+      // Get all sheet names
+      const sheetNames = workbook.SheetNames;
+      setSheetNames(sheetNames);
+      setIsExtracting(false);
+    };
   };
 
   return (
     <Splitter
       style={{
-        boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
         ...style,
       }}
       {...restProps}
     >
       <Splitter.Panel
         collapsible
-        size="30%"
+        defaultSize="25%"
+        min="20%"
+        max="30%"
         style={{
           backgroundColor: "#fff",
+          // borderLeftColor: "lightgray",
+          // borderTopColor: "lightgray",
+          // borderBottomColor: "lightgray",
+          // borderWidth: 1.5,
         }}
       >
         <div>
@@ -211,15 +459,32 @@ const CustomSplitter = ({ style, ...restProps }) => {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              padding: 10,
+              padding: "10px 10px",
             }}
           >
-            <Space>
-              <Input />
-              <Button type="primary">Browse</Button>
-            </Space>
-
-            <Button type="primary" ghost>
+            <Upload
+              beforeUpload={handleFileUpload}
+              accept=".xlsx, .xls"
+              showUploadList={false}
+            >
+              <Input
+                addonAfter={
+                  <Button type="text" size="small">
+                    Browse
+                  </Button>
+                }
+                value={selectedFile ? selectedFile.name : "Select File"}
+                readOnly
+                placeholder="Select File"
+              />
+            </Upload>
+            <Button
+              type="primary"
+              ghost
+              onClick={handleExtract}
+              loading={isExtracting}
+              disabled={isExtracting}
+            >
               Extract
             </Button>
           </div>
@@ -263,114 +528,117 @@ const CustomSplitter = ({ style, ...restProps }) => {
                 padding: 10,
               }}
               multiple
-              defaultExpandAll
+              defaultExpandedKeys={["0-0"]}
               onSelect={onSelect}
-              onExpand={onExpand}
               treeData={treeData}
             />
           </div>
         </div>
       </Splitter.Panel>
-      <Splitter.Panel
-        collapsible
-        style={{
-          padding: 15,
-        }}
-      >
-        <Card
-          className="flex flex-col shadow"
+      <Splitter.Panel collapsible>
+        <div
           style={{
-            borderRadius: 10,
-            // backgroundColor: "red",
-            borderColor: "lightgray",
-            borderWidth: 0.5,
-            height: "calc(100vh - 195px)",
             display: "flex",
             flexDirection: "column",
-          }}
-          styles={{
-            body: {
-              flex: 1,
-              padding: 0,
-              display: "flex",
-              flexDirection: "column",
-            },
+            height: "100%", // Ensure it takes full height
           }}
         >
-          <div style={{ flex: 1, overflow: "auto" }}>
-            <Table
-              size="small"
-              title={() => (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography.Title
-                    level={5}
+          <div style={{ flexGrow: 1, padding: 10, overflow: "auto" }}>
+            <ConfigProvider
+              theme={{
+                components: {
+                  Table: {
+                    borderColor: "lightgray",
+                    borderRadius: 0,
+                    headerBorderRadius: 5,
+                  },
+                },
+              }}
+            >
+              <Table
+                size="small"
+                title={() => (
+                  <div
                     style={{
-                      padding: 0,
-                      margin: 0,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
                     }}
                   >
-                    Active Students Preview
-                  </Typography.Title>
-
-                  <Space>
-                    <Button
-                      type="primary"
-                      ghost
-                      size="small"
-                      icon={<Download size={19} />}
-                      onClick={() => dispatch(setRespondReviewVisible(false))}
+                    <Typography.Title
+                      level={5}
+                      style={{
+                        padding: 0,
+                        margin: 0,
+                      }}
                     >
-                      Download Template
-                    </Button>
-                  </Space>
-                </div>
-              )}
-              bordered
-              columns={columns}
-              dataSource={data}
-              pagination={false}
-              onChange={onChange}
-              scroll={{
-                y: "calc(100vh - 322px)",
-              }}
-            />
+                      Active Students Results Preview
+                    </Typography.Title>
+
+                    <Space>
+                      <Button
+                        type="primary"
+                        ghost
+                        size="small"
+                        icon={<Download size={12} />}
+                        onClick={handleDownload}
+                      >
+                        Download Template
+                      </Button>
+                    </Space>
+                  </div>
+                )}
+                bordered
+                columns={columns}
+                dataSource={sheetData}
+                pagination={false}
+                onChange={onChange}
+                scroll={{
+                  y: "calc(100vh - 322px)",
+                }}
+              />
+            </ConfigProvider>
           </div>
 
           <div
             style={{
-              borderTop: "1px solid #f0f0f0",
-              padding: "5px",
-              display: "flex",
-              justifyContent: "flex-end",
-              //   backgroundColor: "#fafafa"
+              paddingTop: 5,
+              paddingLeft: 5,
+              borderTop: "1px solid lightgray",
+              background: "#fff",
+              // textAlign: "right",
             }}
           >
             <Button
-              type="primary"
-              onClick={() => console.log("Add New Student clicked")}
+              onClick={handleUpload}
+              disabled={
+                sheetData.filter((record) => record.error === false).length ===
+                  0 || loading
+              }
+              loading={loading}
             >
               Upload Results
             </Button>
           </div>
-        </Card>
+        </div>
+        <UploadConfirmationModal
+          visible={verifyCodeModalVisible}
+          onConfirm={handleConfirm}
+          onCancel={() => setVerifyCodeMoodalVisible(false)}
+          loading={uploadingResults}
+          securityCode={securityCode}
+          setSecurityCode={setSecurityCode}
+        />
       </Splitter.Panel>
     </Splitter>
   );
 };
 
 const ActiveStdResultsUpload = () => (
-  <Flex gap="middle" vertical>
-    <CustomSplitter
-      style={{
-        height: "calc(100vh - 163px)",
-      }}
-    />
-  </Flex>
+  <CustomSplitter
+    style={{
+      height: "calc(100vh - 175px)",
+    }}
+  />
 );
 export default ActiveStdResultsUpload;
