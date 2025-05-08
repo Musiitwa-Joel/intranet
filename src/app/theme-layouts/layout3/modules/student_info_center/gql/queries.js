@@ -112,4 +112,139 @@ const GET_STUDENTS = gql`
   }
 `;
 
-export { GET_ALL_PROGRAMMES_CATEGORISED_BY_COLLEGES, GET_STUDENTS };
+const GET_STUDENT_DETAILS = gql`
+  query loadStudentDetails($studentNo: String) {
+    loadStudentFile(student_no: $studentNo) {
+      id
+      form_no
+      student_no
+      registration_no
+      graduation_status
+      biodata {
+        surname
+        other_names
+        is_verified
+        marital_status
+        nationality {
+          id
+          nationality_category
+          nationality_title
+        }
+        email
+        gender
+        date_of_birth
+        district_of_birth
+        district_of_origin
+        phone_no
+        place_of_residence
+        religion
+        nin
+      }
+      next_of_kin {
+          full_name
+          email
+          relation
+          phone_no
+          address
+        }
+      intake_id
+      campus_id
+      study_time_id
+      intake_title
+      campus_title
+      study_time_title
+      course_details {
+        id
+        version_title
+        course {
+          id
+          course_code
+          course_duration
+          course_title
+          level_details {
+            level_title
+          }
+          school {
+            id
+            school_code
+            school_title
+            college {
+              id
+              college_code
+              college_title
+            }
+          }
+        }
+      }
+      entry_acc_yr_title
+      entry_study_yr
+      entry_acc_yr
+      enrollment_history {
+        id
+        enrollment_token
+        study_yr
+        sem
+        acc_yr
+        datetime
+        enrollment_status {
+          id
+          title
+          color_code
+        }
+        active
+        enrolled_by
+        acc_yr_title
+        invoiced
+        enrolled_by_type
+        enrolled_by_user
+      }
+      registration_history {
+        id
+        acc_yr_id
+        acc_yr_title
+        date
+        study_yr
+        student_no
+        sem
+        enrollment_token
+        registration_token
+        reg_comments
+        provisional_reason
+        provisional_expiry
+        provisional
+        de_registered_reason
+        de_registered
+        registered_by_user
+      }
+      current_info {
+        recent_enrollment {
+          id
+          datetime
+          study_yr
+          sem
+          acc_yr_title
+          enrollment_token
+        }
+        enrollment_status
+        current_acc_yr
+        account_balance
+        true_sem
+        true_study_yr
+        acc_yr_id
+        progress
+        active_sem_id
+        registration_status
+      }
+      status
+      is_on_sponsorship
+      sponsorship
+      is_resident
+    }
+  }
+`;
+
+export {
+  GET_ALL_PROGRAMMES_CATEGORISED_BY_COLLEGES,
+  GET_STUDENTS,
+  GET_STUDENT_DETAILS,
+};

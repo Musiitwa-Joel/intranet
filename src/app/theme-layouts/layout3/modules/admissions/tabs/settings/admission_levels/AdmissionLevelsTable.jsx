@@ -582,7 +582,7 @@ function AdmissionLevelsTable() {
                         }}
                       >
                         {row.modified_user
-                          ? `${row.modified_user.title} ${row.modified_user.staff_name}`
+                          ? `${row.modified_user.surname} ${row.modified_user.other_names}`
                           : "_"}
                       </TableCell>
                       <TableCell

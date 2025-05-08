@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Button, Form, Input, Select, Space, Row, Col } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { selectSelectedStudent } from "../../../../store/infoCenterSlice";
+import {
+  selectSelectedStudent,
+  selectStudentDetails,
+} from "../../../../store/infoCenterSlice";
 import { gql, useQuery } from "@apollo/client";
 const { Option } = Select;
 const layout = {
@@ -66,6 +69,9 @@ const AcademicInfo = ({ form }) => {
   const selectedStudent = useSelector(selectSelectedStudent);
   const { loading, error, data } = useQuery(LOAD_REQS);
   const [selectedCourse, setSelectedCourse] = useState();
+  const studentDetails = useSelector(selectStudentDetails);
+
+  console.log("studentDetails", studentDetails);
   // const [form] = Form.useForm();
 
   useEffect(() => {
@@ -83,8 +89,6 @@ const AcademicInfo = ({ form }) => {
     console.log(values);
   };
 
-  if (!selectedStudent) return;
-
   useEffect(() => {
     if (selectedStudent) {
       const selected = data?.courses.find(
@@ -101,9 +105,8 @@ const AcademicInfo = ({ form }) => {
     }
   }, [selectedStudent, data]);
 
-  // useEffect(() => {
+  if (!selectedStudent || !studentDetails || !data) return;
 
-  // }, [selectedStudent]);
   return (
     <>
       {/* <Form
@@ -115,11 +118,279 @@ const AcademicInfo = ({ form }) => {
         //     maxWidth: 600,
         //   }}
       > */}
-        <Row gutter={0}>
-          <Col className="gutter-row" span={12}>
+      <Row gutter={0}>
+        <Col className="gutter-row" span={12}>
+          <Form.Item
+            name="student_no"
+            label="Student Number"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Input readOnly />
+          </Form.Item>
+          <Form.Item
+            name="reg_no"
+            label="Reg No"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            name="intake"
+            label="Intake"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              showSearch
+              loading={loading}
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={
+                data?.intakes
+                  ? data?.intakes.map((intake) => ({
+                      value: intake.id,
+                      label: intake.intake_title,
+                    }))
+                  : []
+              }
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="entry_acc_yr"
+            label="Entry Acc Yr"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              showSearch
+              loading={loading}
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={
+                data?.acc_yrs
+                  ? data?.acc_yrs.map((acc_yr) => ({
+                      value: acc_yr.id,
+                      label: acc_yr.acc_yr_title,
+                    }))
+                  : []
+              }
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="course_title"
+            label="Course Title"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              showSearch
+              loading={loading}
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              onChange={(course_id) => {
+                const selected = data?.courses.find(
+                  (course) => course.id == course_id
+                );
+
+                form.setFieldsValue({
+                  course_code: selected?.course_code,
+                });
+
+                setSelectedCourse(selected);
+              }}
+              options={
+                data?.courses
+                  ? data?.courses.map((course) => ({
+                      value: course.id,
+                      label: course.course_title,
+                    }))
+                  : []
+              }
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="course_code"
+            label="Course Code"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Input readOnly />
+          </Form.Item>
+
+          <Form.Item
+            name="course_version"
+            label="Course Version"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              showSearch
+              loading={loading}
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={
+                selectedCourse
+                  ? selectedCourse?.course_versions.map((version) => ({
+                      value: version.id,
+                      label: version.version_title,
+                    }))
+                  : []
+              }
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="entry_study_yr"
+            label="Entry Study Year"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              showSearch
+              loading={loading}
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={
+                selectedCourse
+                  ? Array.from(
+                      { length: selectedCourse?.course_duration },
+                      (_, i) => {
+                        const value = i + 1;
+                        return { value, label: value };
+                      }
+                    )
+                  : []
+              }
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="level"
+            label="Level"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Input readonly />
+          </Form.Item>
+        </Col>
+        <Col className="gutter-row" span={12}>
+          <div>
             <Form.Item
-              name="student_no"
-              label="Student Number"
+              name="campus"
+              label="Campus"
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <Select
+                showSearch
+                loading={loading}
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={
+                  data?.campuses
+                    ? data?.campuses.map((campus) => ({
+                        value: campus.id,
+                        label: campus.campus_title,
+                      }))
+                    : []
+                }
+              />
+            </Form.Item>
+            <Form.Item
+              name="status"
+              label="Status"
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              {studentDetails.graduation_status == "completed" ? (
+                <Input readOnly />
+              ) : (
+                <Select
+                  showSearch
+                  loading={loading}
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  options={[
+                    {
+                      value: "active",
+                      label: "Active",
+                    },
+                    {
+                      value: "completed",
+                      label: "Completed",
+                    },
+                    {
+                      value: "inactive",
+                      label: "Inactive",
+                    },
+                  ]}
+                />
+              )}
+            </Form.Item>
+
+            <Form.Item
+              name="sponsorship"
+              label="Sponsorship"
               rules={[
                 {
                   required: true,
@@ -128,9 +399,38 @@ const AcademicInfo = ({ form }) => {
             >
               <Input readOnly />
             </Form.Item>
+
             <Form.Item
-              name="reg_no"
-              label="Reg No"
+              name="study_time"
+              label="Study Time"
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <Select
+                showSearch
+                loading={loading}
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={
+                  data?.study_times
+                    ? data?.study_times.map((st) => ({
+                        value: st.id,
+                        label: st.study_time_title,
+                      }))
+                    : []
+                }
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="current_yr"
+              label="Current Year"
               rules={[
                 {
                   required: true,
@@ -141,8 +441,20 @@ const AcademicInfo = ({ form }) => {
             </Form.Item>
 
             <Form.Item
-              name="intake"
-              label="Intake"
+              name="sem"
+              label="Current Sem"
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              name="college"
+              label="College"
               rules={[
                 {
                   required: true,
@@ -158,10 +470,10 @@ const AcademicInfo = ({ form }) => {
                     .includes(input.toLowerCase())
                 }
                 options={
-                  data?.intakes
-                    ? data?.intakes.map((intake) => ({
-                        value: intake.id,
-                        label: intake.intake_title,
+                  data?.colleges
+                    ? data?.colleges.map((c) => ({
+                        value: c.id,
+                        label: c.college_title,
                       }))
                     : []
                 }
@@ -169,8 +481,8 @@ const AcademicInfo = ({ form }) => {
             </Form.Item>
 
             <Form.Item
-              name="entry_acc_yr"
-              label="Entry Acc Yr"
+              name="school"
+              label="Faculty/School"
               rules={[
                 {
                   required: true,
@@ -186,10 +498,10 @@ const AcademicInfo = ({ form }) => {
                     .includes(input.toLowerCase())
                 }
                 options={
-                  data?.acc_yrs
-                    ? data?.acc_yrs.map((acc_yr) => ({
-                        value: acc_yr.id,
-                        label: acc_yr.acc_yr_title,
+                  data?.schools
+                    ? data?.schools.map((sch) => ({
+                        value: sch.id,
+                        label: `(${sch.school_code}) ${sch.school_title}`,
                       }))
                     : []
                 }
@@ -197,320 +509,21 @@ const AcademicInfo = ({ form }) => {
             </Form.Item>
 
             <Form.Item
-              name="course_title"
-              label="Course Title"
+              name="dpt"
+              label="Department"
               rules={[
                 {
                   required: true,
                 },
               ]}
             >
-              <Select
-                showSearch
-                loading={loading}
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                onChange={(course_id) => {
-                  const selected = data?.courses.find(
-                    (course) => course.id == course_id
-                  );
-
-                  form.setFieldsValue({
-                    course_code: selected?.course_code,
-                  });
-
-                  setSelectedCourse(selected);
-                }}
-                options={
-                  data?.courses
-                    ? data?.courses.map((course) => ({
-                        value: course.id,
-                        label: course.course_title,
-                      }))
-                    : []
-                }
-              />
+              <Input />
             </Form.Item>
+          </div>
+        </Col>
+      </Row>
 
-            <Form.Item
-              name="course_code"
-              label="Course Code"
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-            >
-              <Input readOnly />
-            </Form.Item>
-
-            <Form.Item
-              name="course_version"
-              label="Course Version"
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-            >
-              <Select
-                showSearch
-                loading={loading}
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={
-                  selectedCourse
-                    ? selectedCourse?.course_versions.map((version) => ({
-                        value: version.id,
-                        label: version.version_title,
-                      }))
-                    : []
-                }
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="entry_study_yr"
-              label="Entry Study Year"
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-            >
-              <Select
-                showSearch
-                loading={loading}
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={
-                  selectedCourse
-                    ? Array.from(
-                        { length: selectedCourse?.course_duration },
-                        (_, i) => {
-                          const value = i + 1;
-                          return { value, label: value };
-                        }
-                      )
-                    : []
-                }
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="level"
-              label="Level"
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-            >
-              <Select
-                showSearch
-                loading={loading}
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={
-                  data?.levels
-                    ? data?.levels.map((level) => ({
-                        value: level.id,
-                        label: level.level_title,
-                      }))
-                    : []
-                }
-              />
-            </Form.Item>
-          </Col>
-          <Col className="gutter-row" span={12}>
-            <div>
-              <Form.Item
-                name="campus"
-                label="Campus"
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  showSearch
-                  loading={loading}
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  options={
-                    data?.campuses
-                      ? data?.campuses.map((campus) => ({
-                          value: campus.id,
-                          label: campus.campus_title,
-                        }))
-                      : []
-                  }
-                />
-              </Form.Item>
-              <Form.Item
-                name="status"
-                label="Status"
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="sponsorship"
-                label="Sponsorship"
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="study_time"
-                label="Study Time"
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  showSearch
-                  loading={loading}
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  options={
-                    data?.study_times
-                      ? data?.study_times.map((st) => ({
-                          value: st.id,
-                          label: st.study_time_title,
-                        }))
-                      : []
-                  }
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="current_yr"
-                label="Current Year"
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="sem"
-                label="Current Sem"
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="college"
-                label="College"
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  showSearch
-                  loading={loading}
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  options={
-                    data?.colleges
-                      ? data?.colleges.map((c) => ({
-                          value: c.id,
-                          label: c.college_title,
-                        }))
-                      : []
-                  }
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="school"
-                label="Faculty/School"
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  showSearch
-                  loading={loading}
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  options={
-                    data?.schools
-                      ? data?.schools.map((sch) => ({
-                          value: sch.id,
-                          label: `(${sch.school_code}) ${sch.school_title}`,
-                        }))
-                      : []
-                  }
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="dpt"
-                label="Department"
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-            </div>
-          </Col>
-        </Row>
-
-        {/* <Form.Item>
+      {/* <Form.Item>
           <Space>
             <Button
               type="primary"

@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Button, ConfigProvider, Form, Modal, Space, Typography } from "antd";
+import {
+  Button,
+  ConfigProvider,
+  Form,
+  Modal,
+  Space,
+  Spin,
+  Typography,
+} from "antd";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
   selectActiveMenuItem,
   selectSelectedStudent,
   selectShowInfoModal,
+  selectStudentDetails,
   setActiveMenuItem,
   setShowInfoModal,
+  setStudentDetails,
 } from "../../store/infoCenterSlice";
 import {
   UploadOutlined,
@@ -28,9 +38,10 @@ import Enrollment from "./student_details/Enrollment";
 import Registration from "./student_details/Registration";
 import Finance from "./student_details/Finance";
 import StudentLogs from "./student_details/StudentLogs";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { SAVE_STUDENT_DATA } from "../../gql/mutations";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice";
+import { GET_STUDENT_DETAILS } from "../../gql/queries";
 const { Header, Content, Footer, Sider } = Layout;
 
 // const items = [
@@ -106,6 +117,18 @@ const StudentInfoModal = () => {
   const activeMenuItem = useSelector(selectActiveMenuItem);
   const dispatch = useDispatch();
   const selectedStudent = useSelector(selectSelectedStudent);
+  const {
+    error: studentDetailsErr,
+    loading: loadingStudentDetails,
+    data: stdDetails,
+  } = useQuery(GET_STUDENT_DETAILS, {
+    variables: {
+      studentNo: selectedStudent?.student_no,
+    },
+    notifyOnNetworkStatusChange: true,
+    skip: !selectedStudent,
+    fetchPolicy: "no-cache",
+  });
   const [saveStudentData, { error, loading, data }] = useMutation(
     SAVE_STUDENT_DATA,
     {
@@ -116,6 +139,7 @@ const StudentInfoModal = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+  const studentDetails = useSelector(selectStudentDetails);
 
   useEffect(() => {
     if (error) {
@@ -126,7 +150,16 @@ const StudentInfoModal = () => {
         })
       );
     }
-  }, [error]);
+
+    if (studentDetailsErr) {
+      dispatch(
+        showMessage({
+          message: studentDetailsErr.message,
+          variant: "error",
+        })
+      );
+    }
+  }, [error, studentDetailsErr]);
 
   const handleSave = async () => {
     // const valid = await form.validateFields();
@@ -134,7 +167,7 @@ const StudentInfoModal = () => {
 
     const values = form.getFieldsValue();
 
-    console.log('values', values)
+    console.log("values", values);
 
     const payload = {
       payload: {
@@ -147,10 +180,15 @@ const StudentInfoModal = () => {
         entry_study_yr: parseInt(values?.entry_study_yr) || null,
         intake_id: values?.intake || null,
         reg_no: values?.reg_no || null,
-        sponsorship: values?.sponsorship || null,
         student_no: values.student_no || null,
         study_time_id: values.study_time || null,
-        // study_yr: null,
+        surname: values.surname || null,
+        other_names: values.othernames || null,
+        gender: values.gender || null,
+        email: values.email || null,
+        phone_no:  values.phoneNo || null,
+        date_of_birth: values.date_of_birth || null,
+        
       },
     };
 
@@ -169,8 +207,18 @@ const StudentInfoModal = () => {
     );
   };
 
+  useEffect(() => {
+    if (stdDetails) {
+      // console.log("std details", stdDetails);
+      dispatch(setStudentDetails(stdDetails.loadStudentFile));
+      // dispatch(setStudentDetails(stdDetails.loadStudentFile));
+    }
+  }, [stdDetails]);
+
   // console.log("selected Student", selectedStudent);
   if (!selectedStudent) return;
+
+ 
 
   // console.log("info modal", setShowInfoModal);
   return (
@@ -208,10 +256,12 @@ const StudentInfoModal = () => {
         style={{
           //   backgroundColor: "red",
           padding: 0,
-          height: 300,
-          top: 70,
+          // height: 300,
+          // top: 50,
         }}
         maskClosable={false}
+        zIndex={9999}
+        centered
       >
         <Layout
           style={{
@@ -244,7 +294,10 @@ const StudentInfoModal = () => {
                   margin: 0,
                 }}
               >
-                ACTIVE STUDENT
+            {
+              studentDetails?.graduation_status === "completed" ? "GRADUATED" : 
+              "ACTIVE STUDENT"
+            }    
               </Typography.Title>
             </div>
             <div className="demo-logo-vertical" />
@@ -326,10 +379,10 @@ const StudentInfoModal = () => {
                 style={{
                   padding: 10,
                   minHeight: 400,
-                  height: 400,
+                  height: "calc(100vh - 150px)",
                   background: colorBgContainer,
                   borderRadius: borderRadiusLG,
-                  // overflow: "scroll",
+                  overflow: "scroll",
                 }}
               >
                 <ConfigProvider
@@ -337,12 +390,16 @@ const StudentInfoModal = () => {
                     algorithm: theme.compactAlgorithm,
                   }}
                 >
-                 
-                  {activeMenuItem == "1" && <BioData form={form} />}
-                  {activeMenuItem == "2" && <Enrollment />}
-                  {activeMenuItem == "3" && <Registration />}
-                  {activeMenuItem == "4" && <Finance />}
-                  {activeMenuItem == "5" && <StudentLogs />}
+                  <Spin
+                    spinning={loadingStudentDetails}
+                    tip="Loading Student File"
+                  >
+                    {activeMenuItem == "1" && <BioData form={form} />}
+                    {activeMenuItem == "2" && <Enrollment />}
+                    {activeMenuItem == "3" && <Registration />}
+                    {activeMenuItem == "4" && <Finance />}
+                    {activeMenuItem == "5" && <StudentLogs />}
+                  </Spin>
                 </ConfigProvider>
               </div>
             </Content>

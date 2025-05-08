@@ -5,6 +5,7 @@ import PerfectScrollbar from "perfect-scrollbar";
 import {
   selectActiveBioDataTab,
   selectSelectedStudent,
+  selectStudentDetails,
   setActiveBioDataTab,
 } from "../../../store/infoCenterSlice";
 import AcademicInfo from "./biodata_tabs/AcademicInfo";
@@ -27,6 +28,7 @@ function BioData({ form }) {
   const scrollContainerRef = useRef(null);
   const psRef = useRef(null);
   const selectedStudent = useSelector(selectSelectedStudent);
+  const studentDetails = useSelector(selectStudentDetails);
 
   const handleTabChange = (e) => {
     dispatch(setActiveBioDataTab(e.target.value));
@@ -56,44 +58,59 @@ function BioData({ form }) {
     }
   }, [activeBioDataTab]);
 
+  console.log("student details", studentDetails);
+
   if (!selectedStudent) return;
 
   useEffect(() => {
-    if (selectedStudent) {
+    if (studentDetails) {
       form.setFieldsValue({
-        student_no: selectedStudent.student_no,
-        reg_no: selectedStudent.registration_no,
-        intake: selectedStudent.intake_id,
-        entry_acc_yr: selectedStudent.entry_acc_yr,
+        student_no: studentDetails.student_no,
+        reg_no: studentDetails.registration_no,
+        intake: studentDetails.intake_id,
+        entry_acc_yr: studentDetails.entry_acc_yr,
         // course_code: selectedStudent.course.course_code,
-        course_title: selectedStudent.course.id,
-        course_version: selectedStudent.course_details.id,
-        entry_study_yr: selectedStudent.entry_study_yr,
-        level: selectedStudent.course.level_details.level_title,
-        campus: selectedStudent.campus_id,
-        status: selectedStudent.status == 1 ? "Active" : "Inactive",
-        sponsorhip: selectedStudent.sponsorhip,
-        study_time: selectedStudent.study_time_id,
-        current_yr: selectedStudent.study_yr,
-        sem: selectedStudent.current_sem,
-        college: selectedStudent.course.school.college.id,
-        school: selectedStudent.course.school.id,
-        surname: selectedStudent.biodata.surname,
-        othernames: selectedStudent.biodata.other_names,
-        email: selectedStudent.biodata.email,
-        phoneNo: selectedStudent.biodata.phone_no,
-        religion: selectedStudent.biodata.religion?.toUpperCase(),
-        national_id: selectedStudent.biodata.nin?.toUpperCase(),
-        gender: selectedStudent.biodata.gender?.toUpperCase(),
-        marital_status: selectedStudent.biodata.marital_status?.toUpperCase(),
-        date_of_birth: dayjs(parseInt(selectedStudent.biodata.date_of_birth)),
+        course_title: studentDetails.course_details.course.id,
+        course_version: studentDetails.course_details.id,
+        entry_study_yr: studentDetails.entry_study_yr,
+        level: studentDetails.course_details.course.level_details.level_title,
+        campus: studentDetails.campus_id,
+        status: studentDetails.graduation_status == "completed" ? "Graduated" : studentDetails.status == 1 ? "Active" : "Inactive",
+        sponsorship: studentDetails.sponsorship,
+        study_time: studentDetails.study_time_id,
+        current_yr: studentDetails.current_info.true_study_yr,
+        sem: studentDetails.current_info.true_sem,
+        college: studentDetails.course_details.course.school.college.id,
+        school: studentDetails.course_details.course.school.id,
+        surname: studentDetails.biodata.surname,
+        othernames: studentDetails.biodata.other_names,
+        email: studentDetails.biodata.email,
+        phoneNo: studentDetails.biodata.phone_no,
+        religion: studentDetails.biodata.religion?.toUpperCase(),
+        national_id: studentDetails.biodata.nin?.toUpperCase(),
+        gender: studentDetails.biodata.gender?.toUpperCase(),
+        marital_status: studentDetails.biodata.marital_status?.toUpperCase(),
+        date_of_birth: dayjs(parseInt(studentDetails.biodata.date_of_birth)),
         nationality:
-          selectedStudent.biodata.nationality.nationality_title?.toUpperCase(),
+          studentDetails.biodata.nationality.nationality_title?.toUpperCase(),
         billing_nationality:
-          selectedStudent.biodata.nationality.nationality_category?.toUpperCase(),
+          studentDetails.biodata.nationality.nationality_category?.toUpperCase(),
+        guardian_name:
+          studentDetails.next_of_kin?.full_name?.toUpperCase(),
+        guardian_phone:
+          studentDetails.next_of_kin?.phone_no?.toUpperCase(),
+          guardian_relation:
+          studentDetails.next_of_kin?.relation?.toUpperCase(),
+          guardian_email:
+          studentDetails.next_of_kin?.email,
+          nin:
+          studentDetails.biodata?.nin?.toUpperCase(),
       });
     }
-  }, [selectedStudent]);
+  }, [studentDetails]);
+
+
+
 
   return (
     <div>
@@ -109,17 +126,22 @@ function BioData({ form }) {
         ref={scrollContainerRef}
         style={{
           position: "relative",
-          height: 360, // Adjust this height as needed
+          height: "calc(100vh - 250px)", // Adjust this height as needed
           marginTop: 10,
           // backgroundColor: "red",
           overflow: "hidden", // Hide default scrollbars
         }}
       >
-        <Form form={form} {...layout}>
-        {activeBioDataTab == "academic_info" && <AcademicInfo form={form} />}
-        {activeBioDataTab == "personal_info" && <PersonalInfo form={form} />}
-        {activeBioDataTab == "transcript_settings" && <TranscriptSettings />}
-
+       <Form form={form} {...layout}>
+          <div style={{ display: activeBioDataTab === "academic_info" ? "block" : "none" }}>
+            <AcademicInfo form={form} />
+          </div>
+          <div style={{ display: activeBioDataTab === "personal_info" ? "block" : "none" }}>
+            <PersonalInfo form={form} />
+          </div>
+          <div style={{ display: activeBioDataTab === "transcript_settings" ? "block" : "none" }}>
+            <TranscriptSettings />
+          </div>
         </Form>
       </div>
     </div>

@@ -8,14 +8,14 @@ const GET_ADMISSION_LEVELS = gql`
       admission_level_description
       id
       created_user {
-        title
-        staff_name
+        other_names
+        surname
         id
       }
       modified_user {
+        other_names
+        surname
         id
-        staff_name
-        title
       }
       created_by
       modified_by
@@ -36,14 +36,14 @@ const GET_SCHEMES = gql`
       modified_on
       description
       created_user {
+        other_names
+        surname
         id
-        staff_name
-        title
       }
       modified_user {
+        other_names
+        surname
         id
-        staff_name
-        title
       }
     }
   }
@@ -104,13 +104,15 @@ const GET_RUNNING_ADMISSIONS = gql`
         admission_level_title
       }
       created_user {
-        title
-        staff_name
+        other_names
+        surname
+        id
       }
       modified_on
       modified_user {
-        staff_name
-        title
+        other_names
+        surname
+        id
       }
     }
   }
