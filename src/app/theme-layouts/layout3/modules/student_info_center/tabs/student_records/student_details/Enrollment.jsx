@@ -1,11 +1,26 @@
 import React, { useRef, useEffect } from "react";
 import { SmileOutlined } from "@ant-design/icons";
-import { Timeline, Badge, Card } from "antd";
+import {
+  Timeline,
+  Badge,
+  Card,
+  ConfigProvider,
+  Descriptions,
+  Typography
+} from "antd";
 import PerfectScrollbar from "perfect-scrollbar";
+import { useSelector } from "react-redux";
+import { selectStudentDetails } from "../../../store/infoCenterSlice";
+import formatDateString from "app/theme-layouts/layout3/utils/formatDateToDateAndTime";
 
 const Enrollment = () => {
   const scrollContainerRef = useRef(null);
   const psRef = useRef(null);
+  const studentDetails = useSelector(selectStudentDetails);
+
+  const enrollmentHist = studentDetails?.enrollment_history.filter(
+    (enrollment) => enrollment.active && enrollment.enrollment_status.id !== "6"
+  );
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -51,476 +66,142 @@ const Enrollment = () => {
           overflow: "hidden", // Hide default scrollbars
         }}
       >
-        <Timeline
-          // style={{
-          //   paddingTop: 10,
-          // }}
-          items={[
-            {
-              color: "green",
+        <ConfigProvider
+          theme={{
+            components: {
+              Timeline: {
+                tailColor: "lightgray",
+              },
+              Card: {
+                headerBg: "#f4f4f4",
+                headerHeightSM: 38,
+              },
+            },
+          }}
+        >
+          <Timeline
+            items={enrollmentHist?.map((enrollment) => ({
+              color:
+                enrollment.study_yr == "1" &&
+                enrollment.sem == "1" &&
+                enrollment.enrollment_status.id == "1"
+                  ? "#00CCFF"
+                  : enrollment.enrollment_status.color_code,
+              dot:
+                enrollment.study_yr == "1" && enrollment.sem == "1" ? (
+                  <SmileOutlined />
+                ) : null,
               children: (
-                <Badge.Ribbon text="Continuing Student">
+                <Badge.Ribbon
+                  text={enrollment.enrollment_status.title}
+                  color={
+                    enrollment.study_yr == "1" &&
+                    enrollment.sem == "1" &&
+                    enrollment.enrollment_status.id == "1"
+                      ? "#00CCFF"
+                      : enrollment.enrollment_status.color_code
+                  }
+                >
                   <Card
-                    title="Year 3, Semester 1 (2023/2024)"
+                    key={"enrollment"}
+                    title={
+                      <Typography.Text strong>
+                        {`Year ${enrollment.study_yr}, Semester ${enrollment.sem} (${enrollment.acc_yr_title})`}
+                      </Typography.Text>
+                    }
                     size="small"
-                    type="inner"
+                    style={{
+                      borderColor: "lightgray",
+                      borderWidth: 1,
+                      color: "red",
+                    }}
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
+                    {enrollment.enrollment_status.id === "6" && (
+                      <div
                         style={{
-                          width: 150,
-                          // backgroundColor: "red",
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          backgroundColor: "rgba(0, 0, 0, 0.5)", // Transparent black overlay
+                          zIndex: 1,
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
                         }}
                       >
-                        Enrolled By:
-                      </span>
-                      <span>Self</span>
-                    </div>
-
-                    <div
+                        <span
+                          style={{
+                            color: "white",
+                            textAlign: "center",
+                            fontSize: "1.5rem", // Scaled for smaller screens
+                            fontWeight: "bold",
+                          }}
+                        >
+                          DEAD SEMESTER - YEAR {enrollment.study_yr}, SEMESTER{" "}
+                          {enrollment.sem}
+                        </span>
+                      </div>
+                    )}
+                    <Descriptions
+                      className="custom-descriptions"
+                      bordered
+                      size="small"
+                      items={[
+                        {
+                          key: "1",
+                          label: "Enrolled By",
+                          children:
+                            enrollment.enrolled_by_type == "student"
+                              ? "SELF"
+                              : enrollment.enrolled_by_user,
+                          span: 2,
+                        },
+                        {
+                          key: "6",
+                          label: "Invoiced",
+                          children: enrollment.invoiced ? "TRUE" : "FALSE",
+                          span: 2,
+                        },
+                        {
+                          key: "3",
+                          label: "Enrollment Token",
+                          children: enrollment.enrollment_token,
+                          span: 2,
+                        },
+                        {
+                          key: "6",
+                          label: "Enrollment Date",
+                          children: formatDateString(
+                            parseInt(enrollment.datetime)
+                          ),
+                          span: 2,
+                        },
+                      ]}
                       style={{
-                        display: "flex",
-                        marginBottom: 5,
+                        borderColor: "lightgray",
+                        borderWidth: 0.2,
+                        borderRadius: 10,
                       }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Invoiced:
-                      </span>
-                      <span>True</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
+                      labelStyle={{
+                        width: "40%",
+                        backgroundColor: "#e7edfe",
+                        color: "#0832b7",
+                        fontWeight: "bold",
                       }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Enrollment Token:
-                      </span>
-                      <span>{"ksabsaskjblssdbn,dnbadsjbsdbdjasbjkdj"}</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
+                      contentStyle={{
+                        borderBottomColor: "red",
+                        textAlign: "left",
                       }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Enrollment Date:
-                      </span>
-                      <span>{"MON 10 AUGUST 2024, 01:45 AM"}</span>
-                    </div>
+                      column={2}
+                    />
                   </Card>
                 </Badge.Ribbon>
               ),
-            },
-            {
-              color: "green",
-              children: (
-                <Badge.Ribbon text="Continuing Student">
-                  <Card
-                    title="Year 3, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                          // backgroundColor: "red",
-                        }}
-                      >
-                        Enrolled By:
-                      </span>
-                      <span>Self</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Invoiced:
-                      </span>
-                      <span>True</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Enrollment Token:
-                      </span>
-                      <span>{"ksabsaskjblssdbn,dnbadsjbsdbdjasbjkdj"}</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Enrollment Date:
-                      </span>
-                      <span>{"MON 10 AUGUST 2024, 01:45 AM"}</span>
-                    </div>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-            {
-              color: "red",
-              children: (
-                <Badge.Ribbon text="Continuing Student">
-                  <Card
-                    title="Year 3, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                          // backgroundColor: "red",
-                        }}
-                      >
-                        Enrolled By:
-                      </span>
-                      <span>Self</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Invoiced:
-                      </span>
-                      <span>True</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Enrollment Token:
-                      </span>
-                      <span>{"ksabsaskjblssdbn,dnbadsjbsdbdjasbjkdj"}</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Enrollment Date:
-                      </span>
-                      <span>{"MON 10 AUGUST 2024, 01:45 AM"}</span>
-                    </div>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-            {
-              children: (
-                <Badge.Ribbon text="Continuing Student">
-                  <Card
-                    title="Year 3, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                          // backgroundColor: "red",
-                        }}
-                      >
-                        Enrolled By:
-                      </span>
-                      <span>Self</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Invoiced:
-                      </span>
-                      <span>True</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Enrollment Token:
-                      </span>
-                      <span>{"ksabsaskjblssdbn,dnbadsjbsdbdjasbjkdj"}</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Enrollment Date:
-                      </span>
-                      <span>{"MON 10 AUGUST 2024, 01:45 AM"}</span>
-                    </div>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-            {
-              color: "gray",
-              children: (
-                <Badge.Ribbon text="Continuing Student">
-                  <Card
-                    title="Year 3, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                          // backgroundColor: "red",
-                        }}
-                      >
-                        Enrolled By:
-                      </span>
-                      <span>Self</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Invoiced:
-                      </span>
-                      <span>True</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Enrollment Token:
-                      </span>
-                      <span>{"ksabsaskjblssdbn,dnbadsjbsdbdjasbjkdj"}</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Enrollment Date:
-                      </span>
-                      <span>{"MON 10 AUGUST 2024, 01:45 AM"}</span>
-                    </div>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-
-            {
-              color: "#00CCFF",
-              dot: <SmileOutlined />,
-              children: (
-                <Badge.Ribbon text="New Student">
-                  <Card
-                    title="Year 3, Semester 1 (2023/2024)"
-                    size="small"
-                    type="inner"
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                          // backgroundColor: "red",
-                        }}
-                      >
-                        Enrolled By:
-                      </span>
-                      <span>Self</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Invoiced:
-                      </span>
-                      <span>True</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Enrollment Token:
-                      </span>
-                      <span>{"ksabsaskjblssdbn,dnbadsjbsdbdjasbjkdj"}</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        marginBottom: 5,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 150,
-                        }}
-                      >
-                        Enrollment Date:
-                      </span>
-                      <span>{"MON 10 AUGUST 2024, 01:45 AM"}</span>
-                    </div>
-                  </Card>
-                </Badge.Ribbon>
-              ),
-            },
-          ]}
-        />
+            }))}
+          />
+        </ConfigProvider>
       </div>
     </>
   );

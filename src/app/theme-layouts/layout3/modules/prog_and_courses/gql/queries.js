@@ -38,16 +38,19 @@ const GET_SCHOOLS = gql`
         college_code
       }
       added_user {
-        title
-        staff_name
+        id
+        surname
+        other_names
       }
       modified_user {
-        title
-        staff_name
+        id
+        surname
+        other_names
       }
       school_dean {
-        title
-        staff_name
+        id
+        surname
+        other_names
       }
     }
   }
@@ -62,8 +65,9 @@ const GET_DEPARTMENTS = gql`
       dpt_code
       school_id
       department_head {
-        title
-        staff_name
+        id
+        surname
+        other_names
       }
       school {
         school_title
@@ -71,12 +75,14 @@ const GET_DEPARTMENTS = gql`
       }
       added_on
       added_user {
-        title
-        staff_name
+        id
+        surname
+        other_names
       }
       modified_user {
-        title
-        staff_name
+        id
+        surname
+        other_names
       }
     }
   }
@@ -170,12 +176,14 @@ const GET_COURSE_UNITS = gql`
       added_on
       last_modified_on
       added_user {
-        title
-        staff_name
+        id
+        surname
+        other_names
       }
       last_modified_user {
-        title
-        staff_name
+        id
+        surname
+        other_names
       }
     }
   }

@@ -13,6 +13,7 @@ import {
   selectAdmittedStdsSelectedRowKey,
   selectAdmittedStdsSummary,
   selectRefetchAdmittedStudents,
+  setAdmittedSearchActive,
   setAdmittedStds,
   setAdmittedStdsCurrentPage,
   setAdmittedStdsSelectedRowKey,
@@ -163,6 +164,7 @@ const DemoSidebar = React.memo(({ refetch, isRefetching }) => {
     // dispatch(setSelectedAdmittedStdsRowKeys(row));
     dispatch(setSelectedAdmittedStdsSummary(row));
     dispatch(setAdmittedStdsCurrentPage(1));
+    dispatch(setAdmittedSearchActive(false))
 
     const res = await loadAdmittedStudents({
       variables: {

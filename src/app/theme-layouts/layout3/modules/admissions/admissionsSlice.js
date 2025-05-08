@@ -103,6 +103,11 @@ const initialState = {
   selectedAdmittedStudent: null,
   refetchAdmittedStudents: false,
   importApplicantsModalVisible: false,
+  searchActive: false,
+  applicantSearchValue: "",
+  admittedSearchActive: false,
+  admittedSearchValue: "",
+  refetchApplicants: false,
 };
 /**
  * The File Manager App slice.
@@ -295,6 +300,21 @@ export const admissionsAppSlice = createSlice({
     setAdmittedStdsCurrentPage: (state, action) => {
       state.admittedStdsCurrentPage = action.payload;
     },
+    setSearchActive: (state, action) => {
+      state.searchActive = action.payload;
+    },
+    setApplicantSearchValue: (state, action) => {
+      state.applicantSearchValue = action.payload;
+    },
+    setAdmittedSearchActive: (state, action) => {
+      state.admittedSearchActive = action.payload;
+    },
+    setAdmittedSearchValue: (state, action) => {
+      state.admittedSearchValue = action.payload;
+    },
+    setRefetchApplicants: (state, action) => {
+      state.refetchApplicants = action.payload;
+    }
   },
   selectors: {
     selectSchemes: (state) => state.schemes,
@@ -373,6 +393,11 @@ export const admissionsAppSlice = createSlice({
     selectApplicantsCurrentPage: (state) => state.applicantsCurrentPage,
     selectTotalAdmittedStds: (state) => state.totalAdmittedStds,
     selectAdmittedStdsCurrentPage: (state) => state.admittedStdsCurrentPage,
+    selectSearchActive: (state) => state.searchActive,
+    selectApplicantSearchValue: (state) => state.applicantSearchValue,
+    selectAdmittedSearchActive: (state) => state.admittedSearchActive,
+    selectAdmittedSearchValue: (state) => state.admittedSearchValue,
+    selectRefetchApplicants: (state) => state.refetchApplicants,
   },
 });
 /**
@@ -440,6 +465,11 @@ export const {
   setApplicantsCurrentPage,
   setTotalAdmittedStds,
   setAdmittedStdsCurrentPage,
+  setSearchActive,
+  setApplicantSearchValue,
+  setAdmittedSearchActive,
+  setAdmittedSearchValue,
+  setRefetchApplicants,
 } = admissionsAppSlice.actions;
 export const {
   selectSchemes,
@@ -501,5 +531,10 @@ export const {
   selectApplicantsCurrentPage,
   selectTotalAdmittedStds,
   selectAdmittedStdsCurrentPage,
+  selectSearchActive,
+  selectApplicantSearchValue,
+  selectAdmittedSearchActive,
+  selectAdmittedSearchValue,
+  selectRefetchApplicants,
 } = injectedSlice.selectors;
 export default admissionsAppSlice.reducer;

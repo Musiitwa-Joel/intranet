@@ -26,9 +26,11 @@ import {
   selectAdmitStdsModalVisible,
   selectApplicantsAdmissionList,
   selectApplicantsCurrentPage,
+  selectApplicantSearchValue,
   selectApplicationPreviewModalOpen,
   selectApplications,
   selectLoadingApplications,
+  selectSearchActive,
   selectSelectedApplicantSummary,
   selectSelectedApplications,
   selectSelectedRowKeys,
@@ -36,10 +38,13 @@ import {
   setAdmitStdsModalVisible,
   setApplicanntsAdmissionListModal,
   setApplicantsCurrentPage,
+  setApplicantSearchValue,
   setApplicationForm,
   setApplicationPreviewModalOpen,
   setApplications,
   setImportApplicantsModalVisible,
+  setLoadingApplications,
+  setSearchActive,
   setSelectedApplications,
   setSelectedRowKeys,
   setTotalApplicants,
@@ -198,15 +203,18 @@ function AdmissionsDataTable() {
   const currentPage = useSelector(selectApplicantsCurrentPage);
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [sortColumns, setSortColumns] = useState([]);
+  const searchActive = useSelector(selectSearchActive)
+  const applicantSearchValue = useSelector(selectApplicantSearchValue)
 
-  const [loadApplications, { error: loadFormsErr, loading: loadingForms }] =
+  const [loadApplications, { error: loadFormsErr, loading: loadingForms, refetch: refetchForms }] =
     useLazyQuery(LOAD_APPLICATIONS, {
       notifyOnNetworkStatusChange: true, // Essential for accurate loading state
+      fetchPolicy: "no-cache",
     });
 
   const [
     globalSearchApplications,
-    { error: globalErr, loading: searchingGlobally },
+    { error: globalErr, loading: searchingGlobally, refetch: searchRefetch  },
   ] = useLazyQuery(GLOBAL_SEARCH, {
     fetchPolicy: "network-only",
   });
@@ -435,7 +443,7 @@ function AdmissionsDataTable() {
           },
           {
             name: "Alias",
-            key: "code",
+            key: "alias",
             renderCell({ row, rowIdx }) {
               return renderRow(row, row.program_choices[0].course.course_code);
             },
@@ -459,6 +467,8 @@ function AdmissionsDataTable() {
       limit: pageSize, // Number of records per page
     };
 
+    dispatch(setSearchActive(false));
+
     const res = await loadApplications({
       variables: payload,
     });
@@ -474,6 +484,9 @@ function AdmissionsDataTable() {
       return;
     }
 
+    dispatch(setSearchActive(true))
+    dispatch(setApplicantSearchValue(value))
+
     dispatch(setApplicantsCurrentPage(1));
 
     const payload = {
@@ -488,8 +501,6 @@ function AdmissionsDataTable() {
     const response = await globalSearchApplications({
       variables: payload,
     });
-
-    console.log("response", response.data);
 
     if (response.data) {
       dispatch(setTotalApplicants(response.data.global_search.total_records));
@@ -646,6 +657,56 @@ function AdmissionsDataTable() {
     selectedRows.clear();
   }, [applications]);
 
+  const handleReload = async () => {
+    try {
+      // Set loading state
+      dispatch(setLoadingApplications(true));
+      
+      let response;
+      
+      if (searchActive && applicantSearchValue) {
+        // If search was active and we have a search value
+        response = await searchRefetch({
+          searchCriteria: selectedCriteria,
+          searchValue: applicantSearchValue,
+          admissionsId: null,
+          admitted: false,
+          start: (currentPage - 1) * pageSize,
+          limit: pageSize,
+        });
+        
+        if (response?.data?.global_search) {
+          dispatch(setTotalApplicants(response.data.global_search.total_records));
+          dispatch(setApplications(response.data.global_search.applications || []));
+        }
+      } else {
+        // If no search or no search value, use regular fetch
+        if (!selectedCourseGroup?.admissions_id) {
+          dispatch(
+            showMessage({
+              message: "No course group selected",
+              variant: "error",
+            })
+          );
+          return;
+        }
+
+        await fetchApplications(currentPage);
+      
+      }
+    } catch (error) {
+      dispatch(
+        showMessage({
+          message: error.message || "Failed to reload data",
+          variant: "error",
+        })
+      );
+    } finally {
+      // Reset loading state
+      dispatch(setLoadingApplications(false));
+    }
+  };
+
   return (
     <div
       style={{
@@ -685,13 +746,7 @@ function AdmissionsDataTable() {
           <Space>
             <Tooltip title="Reload">
               <Refresh
-                onClick={async () => {
-                  await refetch();
-                  console.log("refetch...");
-                  // if (networkStatus === NetworkStatus.refetch) {
-                  //   console.log("Refetching...");
-                  // }
-                }}
+                onClick={handleReload}
                 fontSize=""
                 color="white"
                 style={{
@@ -753,6 +808,8 @@ function AdmissionsDataTable() {
             <Search
               placeholder="Global Search"
               onSearch={onSearch}
+              value={applicantSearchValue}
+              onChange={(e) => dispatch(setApplicantSearchValue(e.target.value))} 
               size="small"
               style={{
                 width: 200,
