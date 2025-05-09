@@ -210,6 +210,16 @@ const emailTemplateRegistry = [
       { name: "recipientName", label: "Recipient Name", required: true },
     ],
   },
+  {
+    id: "gradclearence",
+    name: "Graduation Clearence",
+    category: "special",
+    subject: "[Nkumba University] Graduation Clearence!",
+    description: "Graduation Clearence for students and staff",
+    variables: [
+      { name: "recipientName", label: "Recipient Name", required: true },
+    ],
+  },
 ];
 
 export default emailTemplateRegistry;

@@ -49,19 +49,7 @@ function ProjectDashboardAppHeader(props) {
   const projects = [
     {
       id: 1,
-      name: "ACME Corp. Backend App",
-    },
-    {
-      id: 2,
-      name: "ACME Corp. Frontend App",
-    },
-    {
-      id: 3,
-      name: "Creapond",
-    },
-    {
-      id: 4,
-      name: "Withinpixels",
+      name: "Home",
     },
   ];
   const user = useSelector((state) => state.user.user);
@@ -178,13 +166,13 @@ function ProjectDashboardAppHeader(props) {
         >
           {_.find(projects, ["id", selectedProject.id]).name}
         </Button>
-        <Menu
+        {/* <Menu
           id="project-menu"
           anchorEl={selectedProject.menuEl}
           open={Boolean(selectedProject.menuEl)}
           onClose={handleCloseProjectMenu}
-        >
-          {projects &&
+        > */}
+        {/* {projects &&
             projects.map((project) => (
               <MenuItem
                 key={project.id}
@@ -194,8 +182,8 @@ function ProjectDashboardAppHeader(props) {
               >
                 {project.name}
               </MenuItem>
-            ))}
-        </Menu>
+            ))} */}
+        {/* </Menu> */}
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import clsx from "clsx";
 import FuseSvgIcon from "@fuse/core/FuseSvgIcon";
+import { ALargeSmall } from "lucide-react";
 
 const marks = [
   { value: 0.7, label: "70%" },

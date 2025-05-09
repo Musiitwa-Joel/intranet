@@ -63,7 +63,7 @@ function FooterLayout3(props) {
 
     const exists = checkAppExistence(taskBarApps, "route", app.route);
 
-    console.log("exists", exists);
+    // console.log("exists", exists);
 
     dispatch(appExistsInTaskBar(exists));
 
