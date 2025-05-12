@@ -1,9 +1,9 @@
 import React from "react";
 import "./programs.css";
-import StudentRecords from "./StudentRecords";
+import StudentRecords from "./Panel";
 import { ConfigProvider, theme } from "antd";
 
-function ElectionManagement() {
+function Voters() {
   return (
     <ConfigProvider
       theme={{
@@ -15,4 +15,4 @@ function ElectionManagement() {
   );
 }
 
-export default ElectionManagement;
+export default Voters;

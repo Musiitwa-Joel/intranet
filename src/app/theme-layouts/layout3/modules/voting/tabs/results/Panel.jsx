@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import AllCourses from "./AllCourses";
+import AllCourses from "./SidePanel";
 import { Box } from "@mui/material";
 import { Button, Space, Tooltip } from "antd";
 import {
@@ -14,17 +14,13 @@ import {
   Upload,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import StudentDetails from "./StudentDetails";
-import StudentInfoModal from "./StudentInfoModal";
-import StudentSearchModal from "./StudentSearchModal";
+import StudentDetails from "./ResultsDetails";
 import {
   setAddStudentModalVisible,
   setReloadStdCourses,
   setStudentSearchModalVisible,
   setUploadStudentsModalVisible,
 } from "../../store/VotingSlice";
-import AddNewStudentModal from "./student_details/AddNewStudentModal";
-import UploadStudentsModal from "./student_details/UploadStudentsModal";
 
 // import TestTable from "./TestTable";
 
@@ -71,10 +67,6 @@ function StudentRecords() {
           {/* <TestTable2 /> */}
         </Panel>
       </PanelGroup>
-      <StudentInfoModal />
-      <StudentSearchModal />
-      <AddNewStudentModal />
-      <UploadStudentsModal />
     </div>
   );
 }

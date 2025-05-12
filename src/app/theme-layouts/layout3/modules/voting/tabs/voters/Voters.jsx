@@ -1,6 +1,6 @@
 import React from "react";
 import "./programs.css";
-import StudentRecords from "./StudentRecords";
+import StudentRecords from "./VoterRecords";
 import { ConfigProvider, theme } from "antd";
 
 function Voters() {

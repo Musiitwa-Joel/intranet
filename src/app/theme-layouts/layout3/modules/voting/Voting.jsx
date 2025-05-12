@@ -7,6 +7,7 @@ import { selectActiveTab, setActiveTab } from "./store/VotingSlice";
 import VoterDashboard from "./tabs/dashboard/dashboard";
 import Elections from "./tabs/elections/ElectionManagement";
 import Voters from "./tabs/voters/Voters";
+import Results from "./tabs/results/Results";
 // import Candidates from "./tabs/candidates/Candidates";
 // import Users from "./tabs/users/Users";
 import AppNav from "../../components/AppNav";
@@ -50,7 +51,7 @@ function Voting() {
           {activeTab === 0 && <VoterDashboard />}
           {activeTab === 1 && <Elections />}
           {activeTab === 2 && <Voters />}
-          {/* {activeTab === 3 && <Candidates />} */}
+          {activeTab === 3 && <Results />}
           {/* {activeTab === 4 && <Users />} */}
         </Box>
       </Suspense>
