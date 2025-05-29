@@ -127,6 +127,10 @@ const Examinations = lazy(
   () => import("app/theme-layouts/layout3/modules/examinations/Examinations")
 );
 
+const UserGuide = lazy(
+  () => import("app/theme-layouts/layout3/modules/user_guide/UserGuide")
+);
+
 const MemoizedProgramsAndCourses = memo(ProgramsAndCourses);
 const MemoizedAdmissions = memo(Admissions);
 const MemoizedSetup = memo(Setup);
@@ -149,7 +153,8 @@ const MemoizedLibrary = memo(Library);
 
 const MemoizedMedia = memo(Media);
 const MemoizedTimetable = memo(Timetable);
-const MemoizedExaminations= memo(Examinations);
+const MemoizedExaminations = memo(Examinations);
+const MemoizedUserGuide = memo(UserGuide);
 
 const routeConfigs = [ExampleConfig, SignOutConfig, SignInConfig, SignUpConfig];
 /**
@@ -359,6 +364,15 @@ const routes = [
       </ProtectedRoute>
     ),
   },
+  {
+    path: "user_guide",
+    element: (
+      <ProtectedRoute>
+        <MemoizedUserGuide />
+      </ProtectedRoute>
+    ),
+  },
+
   {
     path: "404",
     element: <Error404Page />,
